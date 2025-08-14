@@ -16,3 +16,18 @@ All contributions must align with:
 4. Ensure all tests pass locally:
    ```bash
    pnpm -r test
+   5.	Submit a pull request with:
+	•	A clear description of the change
+	•	Any related issue numbers
+
+Code Style
+	•	TypeScript: ESLint (strict), Prettier
+	•	Python: Ruff + Black
+	•	Commit messages follow Conventional Commits
+
+Prohibited Contributions
+
+We do not accept:
+	•	Code that introduces non-consensual monitoring
+	•	Code that transmits sensitive data to external servers
+	•	Dependencies on non-self-hosted, proprietary services for core features
