@@ -1,41 +1,38 @@
 # NovaOS-Core-Systems
 
-NovaOS-Core-Systems is the sovereign AI operating system powering all connected platforms — including Black Rose Collective, GypsyCove, and NovaGhost. Built to the **Sovereign Standard**, it operates entirely offline, integrates multi-agent AI orchestration, and enforces maximum privacy, encryption, and control.
+🚨 **PRIVATE REPOSITORY – INVITE ONLY** 🚨  
+Access to this repository is strictly controlled. Unauthorized use or distribution is prohibited.
 
----
+NovaOS-Core-Systems is the sovereign AI operating system powering:
+- **NovaOS** – The core sovereign AI architecture
+- **Black Rose Collective** – Secure creator & content platform
+- **GypsyCove** – Private family/homeschool management system
+
+## 🚀 Sovereign Standard
+Built to the **Sovereign Standard**:
+- Total founder control
+- Local-first architecture (no core dependency on cloud)
+- AES-512 + PQ encryption
+- Zero-trust role-based access
+- AI agents deeply integrated across all domains
+
 ## 📂 Project Structure
-├── core/              # OS core logic, orchestration, directives
-├── tools/             # Installed system tools and frameworks
-├── ai_models/         # Local AI models (GGUF, fine-tuned LLMs)
-├── vaults/            # Encrypted storage
-├── modules/           # Platform-specific modules (Black Rose, GypsyCove, NovaGhost)
-├── scripts/           # Automation and CLI scripts
-├── tests/             # Unit and integration tests
-├── .gitignore
-├── LICENSE
-├── SECURITY.md
-├── CONTRIBUTING.md
-└── README.md
+- `/agents` – Role-specific AI agents
+- `/core` – NovaOS kernel modules
+- `/modules` – Feature modules for platforms
+- `/tools` – Internal/local tools (ignored in repo)
+- `/ai_models` – Local AI model files (ignored in repo)
 
----
+## 🛡 Security Principles
+- No external telemetry
+- All processing is local or on founder-controlled infrastructure
+- No placeholders – every feature is production-ready
+- GodMode for founder access (unlogged, unrestricted)
 
-## 🔑 Key Features
-- **GodMode** — Absolute control for founder without logging  
-- **Multi-Agent Architecture** — Each agent specialized in a domain (security, education, forensics, automation)  
-- **Forensic + Anti-Forensic Tools** — Digital fingerprinting, honeypots, timestamp mismatch detection  
-- **Role-Based Access Control** — Fine-grained permissions for each admin and user  
-- **Offline-First AI** — All models run locally, no cloud dependencies  
-- **Adaptive Encryption** — AES-512 + post-quantum readiness  
-- **Dynamic Plugin System** — Hot-swappable modules without system downtime  
+## 🤝 Contributing
+Contribution is **invite-only**.  
+To request consideration, contact the owner with credentials and purpose.
 
----
-
-## 📜 Documentation & Policies
-- [.gitignore](.gitignore) — Tracks ignored files, sensitive configs, and model weights  
-- [LICENSE](LICENSE) — NovaOS Sovereign License  
-- [SECURITY.md](SECURITY.md) — Security policy, encryption standards, and vulnerability reporting  
-- [CONTRIBUTING.md](CONTRIBUTING.md) — Rules and workflow for approved contributors  
-
----
-
-© 2025 Ty (NacktGem) & Black Rose Collective — All Rights Reserved
+## 📜 License
+See [LICENSE](LICENSE) for details.  
+**All rights reserved.** Unauthorized use will be prosecuted.
