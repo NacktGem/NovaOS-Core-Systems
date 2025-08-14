@@ -1,55 +1,54 @@
-# OS junk
-Thumbs.db
-Desktop.ini
+# NovaOS-Core-Systems — .gitignore
+# Ignoring sensitive, local, and generated files
+
+# OS & Editor
 .DS_Store
-$RECYCLE.BIN/
+Thumbs.db
+*.swp
+.vscode/
+.idea/
 
-# Node / JS
-node_modules/
-dist/
-build/
-.pnp/
-.pnp.js
-.pnpm-debug.log
-.npmrc
-.yarn*
-*.tsbuildinfo
-
-# Python
+# Python / Virtual Environments
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-*.egg-info/
-.eggs/
-.env
-.venv/
+env/
 venv/
-ENV/
-env.bak/
+.venv/
 pip-wheel-metadata/
 
-# IDE / Editor
-.vscode/
-.idea/
-*.swp
-*.swo
+# Node.js
+node_modules/
+npm-debug.log
 
-# Environment & secrets
-.env
-.env.*
-*.key
-*.pem
+# Model Weights & AI Outputs
+ai_models/*.gguf
+ai_models/*.bin
+ai_models/*.pth
+ai_models/*.safetensors
+ai_models/cache/
+ai_models/checkpoints/
 
-# NovaOS ignored dirs
-vaults/
-ai_models/
-artifacts/
-tools/
-
-# Logs
+# Logs & Temp Files
 logs/
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+*.tmp
+*.bak
+
+# Encrypted Vaults
+vaults/*.enc
+vaults/*.lock
+
+# Local Testing & Build Artifacts
+dist/
+build/
+.cache/
+*.egg-info/
+
+# Security
+*.pem
+*.key
+*.crt
+config/local_settings.py
+config/secrets.json
