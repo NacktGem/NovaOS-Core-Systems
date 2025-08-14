@@ -1,49 +1,42 @@
-# 🖤 NovaOS — Sovereign AI Operating System
+# NovaOS-Core-Systems
 
-NovaOS is the core operating framework powering **Black Rose Collective** and **GypsyCove Academy** — designed to the **Sovereign Standard** for total autonomy, privacy, and capability.
-
----
-
-## 🔒 Sovereign Standard Principles
-- **Total Control** — All systems run locally or on Founder-owned infrastructure.
-- **Peak Capability** — Production-grade features from day one. No placeholders.
-- **Security First** — AES-512 + PQ encryption, zero-trust architecture, forensic monitoring.
-- **Elegant Modularity** — Role-specialized AI agents, hot-swappable tools.
-- **Scalable** — From personal workstation to global-scale deployment.
-- **Creative Freedom** — No censorship, complete platform sovereignty.
+NovaOS-Core-Systems is the sovereign AI operating system powering all connected platforms — including Black Rose Collective, GypsyCove, and NovaGhost. Built to the **Sovereign Standard**, it operates entirely offline, integrates multi-agent AI orchestration, and enforces maximum privacy, encryption, and control.
 
 ---
 
-## 🧠 Core AI Agents
-- **Nova** — Primary orchestrator & intelligence core.
-- **Glitch** — Forensics + Anti-forensics.
-- **Lyra** — Education + Curriculum AI.
-- **Velora** — Automation & process orchestration.
-- **Audita** — Finance, tax, and audit intelligence.
-- **Riven** — Security & counter-surveillance.
-- **Echo** — Comms, media, and OS integration.
+## 📂 Project Structure
+├── core/              # OS core logic, orchestration, directives
+├── tools/             # Installed system tools and frameworks
+├── ai_models/         # Local AI models (GGUF, fine-tuned LLMs)
+├── vaults/            # Encrypted storage
+├── modules/           # Platform-specific modules (Black Rose, GypsyCove, NovaGhost)
+├── scripts/           # Automation and CLI scripts
+├── tests/             # Unit and integration tests
+├── .gitignore
+├── LICENSE
+├── SECURITY.md
+├── CONTRIBUTING.md
+└── README.md
 
 ---
 
-## 📂 Repository Structure
-NovaOS/
-│
-├── agents/          # AI agents (Nova, Glitch, Lyra, etc.)
-├── modules/         # Sovereign Standard modules
-├── tools/           # Installed external tools
-├── ai_models/       # Local LLMs (ignored in Git)
-├── config/          # Config templates (no secrets)
-├── scripts/         # Utility scripts
-└── docs/            # Documentation & blueprints
+## 🔑 Key Features
+- **GodMode** — Absolute control for founder without logging  
+- **Multi-Agent Architecture** — Each agent specialized in a domain (security, education, forensics, automation)  
+- **Forensic + Anti-Forensic Tools** — Digital fingerprinting, honeypots, timestamp mismatch detection  
+- **Role-Based Access Control** — Fine-grained permissions for each admin and user  
+- **Offline-First AI** — All models run locally, no cloud dependencies  
+- **Adaptive Encryption** — AES-512 + post-quantum readiness  
+- **Dynamic Plugin System** — Hot-swappable modules without system downtime  
 
 ---
 
-## ⚠️ Security & Privacy
-NovaOS is **not** a cloud service. It is a sovereign system — your data, your rules.  
-Default configs are hardened for **founder-grade** security.
+## 📜 Documentation & Policies
+- [.gitignore](.gitignore) — Tracks ignored files, sensitive configs, and model weights  
+- [LICENSE](LICENSE) — NovaOS Sovereign License  
+- [SECURITY.md](SECURITY.md) — Security policy, encryption standards, and vulnerability reporting  
+- [CONTRIBUTING.md](CONTRIBUTING.md) — Rules and workflow for approved contributors  
 
 ---
 
-## 📜 License
-This project is licensed under a **non-commercial, no-AI-training license**.  
-See [LICENSE](LICENSE) for details.
+© 2025 Ty (NacktGem) & Black Rose Collective — All Rights Reserved
