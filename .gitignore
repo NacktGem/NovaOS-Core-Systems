@@ -1,0 +1,55 @@
+# OS junk
+Thumbs.db
+Desktop.ini
+.DS_Store
+$RECYCLE.BIN/
+
+# Node / JS
+node_modules/
+dist/
+build/
+.pnp/
+.pnp.js
+.pnpm-debug.log
+.npmrc
+.yarn*
+*.tsbuildinfo
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+.env
+.venv/
+venv/
+ENV/
+env.bak/
+pip-wheel-metadata/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment & secrets
+.env
+.env.*
+*.key
+*.pem
+
+# NovaOS ignored dirs
+vaults/
+ai_models/
+artifacts/
+tools/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
