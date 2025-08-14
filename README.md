@@ -3,7 +3,6 @@
 NovaOS-Core-Systems is the sovereign AI operating system powering all connected platforms — including Black Rose Collective, GypsyCove, and NovaGhost. Built to the **Sovereign Standard**, it operates entirely offline, integrates multi-agent AI orchestration, and enforces maximum privacy, encryption, and control.
 
 ---
-
 ## 📂 Project Structure
 ├── core/              # OS core logic, orchestration, directives
 ├── tools/             # Installed system tools and frameworks
