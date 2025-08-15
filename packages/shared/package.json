@@ -1,7 +1,8 @@
 {
-  "name": "@nova/shared",
-  "version": "0.1.0",
+codex/create-and-organize-monorepo-file-structure
+  "name": "@novaos/shared",
+  "version": "1.0.0",
   "type": "module",
-  "main": "index.js",
+  "main": "index.ts",
   "license": "SEE LICENSE IN ../../LICENSE"
-}
+

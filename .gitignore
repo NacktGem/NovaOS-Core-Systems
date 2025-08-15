@@ -11,10 +11,23 @@ __pycache__/
 *.pyc
 
 # Untracked directories
-vaults/
-ai_models/
-artifacts/
-tools/
+vaults/*
+!vaults/.gitkeep
+!vaults/keys/
+!vaults/keys/.gitkeep
+!vaults/backups/
+!vaults/backups/.gitkeep
+!vaults/states/
+!vaults/states/.gitkeep
+
+ai_models/*
+!ai_models/.gitkeep
+
+artifacts/*
+!artifacts/.gitkeep
+
+tools/*
+!tools/.gitkeep
 
 # Environment
 .env
