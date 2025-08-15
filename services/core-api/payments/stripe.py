@@ -8,7 +8,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker
 
 from .base import PaymentProvider
-from state import user_flag_cache
+from ..state import user_flag_cache
 
 DATABASE_URL = "postgresql+psycopg://postgres:postgres@localhost/novaos"
 engine = sa.create_engine(DATABASE_URL, future=True)
