@@ -2,13 +2,32 @@ import json
 import logging
 import math
 import uuid
+codex/remove-codex-references-from-test_core_api.py
+import os
+from datetime import datetime, date
+
 from datetime import date, datetime
 from pathlib import Path
+ main
 from types import SimpleNamespace
 from typing import Any, Dict, List, Optional
 
 import bcrypt
 import sqlalchemy as sa
+codex/remove-codex-references-from-test_core_api.py
+from sqlalchemy import select
+from sqlalchemy.orm import Session, sessionmaker
+from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
+from starlette.middleware.base import BaseHTTPMiddleware
+from pydantic import BaseModel, EmailStr
+
+from .payments.crypto_btcpay import BTCPayProvider
+from .payments.stripe import StripeProvider
+from .payments.base import PaymentProvider
+from .state import user_flag_cache
+
+
+
 from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
@@ -20,6 +39,7 @@ from payments.crypto_btcpay import BTCPayProvider
 from payments.stripe import StripeProvider
 from state import user_flag_cache
 
+main
 DATABASE_URL = "postgresql+psycopg://postgres:postgres@localhost/novaos"
 engine = sa.create_engine(DATABASE_URL, future=True)
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False, future=True)
@@ -149,7 +169,12 @@ def get_provider(db: Session) -> PaymentProvider:
     if crypto_flag:
         return BTCPayProvider()
     raise ProviderError(status_code=503, detail='no payment provider')
+codex/remove-codex-references-from-test_core_api.py
+
+
+
  
+ main
 @app.post('/auth/register', response_model=UserOut)
 def register(data: RegisterRequest, request: Request, response: Response, db: Session = Depends(get_db)):
     verify_csrf(request)
@@ -241,7 +266,11 @@ def flag_visible(scope: str, role: str) -> bool:
 
 
 @app.get('/feature-flags', response_model=List[FeatureFlagOut])
+codex/remove-codex-references-from-test_core_api.py
+def get_feature_flags(user: Optional[SimpleNamespace] = Depends(require_user)):
+
 def get_feature_flags(user: SimpleNamespace = Depends(require_user)):
+ main
     return [FeatureFlagOut(**row.__dict__) for row in select_flags(user.role, user.id)]
 
 
