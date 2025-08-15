@@ -1,7 +1,9 @@
 {
+codex/create-and-organize-monorepo-file-structure
   "name": "@novaos/ui",
   "version": "1.0.0",
   "type": "module",
   "main": "index.ts",
-  "license": "MIT"
+  "license": "SEE LICENSE IN ../../LICENSE"
+ main
 }

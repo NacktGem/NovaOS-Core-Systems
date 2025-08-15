@@ -22,17 +22,17 @@ export async function getFeatureFlags() {
 }
 
 export async function getPalettes() {
-  return apiFetch('/palettes');
+  return apiFetch('/me/palettes');
 }
 
 export async function getSovereignStatus() {
-  return apiFetch('/sovereign/status');
+  return apiFetch('/me/sovereign');
 }
 
 export async function subscribe(tierKey: string) {
   return apiFetch('/billing/subscribe', {
     method: 'POST',
-    body: JSON.stringify({ tierKey }),
+    body: JSON.stringify({ tier_key: tierKey }),
   });
 }
 
