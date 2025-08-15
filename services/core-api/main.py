@@ -16,10 +16,10 @@ from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from starlette.middleware.base import BaseHTTPMiddleware
 from pydantic import BaseModel, EmailStr
 
-from payments.crypto_btcpay import BTCPayProvider
-from payments.stripe import StripeProvider
-from payments.base import PaymentProvider
-from state import user_flag_cache
+from .payments.crypto_btcpay import BTCPayProvider
+from .payments.stripe import StripeProvider
+from .payments.base import PaymentProvider
+from .state import user_flag_cache
 
 
 DATABASE_URL = "postgresql+psycopg://postgres:postgres@localhost/novaos"

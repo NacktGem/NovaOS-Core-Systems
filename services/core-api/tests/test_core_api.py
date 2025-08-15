@@ -2,14 +2,20 @@ import logging
 import sys
 import uuid
 from datetime import datetime
-import pathlib
+from pathlib import Path
+import importlib.util
 
 import bcrypt
 import sqlalchemy as sa
 from fastapi.testclient import TestClient
 
-sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
-import main as core
+core_dir = Path(__file__).resolve().parents[1]
+spec = importlib.util.spec_from_file_location(
+    "core", core_dir / "main.py", submodule_search_locations=[str(core_dir)]
+)
+core = importlib.util.module_from_spec(spec)
+sys.modules["core"] = core
+spec.loader.exec_module(core)
 
 app = core.app
 sessions = core.sessions
