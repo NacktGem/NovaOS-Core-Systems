@@ -30,20 +30,12 @@ export default function PurchasePaletteCard({ palette, onOwned }: { palette: Pal
       </div>
       <div className="font-semibold">{palette.name}</div>
       {palette.owned ? (
- codex/implement-payments-ui-for-crypto/manual
         <span className="text-success text-sm">Owned</span>
-
-        <span className="text-green-400 text-sm">Owned</span>
- main
       ) : (
         <button
           onClick={handleBuy}
           disabled={loading}
-codex/implement-payments-ui-for-crypto/manual
           className="mt-2 px-3 py-1 bg-brand text-white rounded disabled:opacity-50"
-
-          className="mt-2 px-3 py-1 bg-blue-600 text-white rounded disabled:opacity-50"
- main
         >
           {loading ? 'Buying…' : 'Buy $3'}
         </button>

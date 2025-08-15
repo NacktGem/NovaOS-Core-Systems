@@ -4,12 +4,22 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 import importlib.util
+codex/remove-codex-references-from-test_core_api.py
+
+import pathlib
+import sys
+ main
 
 import bcrypt
 import sqlalchemy as sa
 from fastapi.testclient import TestClient
 
+codex/remove-codex-references-from-test_core_api.py
 core_dir = Path(__file__).resolve().parents[1]
+
+sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
+
+main
 spec = importlib.util.spec_from_file_location(
     "core", core_dir / "main.py", submodule_search_locations=[str(core_dir)]
 )
@@ -128,10 +138,16 @@ def test_palette_ownership():
         )
         db.commit()
     set_session(u2)
+codex/remove-codex-references-from-test_core_api.py
     res = client.get("/me/palettes")
     keys = {p["key"] for p in res.json()}
     assert {"midnight_rose", "obsidian_teal", "velvet_amber"}.issubset(keys)
 
+
+    res = client.get('/me/palettes')
+    keys = {p['key'] for p in res.json()}
+    assert {'midnight_rose', 'obsidian_teal', 'velvet_amber'}.issubset(keys)
+ main
 
 def test_manual_crypto_flow():
     sessions.clear()
@@ -145,9 +161,18 @@ def test_manual_crypto_flow():
         inv = db.execute(sa.select(invoices).where(invoices.c.user_id == user)).first()
         assert sub and sub.status == "active"
         assert inv is not None
+codex/remove-codex-references-from-test_core_api.py
     res = client.post("/billing/palette/midnight_rose/buy", headers={"X-CSRF-Token": "c"})
     pid = res.json()["payment_id"]
     client.post("/billing/crypto/webhook", json={"id": pid})
     res = client.get("/me/palettes")
     keys = {p["key"] for p in res.json()}
     assert "midnight_rose" in keys
+
+    res = client.post('/billing/palette/midnight_rose/buy', headers={'X-CSRF-Token': 'c'})
+    pid = res.json()['payment_id']
+    client.post('/billing/crypto/webhook', json={'id': pid})
+    res = client.get('/me/palettes')
+    keys = {p['key'] for p in res.json()}
+    assert 'midnight_rose' in keys
+ main
