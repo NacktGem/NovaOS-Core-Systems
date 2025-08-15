@@ -2,17 +2,21 @@ import json
 import logging
 import math
 import uuid
+codex/initialize-monorepo-structure-and-workspace
+import os
 from datetime import datetime, date
 from types import SimpleNamespace
 from typing import Any, Dict, List, Optional
+from pathlib import Path
 
-import bcrypt
-import sqlalchemy as sa
-from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
-from pydantic import BaseModel, EmailStr
-from sqlalchemy import select
-from sqlalchemy.orm import Session, sessionmaker
-from starlette.middleware.base import BaseHTTPMiddleware
+
+ codex/initialize-monorepo-structure-and-workspace
+from payments.crypto_btcpay import BTCPayProvider
+from payments.stripe import StripeProvider
+from payments.base import PaymentProvider
+from state import user_flag_cache
+
+main
 
 DATABASE_URL = "postgresql+psycopg://postgres:postgres@localhost/novaos"
 engine = sa.create_engine(DATABASE_URL, future=True)
@@ -26,6 +30,9 @@ tiers = sa.Table('tiers', metadata, schema='billing', autoload_with=engine)
 subscriptions = sa.Table('subscriptions', metadata, schema='billing', autoload_with=engine)
 palettes = sa.Table('palettes', metadata, schema='content', autoload_with=engine)
 palette_purchases = sa.Table('palette_purchases', metadata, schema='content', autoload_with=engine)
+codex/initialize-monorepo-structure-and-workspace
+invoices = sa.Table('invoices', metadata, schema='billing', autoload_with=engine)
+main
 feature_flags = sa.Table('feature_flags', metadata, schema='toggles', autoload_with=engine)
 
 ROLE_DEFAULT_PERMS: Dict[str, Dict[str, bool]] = {
@@ -35,6 +42,9 @@ ROLE_DEFAULT_PERMS: Dict[str, Dict[str, bool]] = {
 }
 
 sessions: Dict[str, uuid.UUID] = {}
+codex/initialize-monorepo-structure-and-workspace
+MEDIA_QUEUE = Path(__file__).resolve().parents[1]/ 'media-pipeline'/ 'jobs'/ 'queue.jsonl'
+main
 
 logger = logging.getLogger("core")
 logging.basicConfig(level=logging.INFO, format='%(message)s')
@@ -125,6 +135,26 @@ def require_user(request: Request, db: Session = Depends(get_db)) -> SimpleNames
     return user
 
 
+codex/initialize-monorepo-structure-and-workspace
+class SubscribeRequest(BaseModel):
+    tier_key: str
+
+
+class ProviderError(HTTPException):
+    pass
+
+
+def get_provider(db: Session) -> PaymentProvider:
+    stripe_flag = db.execute(select(feature_flags.c.enabled).where(feature_flags.c.key == 'payments.stripe.enabled')).scalar()
+    crypto_flag = db.execute(select(feature_flags.c.enabled).where(feature_flags.c.key == 'payments.crypto.enabled')).scalar()
+    if stripe_flag:
+        return StripeProvider()
+    if crypto_flag:
+        return BTCPayProvider()
+    raise ProviderError(status_code=503, detail='no payment provider')
+
+
+main
 @app.post('/auth/register', response_model=UserOut)
 def register(data: RegisterRequest, request: Request, response: Response, db: Session = Depends(get_db)):
     verify_csrf(request)
@@ -217,6 +247,21 @@ def flag_visible(scope: str, role: str) -> bool:
 
 @app.get('/feature-flags', response_model=List[FeatureFlagOut])
 def get_feature_flags(user: Optional[SimpleNamespace] = Depends(require_user)):
+codex/initialize-monorepo-structure-and-workspace
+    return [FeatureFlagOut(**row.__dict__) for row in select_flags(user.role, user.id)]
+
+
+def select_flags(role: str, user_id: Optional[uuid.UUID]) -> List[Any]:
+    with SessionLocal() as db:
+        rows = db.execute(select(feature_flags)).all()
+    cache = user_flag_cache.get(user_id, {}) if user_id else {}
+    result = []
+    for r in rows:
+        if flag_visible(r.scope, role):
+            enabled = cache.get(r.key, r.enabled)
+            result.append(SimpleNamespace(key=r.key, enabled=enabled, scope=r.scope))
+    return result
+
     # require_user ensures authentication; but we allow guest if optional? The spec maybe accessible but role-aware. We'll require auth.
     return [FeatureFlagOut(**row._mapping) for row in select_flags(user.role)]
 
@@ -225,6 +270,7 @@ def select_flags(role: str) -> List[Any]:
     with SessionLocal() as db:
         rows = db.execute(select(feature_flags)).all()
         return [r for r in rows if flag_visible(r.scope, role)]
+main
 
 
 @app.get('/me/palettes')
@@ -277,3 +323,79 @@ def calc_split(data: SplitRequest, request: Request, user: SimpleNamespace = Dep
     platform = math.floor(data.gross_cents * rate)
     creator = data.gross_cents - platform
     return {'platform_cents': platform, 'creator_cents': creator}
+codex/initialize-monorepo-structure-and-workspace
+
+
+@app.post('/billing/subscribe')
+def billing_subscribe(data: SubscribeRequest, request: Request, user: SimpleNamespace = Depends(require_user), db: Session = Depends(get_db)):
+    verify_csrf(request)
+    tier = db.execute(select(tiers).where(tiers.c.key == data.tier_key)).first()
+    if not tier:
+        raise HTTPException(status_code=404)
+    provider = get_provider(db)
+    return provider.create_checkout(user.id, 'subscription', data.tier_key, tier.price_cents, 'USD')
+
+
+@app.post('/billing/palette/{palette_key}/buy')
+def billing_palette_buy(palette_key: str, request: Request, user: SimpleNamespace = Depends(require_user), db: Session = Depends(get_db)):
+    verify_csrf(request)
+    pal = db.execute(select(palettes).where(palettes.c.key == palette_key)).first()
+    if not pal or pal.is_free:
+        raise HTTPException(status_code=404)
+    provider = get_provider(db)
+    return provider.create_checkout(user.id, 'palette', palette_key, pal.price_cents, 'USD')
+
+
+@app.get('/billing/invoices')
+def billing_invoices(user: SimpleNamespace = Depends(require_user), db: Session = Depends(get_db)):
+    rows = db.execute(select(invoices).where(invoices.c.user_id == user.id)).all()
+    return [r._mapping for r in rows]
+
+
+@app.post('/billing/crypto/webhook')
+def billing_crypto_webhook(payload: Dict[str, Any]):
+    BTCPayProvider().handle_webhook(payload)
+    return {'ok': True}
+
+
+@app.post('/billing/stripe/webhook')
+def billing_stripe_webhook(payload: Dict[str, Any], db: Session = Depends(get_db)):
+    flag = db.execute(select(feature_flags.c.enabled).where(feature_flags.c.key == 'payments.stripe.enabled')).scalar()
+    if not flag:
+        raise HTTPException(status_code=404)
+    StripeProvider().handle_webhook(payload)
+    return {'ok': True}
+
+
+class UploadRequest(BaseModel):
+    post_id: int
+    input_path: str
+    watermark_mode: str
+
+
+class MediaCallback(BaseModel):
+    post_id: int
+    manifest: Dict[str, Any]
+
+
+@app.post('/media/upload')
+def media_upload(data: UploadRequest, user: SimpleNamespace = Depends(require_user), db: Session = Depends(get_db)):
+    sub = db.execute(select(tiers.c.key).select_from(subscriptions.join(tiers, subscriptions.c.tier_id == tiers.c.id)).where(subscriptions.c.user_id == user.id, subscriptions.c.status == 'active')).scalar()
+    priority = 100 if sub in ('sovereign_standard','sovereign_premium') else 10
+    job = {
+        'creator_id': str(user.id),
+        'post_id': data.post_id,
+        'input_path': data.input_path,
+        'watermark_mode': data.watermark_mode,
+        'priority': priority,
+        'created_at': datetime.utcnow().isoformat()
+    }
+    with open(MEDIA_QUEUE, 'a') as f:
+        f.write(json.dumps(job) + '\n')
+    return {'queued': True}
+
+
+@app.post('/media/callback')
+def media_callback(data: MediaCallback):
+    return {'ok': True}
+main
