@@ -24,13 +24,21 @@ export default function SovereignUpgradePage() {
       <h1 className="text-2xl font-bold">Sovereign Upgrade</h1>
       <div className="flex gap-4">
         <button
+codex/implement-payments-ui-for-crypto/manual
+          className={`px-4 py-2 rounded ${tier === 'standard' ? 'bg-brand' : 'bg-neutral-700'}`}
+
           className={`px-4 py-2 rounded ${tier === 'standard' ? 'bg-blue-600' : 'bg-neutral-700'}`}
+main
           onClick={() => setTier('standard')}
         >
           Standard $39/mo
         </button>
         <button
+codex/implement-payments-ui-for-crypto/manual
+          className={`px-4 py-2 rounded ${tier === 'premium' ? 'bg-brand' : 'bg-neutral-700'}`}
+
           className={`px-4 py-2 rounded ${tier === 'premium' ? 'bg-blue-600' : 'bg-neutral-700'}`}
+main
           onClick={() => setTier('premium')}
         >
           Premium $49/mo
@@ -54,7 +62,11 @@ export default function SovereignUpgradePage() {
       <button
         onClick={handleSubscribe}
         disabled={loading}
+ codex/implement-payments-ui-for-crypto/manual
+        className="px-4 py-2 bg-success rounded w-max disabled:opacity-50"
+
         className="px-4 py-2 bg-green-600 rounded w-max disabled:opacity-50"
+ main
       >
         {loading ? 'Subscribing…' : 'Subscribe'}
       </button>
