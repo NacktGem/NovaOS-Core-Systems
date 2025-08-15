@@ -1,0 +1,15 @@
+{
+  "folders": [
+    { "path": "apps" },
+    { "path": "services" },
+    { "path": "agents" },
+    { "path": "modules" },
+    { "path": "packages" },
+    { "path": "scripts" },
+    { "path": "tools" },
+    { "path": "vaults" },
+    { "path": "ai_models" },
+    { "path": "artifacts" }
+  ],
+  "settings": {}
+}
