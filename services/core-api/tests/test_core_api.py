@@ -3,18 +3,14 @@ import uuid
 from datetime import datetime
 import importlib.util
 import pathlib
-codex/initialize-monorepo-structure-and-workspace
 import sys
-main
 
 import bcrypt
 import sqlalchemy as sa
 from fastapi.testclient import TestClient
 
-codex/initialize-monorepo-structure-and-workspace
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
 
- main
 spec = importlib.util.spec_from_file_location(
     "core_api", pathlib.Path(__file__).resolve().parents[1] / "main.py"
 )
@@ -28,9 +24,7 @@ users = core.users
 palette_purchases = core.palette_purchases
 tiers = core.tiers
 subscriptions = core.subscriptions
-codex/initialize-monorepo-structure-and-workspace
 invoices = core.invoices
-main
 
 client = TestClient(app)
 
@@ -110,7 +104,6 @@ def test_palette_ownership():
     res = client.get('/me/palettes')
     keys = {p['key'] for p in res.json()}
     assert {'midnight_rose', 'obsidian_teal', 'velvet_amber'}.issubset(keys)
-codex/initialize-monorepo-structure-and-workspace
 
 def test_manual_crypto_flow():
     sessions.clear()
@@ -130,4 +123,3 @@ def test_manual_crypto_flow():
     res = client.get('/me/palettes')
     keys = {p['key'] for p in res.json()}
     assert 'midnight_rose' in keys
-main

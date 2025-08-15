@@ -2,21 +2,23 @@ import json
 import logging
 import math
 import uuid
-codex/initialize-monorepo-structure-and-workspace
-import os
-from datetime import datetime, date
+from datetime import date, datetime
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, Dict, List, Optional
-from pathlib import Path
 
+import bcrypt
+import sqlalchemy as sa
+from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
+from pydantic import BaseModel, EmailStr
+from sqlalchemy import select
+from sqlalchemy.orm import Session, sessionmaker
+from starlette.middleware.base import BaseHTTPMiddleware
 
- codex/initialize-monorepo-structure-and-workspace
+from payments.base import PaymentProvider
 from payments.crypto_btcpay import BTCPayProvider
 from payments.stripe import StripeProvider
-from payments.base import PaymentProvider
 from state import user_flag_cache
-
-main
 
 DATABASE_URL = "postgresql+psycopg://postgres:postgres@localhost/novaos"
 engine = sa.create_engine(DATABASE_URL, future=True)
@@ -30,9 +32,7 @@ tiers = sa.Table('tiers', metadata, schema='billing', autoload_with=engine)
 subscriptions = sa.Table('subscriptions', metadata, schema='billing', autoload_with=engine)
 palettes = sa.Table('palettes', metadata, schema='content', autoload_with=engine)
 palette_purchases = sa.Table('palette_purchases', metadata, schema='content', autoload_with=engine)
-codex/initialize-monorepo-structure-and-workspace
 invoices = sa.Table('invoices', metadata, schema='billing', autoload_with=engine)
-main
 feature_flags = sa.Table('feature_flags', metadata, schema='toggles', autoload_with=engine)
 
 ROLE_DEFAULT_PERMS: Dict[str, Dict[str, bool]] = {
@@ -42,9 +42,7 @@ ROLE_DEFAULT_PERMS: Dict[str, Dict[str, bool]] = {
 }
 
 sessions: Dict[str, uuid.UUID] = {}
-codex/initialize-monorepo-structure-and-workspace
-MEDIA_QUEUE = Path(__file__).resolve().parents[1]/ 'media-pipeline'/ 'jobs'/ 'queue.jsonl'
-main
+MEDIA_QUEUE = Path(__file__).resolve().parents[1] / 'media-pipeline' / 'jobs' / 'queue.jsonl'
 
 logger = logging.getLogger("core")
 logging.basicConfig(level=logging.INFO, format='%(message)s')
@@ -135,7 +133,6 @@ def require_user(request: Request, db: Session = Depends(get_db)) -> SimpleNames
     return user
 
 
-codex/initialize-monorepo-structure-and-workspace
 class SubscribeRequest(BaseModel):
     tier_key: str
 
@@ -152,9 +149,7 @@ def get_provider(db: Session) -> PaymentProvider:
     if crypto_flag:
         return BTCPayProvider()
     raise ProviderError(status_code=503, detail='no payment provider')
-
-
-main
+ 
 @app.post('/auth/register', response_model=UserOut)
 def register(data: RegisterRequest, request: Request, response: Response, db: Session = Depends(get_db)):
     verify_csrf(request)
@@ -246,8 +241,7 @@ def flag_visible(scope: str, role: str) -> bool:
 
 
 @app.get('/feature-flags', response_model=List[FeatureFlagOut])
-def get_feature_flags(user: Optional[SimpleNamespace] = Depends(require_user)):
-codex/initialize-monorepo-structure-and-workspace
+def get_feature_flags(user: SimpleNamespace = Depends(require_user)):
     return [FeatureFlagOut(**row.__dict__) for row in select_flags(user.role, user.id)]
 
 
@@ -261,16 +255,6 @@ def select_flags(role: str, user_id: Optional[uuid.UUID]) -> List[Any]:
             enabled = cache.get(r.key, r.enabled)
             result.append(SimpleNamespace(key=r.key, enabled=enabled, scope=r.scope))
     return result
-
-    # require_user ensures authentication; but we allow guest if optional? The spec maybe accessible but role-aware. We'll require auth.
-    return [FeatureFlagOut(**row._mapping) for row in select_flags(user.role)]
-
-
-def select_flags(role: str) -> List[Any]:
-    with SessionLocal() as db:
-        rows = db.execute(select(feature_flags)).all()
-        return [r for r in rows if flag_visible(r.scope, role)]
-main
 
 
 @app.get('/me/palettes')
@@ -323,7 +307,6 @@ def calc_split(data: SplitRequest, request: Request, user: SimpleNamespace = Dep
     platform = math.floor(data.gross_cents * rate)
     creator = data.gross_cents - platform
     return {'platform_cents': platform, 'creator_cents': creator}
-codex/initialize-monorepo-structure-and-workspace
 
 
 @app.post('/billing/subscribe')
@@ -398,4 +381,3 @@ def media_upload(data: UploadRequest, user: SimpleNamespace = Depends(require_us
 @app.post('/media/callback')
 def media_callback(data: MediaCallback):
     return {'ok': True}
-main
