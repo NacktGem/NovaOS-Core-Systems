@@ -3,6 +3,7 @@ import type { Config } from 'tailwindcss'
 const config: Config = {
   content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
   theme: {
+ codex/implement-payments-ui-for-crypto/manual
     extend: {
       colors: {
         brand: '#2563eb',
@@ -14,6 +15,9 @@ const config: Config = {
         onyx: '#27272a',
       },
     },
+
+    extend: {}
+ main
   },
   plugins: []
 }

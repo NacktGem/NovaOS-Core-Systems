@@ -22,6 +22,7 @@ export default function DashboardPage() {
         {sovereign.active && sovereign.tier && <SovereignBadge tier={sovereign.tier} />}
       </div>
       <div className="flex gap-4">
+
         <button
           onClick={() => setTab('overview')}
           className={`px-3 py-1 rounded ${tab === 'overview' ? 'bg-brand' : 'bg-neutral-700'}`}
@@ -34,11 +35,19 @@ export default function DashboardPage() {
         >
           Analytics Pro
         </button>
+
+        <button onClick={() => setTab('overview')} className={`px-3 py-1 rounded ${tab === 'overview' ? 'bg-blue-600' : 'bg-neutral-700'}`}>Overview</button>
+        <button onClick={() => setTab('analytics')} className={`px-3 py-1 rounded ${tab === 'analytics' ? 'bg-blue-600' : 'bg-neutral-700'}`}>Analytics Pro</button>
+
       </div>
       {tab === 'analytics' ? (
         <div className="flex gap-2">
           {mockData.map((v, i) => (
+codex/implement-payments-ui-for-crypto/manual
             <div key={i} className="w-8 bg-brand" style={{ height: v * 10 }} />
+
+            <div key={i} className="w-8 bg-blue-500" style={{ height: v * 10 }} />
+main
           ))}
         </div>
       ) : (
