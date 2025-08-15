@@ -1,43 +1,20 @@
-# Node / JS
+# OS
+Thumbs.db
+Desktop.ini
+
+# Node
 node_modules/
-dist/
-build/
-.cache/
-*.log
+pnpm-lock.yaml
 
 # Python
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-.venv/
-env/
-venv/
 
-# Environment & Secrets
-.env
-*.env
-config.json
-config/*.json
-identity.py
-config/tesseract_path.py
-
-# AI Models & Tools
-tools/
+# Untracked directories
+vaults/
 ai_models/
-forensic_logs/
-NovaOS-Core-Systems/ai_models/
-NovaOS-Core-Systems/tools/
+artifacts/
+tools/
 
-# OS & IDE
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
-*.swp
-
-# Temporary
-tmp/
-temp/
-*.tmp
-*.bak
+# Environment
+.env
