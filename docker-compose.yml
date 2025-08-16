@@ -3,53 +3,73 @@ services:
   db:
     image: postgres:16
     environment:
-      POSTGRES_DB: novaos
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - dbdata:/var/lib/postgresql/data
-    ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  psql:
-    image: postgres:16
-    depends_on: [db]
-    environment:
-      PGPASSWORD: postgres
-    command: ["bash","-lc","psql -h db -U postgres -d novaos -f /seed/scripts/db_init.sql && psql -h db -U postgres -d novaos -f /seed/scripts/db_seed.sql"]
+  redis:
+    image: redis:7
+    command: ["redis-server", "--appendonly", "yes"]
     volumes:
-      - ./scripts:/seed/scripts:ro
-    restart: "no"
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   core-api:
-    build:
-      context: services/core-api
-    environment:
-      DATABASE_URL: postgresql://db/novaos
-      ALLOWED_ORIGINS: http://web-shell:3000,http://gypsy-cove:3001,http://nova-console:3002
-    depends_on: [db]
-    ports: ["8750:8750"]
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8750
+    build: ./services/core-api
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env.core
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   echo:
-    build:
-      context: services/echo
-    ports: ["8760:8760"]
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8760
+    build: ./services/echo
+    env_file: .env.echo
+    ports:
+      - "8010:8010"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8010/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   audita:
-    build: { context: services/audita }
-    environment:
-      DATABASE_URL: postgresql://db/novaos
-    ports: ["8770:8770"]
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8770
+    build: ./services/audita
+    ports:
+      - "8020:8020"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8020/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   velora:
-    build: { context: services/velora }
-    environment:
-      DATABASE_URL: postgresql://db/novaos
-    ports: ["8780:8780"]
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8780
+    build: ./services/velora
+    ports:
+      - "8030:8030"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8030/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   dbdata:
+  redisdata:
