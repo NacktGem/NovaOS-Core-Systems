@@ -10,6 +10,8 @@
   },
   "include": [
     "index.ts",
-    "ws/**/*.ts"
+    "ws/**/*.ts",
+    "http/**/*.ts",
+    "auth/**/*.ts"
   ]
 }

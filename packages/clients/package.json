@@ -5,6 +5,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
+    "./http/api": "./dist/http/api.js",
+    "./auth/useAuth": "./dist/auth/useAuth.js",
     "./ws/useEcho": "./dist/ws/useEcho.js"
   },
   "scripts": {

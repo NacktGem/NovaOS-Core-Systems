@@ -33,6 +33,29 @@ Crypto (BTCPay) + optional Stripe. Platform cut: **12%**.
 - services/glitch (defensive forensics)
 - packages/{shared,ui,sdk}
 
+## App Quickstart
+
+Run all services locally:
+
+```bash
+pnpm -r dev
+```
+
+### Web-Shell (Black Rose Collective)
+- URL: http://localhost:3000
+- Login: creator1@local / devdev
+- Test: sign in, explore feed, unlock palettes.
+
+### Gypsy-Cove (Family)
+- URL: http://localhost:3001
+- Login: user1@local / devdev
+- Test: join family-home chat, submit consent upload.
+
+### Nova-Console (Founder/Admin)
+- URL: http://localhost:3002
+- Login: founder@local / devdev
+- Test: verify GodMode banner, review DMCA inbox, view analytics.
+
 ## Echo
 Env vars (.env.echo):
 - REDIS_URL
