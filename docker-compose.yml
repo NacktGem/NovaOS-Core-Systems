@@ -1,0 +1,55 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: novaos
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    ports: ["5432:5432"]
+
+  psql:
+    image: postgres:16
+    depends_on: [db]
+    environment:
+      PGPASSWORD: postgres
+    command: ["bash","-lc","psql -h db -U postgres -d novaos -f /seed/scripts/db_init.sql && psql -h db -U postgres -d novaos -f /seed/scripts/db_seed.sql"]
+    volumes:
+      - ./scripts:/seed/scripts:ro
+    restart: "no"
+
+  core-api:
+    build:
+      context: services/core-api
+    environment:
+      DATABASE_URL: postgresql://db/novaos
+      ALLOWED_ORIGINS: http://web-shell:3000,http://gypsy-cove:3001,http://nova-console:3002
+    depends_on: [db]
+    ports: ["8750:8750"]
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8750
+
+  echo:
+    build:
+      context: services/echo
+    ports: ["8760:8760"]
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8760
+
+  audita:
+    build: { context: services/audita }
+    environment:
+      DATABASE_URL: postgresql://db/novaos
+    ports: ["8770:8770"]
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8770
+
+  velora:
+    build: { context: services/velora }
+    environment:
+      DATABASE_URL: postgresql://db/novaos
+    ports: ["8780:8780"]
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8780
+
+volumes:
+  dbdata:

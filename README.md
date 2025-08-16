@@ -1,38 +1,37 @@
 # NovaOS-Core-Systems
 
-🚨 **PRIVATE REPOSITORY – INVITE ONLY** 🚨  
-Access to this repository is strictly controlled. Unauthorized use or distribution is prohibited.
+**Three domains. One brain.**
+- **NovaOS (Console)** — private cockpit and agent orchestrator (Founder-only)
+- **Black Rose Collective** — public creator platform (SFW/NSFW with consent)
+- **GypsyCove** — invite-only family dashboard (allowlist, private rooms)
 
-NovaOS-Core-Systems is the sovereign AI operating system powering:
-- **NovaOS** – The core sovereign AI architecture
-- **Black Rose Collective** – Secure creator & content platform
-- **GypsyCove** – Private family/homeschool management system
+## Roles
+GODMODE → SUPER_ADMIN (Jules, Nova) → ADMIN_AGENT → ADVISOR → MODERATOR → CREATOR_STANDARD → CREATOR_SOVEREIGN → VERIFIED_USER → GUEST
 
-## 🚀 Sovereign Standard
-Built to the **Sovereign Standard**:
-- Total founder control
-- Local-first architecture (no core dependency on cloud)
-- AES-512 + PQ encryption
-- Zero-trust role-based access
-- AI agents deeply integrated across all domains
+## Tiers (BRC)
+- **Free**
+- **Sovereign** — priority explore boost, advanced analytics, early features, concierge support, collaborator codes, extra palettes.
 
-## 📂 Project Structure
-- `/agents` – Role-specific AI agents
-- `/core` – NovaOS kernel modules
-- `/modules` – Feature modules for platforms
-- `/tools` – Internal/local tools (ignored in repo)
-- `/ai_models` – Local AI model files (ignored in repo)
+## Palettes
+- Free: DarkCore, RoseNoir
+- Paid: ObsidianBloom, GarnetMist, BlueAsh, VelvetNight
 
-## 🛡 Security Principles
-- No external telemetry
-- All processing is local or on founder-controlled infrastructure
-- No placeholders – every feature is production-ready
-- GodMode for founder access (unlogged, unrestricted)
+## Payments
+Crypto (BTCPay) + optional Stripe. Platform cut: **12%**.
 
-## 🤝 Contributing
-Contribution is **invite-only**.  
-To request consideration, contact the owner with credentials and purpose.
+## Repos & Services
+- apps/web-shell (BRC UI)
+- apps/gypsy-cove (Family UI)
+- apps/nova-console (Founder UI)
+- services/core-api (FastAPI)
+- services/audita (Consent/DMCA/Tax)
+- services/echo (WebSockets & push)
+- services/velora (Analytics/CRM)
+- services/media-pipeline (FFmpeg/ImageMagick/Tesseract)
+- services/nova-orchestrator (agent bus)
+- services/riven (parental/medical/off-grid)
+- services/glitch (defensive forensics)
+- packages/{shared,ui,sdk}
 
-## 📜 License
-See [LICENSE](LICENSE) for details.  
-**All rights reserved.** Unauthorized use will be prosecuted.
+## Sovereign Standard
+Local-first, consent-bound, RBAC enforced, Founder controls everything.

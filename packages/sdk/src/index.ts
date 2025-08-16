@@ -1,50 +1,6 @@
-const API_BASE = process.env.NOVA_API_URL || '';
+import { request } from 'undici';
 
-async function apiFetch(path: string, options: RequestInit = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    credentials: 'include',
-    ...options,
-  });
-  if (!res.ok) throw new Error(`API request failed: ${res.status}`);
-  return res.json();
-}
-
-export async function getMe() {
-  return apiFetch('/me');
-}
-
-export async function getFeatureFlags() {
-  return apiFetch('/feature-flags');
-}
-
-export async function getPalettes() {
-  return apiFetch('/me/palettes');
-}
-
-export async function getSovereignStatus() {
-  return apiFetch('/me/sovereign');
-}
-
-export async function subscribe(tierKey: string) {
-  return apiFetch('/billing/subscribe', {
-    method: 'POST',
-    body: JSON.stringify({ tier_key: tierKey }),
-  });
-}
-
-export async function buyPalette(key: string) {
-  return apiFetch(`/billing/palette/${key}/buy`, {
-    method: 'POST',
-  });
-}
-
-export async function conciergeAsk(prompt: string) {
-  return apiFetch('/concierge/ask', {
-    method: 'POST',
-    body: JSON.stringify({ prompt }),
-  });
+export async function get(url: string) {
+  const { body } = await request(url);
+  return body.text();
 }
