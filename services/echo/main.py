@@ -1,7 +1,6 @@
-import json
 from typing import Dict, List, Set
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 
 app = FastAPI()
