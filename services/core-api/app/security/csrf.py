@@ -13,7 +13,7 @@ class CSRFMiddleware(BaseHTTPMiddleware):
         self.header_name = header_name
 
     async def dispatch(self, request: Request, call_next):
-        if request.method.upper() in SAFE_METHODS or request.url.path == "/auth/login":
+        if request.method.upper() in SAFE_METHODS or request.url.path == "/auth/login" or request.url.path.startswith("/internal/"):
             return await call_next(request)
         cookie = request.cookies.get(self.cookie_name)
         header = request.headers.get(self.header_name)

@@ -33,5 +33,15 @@ Crypto (BTCPay) + optional Stripe. Platform cut: **12%**.
 - services/glitch (defensive forensics)
 - packages/{shared,ui,sdk}
 
+## Echo
+Env vars (.env.echo):
+- REDIS_URL
+- CORE_API_URL
+- JWT_PUBLIC_KEY_PATH
+- ECHO_INTERNAL_TOKEN
+
+/healthz checks Redis. Rooms enforce founder/family policy; other rooms require Core API membership.
+
+
 ## Sovereign Standard
 Local-first, consent-bound, RBAC enforced, Founder controls everything.

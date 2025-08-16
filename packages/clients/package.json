@@ -1,0 +1,15 @@
+{
+  "name": "@nova/clients",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    "./ws/useEcho": "./dist/ws/useEcho.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "echo 'ok'",
+    "test": "vitest run"
+  }
+}
