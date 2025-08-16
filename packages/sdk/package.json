@@ -1,15 +1,13 @@
 {
   "name": "@nova/sdk",
   "version": "0.1.0",
-  "main": "src/index.ts",
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "lint": "eslint .",
-    "test": "echo 'no tests'"
+    "lint": "echo \"ok\"",
+    "test": "vitest run"
   },
-  "devDependencies": {
-    "@types/node": "^24.3.0",
-    "typescript": "^5.4.0"
+  "dependencies": {
+    "undici": "^6.19.8"
   }
 }

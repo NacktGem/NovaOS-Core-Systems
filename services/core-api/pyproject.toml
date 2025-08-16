@@ -1,0 +1,17 @@
+[project]
+name = "core-api"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi==0.116.1",
+  "uvicorn==0.35.0",
+  "psycopg[binary]==3.2.1",
+  "pydantic==2.11.7",
+  "python-dotenv==1.0.1",
+  "passlib[bcrypt]==1.7.4",
+  "itsdangerous==2.2.0"
+]
+[project.optional-dependencies]
+dev = ["ruff==0.6.9", "pytest==8.4.1", "httpx==0.28.1"]
+[tool.ruff]
+line-length = 100

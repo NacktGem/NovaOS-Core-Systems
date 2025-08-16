@@ -1,9 +1,11 @@
 {
-codex/create-and-organize-monorepo-file-structure
-  "name": "@novaos/ui",
-  "version": "1.0.0",
+  "name": "@nova/ui",
+  "version": "0.1.0",
   "type": "module",
-  "main": "index.ts",
-  "license": "SEE LICENSE IN ../../LICENSE"
- main
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "echo \"ok\"",
+    "test": "vitest run"
+  },
+  "dependencies": {}
 }

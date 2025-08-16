@@ -1,33 +1,60 @@
 # OS
+.DS_Store
 Thumbs.db
-Desktop.ini
 
-# Node
+# Node / PNPM
 node_modules/
 pnpm-lock.yaml
+dist/
+.next/
+.storybook-out/
 
 # Python
 __pycache__/
 *.pyc
+*.pyo
+.venv/
+.venv*/
+.env/
+.env.*
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
 
-# Untracked directories
-vaults/*
-!vaults/.gitkeep
-!vaults/keys/
-!vaults/keys/.gitkeep
-!vaults/backups/
-!vaults/backups/.gitkeep
-!vaults/states/
-!vaults/states/.gitkeep
+# Build / Artifacts
+artifacts/
+ai_models/
+tools/
+vaults/
+*.log
+logs/
+coverage/
+playwright-report/
+test-results/
 
-ai_models/*
-!ai_models/.gitkeep
+# Secrets
+*.key
+*.pem
+*.p12
+*.crt
+*.enc
+vaults/keys/
+vaults/backups/
 
-artifacts/*
-!artifacts/.gitkeep
+# IDE
+.vscode/
+*.code-workspace
+.idea/
 
-tools/*
-!tools/.gitkeep
+# Python build
+*.egg-info/
 
-# Environment
-.env
+# Binary assets (handled via GitHub uploads)
+*.ico
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+apps/**/public/*
