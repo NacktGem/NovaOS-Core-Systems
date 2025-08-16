@@ -1,20 +1,26 @@
-.PHONY: dev stop logs db-shell
+SHELL := /bin/bash
 
-include .env
-export $(shell sed -ne 's/^\([^#=]*\)=.*/\1/p' .env)
+.PHONY: dev stop logs db-shell ps up down
 
 dev:
-	docker compose up -d db redis
-	pnpm --filter "apps/*" -r dev &
-	./scripts/dev.sh
+\tdocker compose up -d db redis
+\t./scripts/dev.sh
 
 stop:
-	docker compose down
-	pkill -f "uvicorn" || true
-	pkill -f "pnpm.*dev" || true
+\tdocker compose down
 
 logs:
-	docker compose logs -f
+\tdocker compose logs -f
 
 db-shell:
-	docker compose exec db psql -U $(POSTGRES_USER) $(POSTGRES_DB)
+\tdocker compose exec -e PGPASSWORD=$${POSTGRES_PASSWORD:-nova} db \
+\t\tpsql -U $${POSTGRES_USER:-nova} -d $${POSTGRES_DB:-nova}
+
+ps:
+\tdocker compose ps
+
+up:
+\tdocker compose up -d
+
+down:
+\tdocker compose down -v
