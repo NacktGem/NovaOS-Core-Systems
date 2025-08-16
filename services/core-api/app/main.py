@@ -16,6 +16,7 @@ from app.routes import (
     consent,
     dmca,
     analytics,
+    internal,
 )
 
 app = FastAPI(title="Nova Core API")
@@ -39,6 +40,7 @@ app.include_router(payments.router)
 app.include_router(rooms.router)
 app.include_router(messages.router)
 app.include_router(consent.router)
+app.include_router(internal.router)
 app.include_router(dmca.router)
 app.include_router(analytics.router)
 

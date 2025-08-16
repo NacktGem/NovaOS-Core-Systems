@@ -43,6 +43,7 @@ def setup_env(tmp_path: pathlib.Path):
     os.environ.setdefault("AUTH_PEPPER", "pepper")
     os.environ.setdefault("JWT_PRIVATE_KEY_PATH", str(priv))
     os.environ.setdefault("JWT_PUBLIC_KEY_PATH", str(pub))
+    os.environ.setdefault("ECHO_INTERNAL_TOKEN", "dev_internal_token")
     os.environ.setdefault("CORS_ORIGINS", "http://test")
     os.environ.setdefault("REDIS_URL", "redis://test")
 
