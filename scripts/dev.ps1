@@ -1,9 +1,18 @@
-$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = "Stop"
 
-$procs = @()
-$procs += Start-Process -FilePath 'uvicorn' -ArgumentList 'app.main:app --reload --port 8000' -WorkingDirectory 'services/core-api' -PassThru -NoNewWindow
-$procs += Start-Process -FilePath 'uvicorn' -ArgumentList 'app.main:app --reload --port 8010' -WorkingDirectory 'services/echo' -PassThru -NoNewWindow
-$procs += Start-Process -FilePath 'uvicorn' -ArgumentList 'app.main:app --reload --port 8020' -WorkingDirectory 'services/audita' -PassThru -NoNewWindow
-$procs += Start-Process -FilePath 'uvicorn' -ArgumentList 'app.main:app --reload --port 8030' -WorkingDirectory 'services/velora' -PassThru -NoNewWindow
+Write-Host "⏳ Waiting for Postgres..."
+$tries = 0
+while ($true) {
+  try {
+    docker compose exec -T db pg_isready -U ${env:POSTGRES_USER} -d ${env:POSTGRES_DB} | Out-Null
+    break
+  } catch {
+    Start-Sleep -Seconds 1
+    $tries++
+    if ($tries -gt 120) { throw "Postgres not ready after 120s" }
+  }
+}
+Write-Host "✅ Postgres ready"
 
-Wait-Process -Id ($procs | Select-Object -ExpandProperty Id)
+Write-Host "🚀 Starting Next.js dev servers"
+pnpm -r dev
