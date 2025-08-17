@@ -4,7 +4,7 @@ export type ApiOptions = RequestInit & { retry?: number };
 
 /**
  * Extract CSRF token from document.cookie.
- * Server now sets cookie named `csrf_token` (httpOnly=false, Secure, SameSite=Strict).
+ * Server sets cookie named `csrf_token` (not httpOnly).
  */
 function getCsrf(): string | null {
   const token = document.cookie
@@ -16,20 +16,12 @@ function getCsrf(): string | null {
 /**
  * Attempt a fetch with exponential backoff on GET requests.
  */
-async function attempt<T>(
-  url: string,
-  init: RequestInit,
-  retry: number
-): Promise<T> {
+async function attempt<T>(url: string, init: RequestInit, retry: number): Promise<T> {
   try {
     const res = await fetch(url, init);
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}`);
-    }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const type = res.headers.get("content-type") || "";
-    if (type.includes("application/json")) {
-      return (await res.json()) as T;
-    }
+    if (type.includes("application/json")) return (await res.json()) as T;
     return (await res.text()) as unknown as T;
   } catch (err) {
     if (init.method && init.method !== "GET") throw err;
@@ -46,33 +38,22 @@ async function attempt<T>(
  *  - Injects `x-csrf-token` header if cookie present
  *  - Retries GETs on network errors
  */
-export async function apiFetch<T = unknown>(
-  url: string,
-  options: ApiOptions = {}
-): Promise<T> {
+export async function apiFetch<T = unknown>(url: string, options: ApiOptions = {}): Promise<T> {
   const { retry = 3, headers, ...rest } = options;
   const init: RequestInit = {
     credentials: "include",
     ...rest,
     headers: { ...(headers || {}) },
   };
-
   const csrf = getCsrf();
-  if (csrf) {
-    (init.headers as Record<string, string>)["x-csrf-token"] = csrf;
-  }
-
+  if (csrf) (init.headers as Record<string, string>)["x-csrf-token"] = csrf;
   return attempt<T>(url, init, retry);
 }
 
 /**
- * Lightweight analytics fire-and-forget.
- * Uses sendBeacon if available, otherwise falls back to fetch.
+ * Fire-and-forget analytics
  */
-export function fireAnalytics(
-  event_name: string,
-  data: Record<string, unknown> = {}
-): void {
+export function fireAnalytics(event_name: string, data: Record<string, unknown> = {}): void {
   const body = JSON.stringify({ event_name, ...data });
   try {
     if (navigator.sendBeacon) {
@@ -84,14 +65,10 @@ export function fireAnalytics(
         headers: { "content-type": "application/json" },
         keepalive: true,
       }).catch(err => {
-        if (process.env.NODE_ENV === "development") {
-          console.debug("analytics failed", err);
-        }
+        if (process.env.NODE_ENV === "development") console.debug("analytics failed", err);
       });
     }
   } catch (err) {
-    if (process.env.NODE_ENV === "development") {
-      console.debug("analytics failed", err);
-    }
+    if (process.env.NODE_ENV === "development") console.debug("analytics failed", err);
   }
 }
