@@ -1,19 +1,30 @@
+// packages/clients/http/api.ts
+
 export type ApiOptions = RequestInit & { retry?: number };
 
+/**
+ * Extract CSRF token from document.cookie.
+ * Server sets cookie named `csrf_token` (not httpOnly).
+ */
 function getCsrf(): string | null {
-  const match = document.cookie.split('; ').find(c => c.startsWith('csrf='));
-  return match ? decodeURIComponent(match.split('=')[1]) : null;
+  const token = document.cookie
+    .split("; ")
+    .find(c => c.startsWith("csrf_token="));
+  return token ? decodeURIComponent(token.split("=")[1]) : null;
 }
 
+/**
+ * Attempt a fetch with exponential backoff on GET requests.
+ */
 async function attempt<T>(url: string, init: RequestInit, retry: number): Promise<T> {
   try {
     const res = await fetch(url, init);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const type = res.headers.get('content-type') || '';
-    if (type.includes('application/json')) return (await res.json()) as T;
+    const type = res.headers.get("content-type") || "";
+    if (type.includes("application/json")) return (await res.json()) as T;
     return (await res.text()) as unknown as T;
   } catch (err) {
-    if (init.method && init.method !== 'GET') throw err;
+    if (init.method && init.method !== "GET") throw err;
     if (retry <= 0) throw err;
     const delay = Math.min(200 * 2 ** (3 - retry), 2000);
     await new Promise(r => setTimeout(r, delay));
@@ -21,34 +32,43 @@ async function attempt<T>(url: string, init: RequestInit, retry: number): Promis
   }
 }
 
- export async function apiFetch<T = unknown>(url: string, options: ApiOptions = {}): Promise<T> {
+/**
+ * Wrapper for fetch that:
+ *  - Always includes credentials (cookies)
+ *  - Injects `x-csrf-token` header if cookie present
+ *  - Retries GETs on network errors
+ */
+export async function apiFetch<T = unknown>(url: string, options: ApiOptions = {}): Promise<T> {
   const { retry = 3, headers, ...rest } = options;
   const init: RequestInit = {
-    credentials: 'include',
+    credentials: "include",
     ...rest,
     headers: { ...(headers || {}) },
   };
   const csrf = getCsrf();
-  if (csrf) (init.headers as Record<string, string>)['x-csrf-token'] = csrf;
+  if (csrf) (init.headers as Record<string, string>)["x-csrf-token"] = csrf;
   return attempt<T>(url, init, retry);
 }
 
+/**
+ * Fire-and-forget analytics
+ */
 export function fireAnalytics(event_name: string, data: Record<string, unknown> = {}): void {
   const body = JSON.stringify({ event_name, ...data });
   try {
     if (navigator.sendBeacon) {
-      navigator.sendBeacon('/analytics/ingest', body);
+      navigator.sendBeacon("/analytics/ingest", body);
     } else {
-      fetch('/analytics/ingest', {
-        method: 'POST',
+      fetch("/analytics/ingest", {
+        method: "POST",
         body,
-        headers: { 'content-type': 'application/json' },
+        headers: { "content-type": "application/json" },
         keepalive: true,
       }).catch(err => {
-        if (process.env.NODE_ENV === 'development') console.debug('analytics failed', err);
+        if (process.env.NODE_ENV === "development") console.debug("analytics failed", err);
       });
     }
   } catch (err) {
-    if (process.env.NODE_ENV === 'development') console.debug('analytics failed', err);
+    if (process.env.NODE_ENV === "development") console.debug("analytics failed", err);
   }
 }
