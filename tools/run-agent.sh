@@ -15,6 +15,7 @@ python - <<PYTHON "$AGENT" "$PAYLOAD" "$TOKEN"
 import json, sys
 from core.registry import AgentRegistry
 from agents.echo.agent import EchoAgent
+from agents.glitch.agent import GlitchAgent
 from agents.nova.agent import NovaAgent
 
 agent_name = sys.argv[1]
@@ -23,6 +24,7 @@ token = sys.argv[3] or None
 
 registry = AgentRegistry(token=token)
 registry.register("echo", EchoAgent())
+registry.register("glitch", GlitchAgent())
 nova = NovaAgent(registry)
 
 job = {"agent": agent_name, "payload": payload}
