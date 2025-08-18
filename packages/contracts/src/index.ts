@@ -4,14 +4,14 @@ export interface TaskEnvelope {
   created_at: string;
   priority?: number;
   actor?: string;
-  payload: any;
+  payload: unknown;
 }
 
 export interface ResultEnvelope {
   id: string;
   task_id: string;
   status: 'ok' | 'error';
-  output?: any;
+  output?: unknown;
   error?: string | null;
 }
 
@@ -35,7 +35,7 @@ export interface SearchIndexed {
 
 export interface AnalyticsSignal {
   event_name: string;
-  props?: Record<string, any>;
+  props?: Record<string, unknown>;
 }
 
 export type AgentEvent =

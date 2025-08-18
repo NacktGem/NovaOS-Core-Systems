@@ -8,7 +8,7 @@ describe("apiFetch", () => {
 
   it("adds csrf token and retries GET", async () => {
     (globalThis as unknown as { document: { cookie: string } }).document = {
-      cookie: "csrf=token123",
+      cookie: "csrf_token=token123",
     };
     const json = () => Promise.resolve({ ok: true });
     const res = { ok: true, headers: new Headers({ "content-type": "application/json" }), json };
