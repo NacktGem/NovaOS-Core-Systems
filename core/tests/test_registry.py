@@ -1,11 +1,8 @@
 import json
 from pathlib import Path
 
-codex/begin-phase-2-using-.codexrc.md-dsuxs1
 import pytest
 
-
-main
 from agents.echo.agent import EchoAgent
 from agents.nova.agent import NovaAgent
 from core.registry import AgentRegistry
@@ -26,7 +23,6 @@ def test_registry_invokes_agent(tmp_path, monkeypatch):
     assert log_files, "log file not created"
     data = json.loads(log_files[0].read_text(encoding="utf-8"))
     assert data["response"]["output"] == {"echo": "ping"}
-codex/begin-phase-2-using-.codexrc.md-dsuxs1
 
 
 def test_registry_logs_invalid_token(tmp_path, monkeypatch):
@@ -58,4 +54,3 @@ def test_registry_logs_missing_agent(tmp_path, monkeypatch):
     assert data["response"]["success"] is False
     assert data["response"]["error"] == "agent 'ghost' not found"
 
-main

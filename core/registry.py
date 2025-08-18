@@ -8,11 +8,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
- codex/begin-phase-2-using-.codexrc.md-dsuxs1
 from agents.base import Agent
 
-
-main
 
 @dataclass
 class AgentResponse:
@@ -28,27 +25,18 @@ class AgentRegistry:
     """Registers and executes NovaOS agents with token security."""
 
     def __init__(self, token: Optional[str] = None) -> None:
-codex/begin-phase-2-using-.codexrc.md-dsuxs1
         self._agents: Dict[str, Agent] = {}
-
-        self._agents: Dict[str, Any] = {}
-main
         self._token = token or os.getenv("NOVA_AGENT_TOKEN")
         self._log_dir = Path("logs")
         self._log_dir.mkdir(exist_ok=True)
 
-codex/begin-phase-2-using-.codexrc.md-dsuxs1
     def register(self, name: str, handler: Agent) -> None:
-
-    def register(self, name: str, handler: Any) -> None:
-main
         if name in self._agents:
             raise ValueError(f"agent '{name}' already registered")
         self._agents[name] = handler
 
     def call(self, name: str, job: Dict[str, Any], token: Optional[str] = None) -> AgentResponse:
         if self._token and token != self._token:
-codex/begin-phase-2-using-.codexrc.md-dsuxs1
             resp = AgentResponse(agent=name, success=False, output=None, error="invalid agent token")
             self._log(job, resp)
             raise PermissionError("invalid agent token")
@@ -59,14 +47,6 @@ codex/begin-phase-2-using-.codexrc.md-dsuxs1
         agent = self._agents[name]
         try:
             output = agent.run(job)
-
-            raise PermissionError("invalid agent token")
-        if name not in self._agents:
-            raise KeyError(f"agent '{name}' not found")
-        agent = self._agents[name]
-        try:
-            output = agent.run(job)  # type: ignore[attr-defined]
-main
             resp = AgentResponse(agent=name, success=True, output=output)
         except Exception as exc:  # noqa: BLE001
             resp = AgentResponse(agent=name, success=False, output=None, error=str(exc))
@@ -89,3 +69,4 @@ main
         with filename.open("w", encoding="utf-8") as fh:
             json.dump(entry, fh, ensure_ascii=False, indent=2)
         print(json.dumps(entry, ensure_ascii=False))
+
