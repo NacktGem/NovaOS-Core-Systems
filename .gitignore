@@ -25,7 +25,7 @@ htmlcov/
 # Build / Artifacts
 artifacts/
 ai_models/
-tools/
+# tools scripts tracked in git
 vaults/
 *.log
 logs/
