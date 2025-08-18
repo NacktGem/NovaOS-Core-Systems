@@ -14,12 +14,20 @@ def test_registry_invokes_agent(tmp_path, monkeypatch):
     registry.register("echo", EchoAgent())
     nova = NovaAgent(registry)
 
-    result = nova.run({"agent": "echo", "payload": {"message": "ping"}, "token": "s3cr3t"})
+    result = nova.run(
+        {
+            "agent": "echo",
+            "command": "echo",
+            "args": {"message": "ping"},
+            "token": "s3cr3t",
+            "log": True,
+        }
+    )
 
     assert result["success"] is True
     assert result["output"] == {"echo": "ping"}
 
-    log_files = list(Path("logs").glob("echo-*.json"))
+    log_files = list(Path("logs/echo").glob("*.json"))
     assert log_files, "log file not created"
     data = json.loads(log_files[0].read_text(encoding="utf-8"))
     assert data["response"]["output"] == {"echo": "ping"}
@@ -32,9 +40,16 @@ def test_registry_logs_invalid_token(tmp_path, monkeypatch):
     nova = NovaAgent(registry)
 
     with pytest.raises(PermissionError):
-        nova.run({"agent": "echo", "payload": {"message": "ping"}, "token": "bad"})
+        nova.run(
+            {
+                "agent": "echo",
+                "command": "echo",
+                "args": {"message": "ping"},
+                "token": "bad",
+            }
+        )
 
-    log_files = list(Path("logs").glob("echo-*.json"))
+    log_files = list(Path("logs/echo").glob("*.json"))
     assert log_files, "log file not created for invalid token"
     data = json.loads(log_files[0].read_text(encoding="utf-8"))
     assert data["response"]["success"] is False
@@ -46,11 +61,10 @@ def test_registry_logs_missing_agent(tmp_path, monkeypatch):
     registry = AgentRegistry()
 
     with pytest.raises(KeyError):
-        registry.call("ghost", {})
+        registry.call("ghost", {"command": "noop", "args": {}})
 
-    log_files = list(Path("logs").glob("ghost-*.json"))
+    log_files = list(Path("logs/ghost").glob("*.json"))
     assert log_files, "log file not created for missing agent"
     data = json.loads(log_files[0].read_text(encoding="utf-8"))
     assert data["response"]["success"] is False
     assert data["response"]["error"] == "agent 'ghost' not found"
-

@@ -19,7 +19,9 @@ def test_glitch_reports_file_metadata(tmp_path, monkeypatch):
     registry.register("glitch", GlitchAgent())
     nova = NovaAgent(registry)
 
-    result = nova.run({"agent": "glitch", "payload": {"path": str(sample)}})
+    result = nova.run(
+        {"agent": "glitch", "command": "hash_file", "args": {"path": str(sample)}}
+    )
     assert result["success"] is True
     output = result["output"]
     assert output["sha256"] == expected
