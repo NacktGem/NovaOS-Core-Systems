@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   experimental: { optimizeCss: true },
   optimizeFonts: false,
-  headers() {
+  async headers() {
     return [
       {
         source: "/(.*)",

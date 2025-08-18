@@ -33,8 +33,11 @@ export function useEcho(room: string, wsUrl: string) {
         fireAnalytics("echo_connect", { room });
       };
       ws.onmessage = (evt) => {
-        try { setMessages((m) => [...m, JSON.parse(evt.data)]); }
-        catch { /* ignore malformed */ }
+        try {
+          setMessages((m: unknown[]) => [...m, JSON.parse(evt.data)]);
+        } catch {
+          /* ignore malformed */
+        }
       };
       ws.onclose = () => {
         setConnected(false);
