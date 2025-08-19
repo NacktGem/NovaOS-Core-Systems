@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from agents.base import Agent
+from agents.base import BaseAgent
 
 
 @dataclass
@@ -25,12 +25,12 @@ class AgentRegistry:
     """Registers and executes NovaOS agents with token security."""
 
     def __init__(self, token: Optional[str] = None) -> None:
-        self._agents: Dict[str, Agent] = {}
+        self._agents: Dict[str, BaseAgent] = {}
         self._token = token or os.getenv("NOVA_AGENT_TOKEN")
         self._log_dir = Path("logs")
         self._log_dir.mkdir(exist_ok=True)
 
-    def register(self, name: str, handler: Agent) -> None:
+    def register(self, name: str, handler: BaseAgent) -> None:
         if name in self._agents:
             raise ValueError(f"agent '{name}' already registered")
         self._agents[name] = handler

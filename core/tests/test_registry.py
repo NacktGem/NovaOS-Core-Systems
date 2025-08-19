@@ -17,7 +17,7 @@ def test_registry_invokes_agent(tmp_path, monkeypatch):
     result = nova.run(
         {
             "agent": "echo",
-            "command": "echo",
+            "command": "send_message",
             "args": {"message": "ping"},
             "token": "s3cr3t",
             "log": True,
@@ -25,12 +25,12 @@ def test_registry_invokes_agent(tmp_path, monkeypatch):
     )
 
     assert result["success"] is True
-    assert result["output"] == {"echo": "ping"}
+    assert result["output"] == {"message": "ping"}
 
     log_files = list(Path("logs/echo").glob("*.json"))
     assert log_files, "log file not created"
     data = json.loads(log_files[0].read_text(encoding="utf-8"))
-    assert data["response"]["output"] == {"echo": "ping"}
+    assert data["response"]["output"] == {"message": "ping"}
 
 
 def test_registry_logs_invalid_token(tmp_path, monkeypatch):
@@ -39,15 +39,17 @@ def test_registry_logs_invalid_token(tmp_path, monkeypatch):
     registry.register("echo", EchoAgent())
     nova = NovaAgent(registry)
 
-    with pytest.raises(PermissionError):
-        nova.run(
-            {
-                "agent": "echo",
-                "command": "echo",
-                "args": {"message": "ping"},
-                "token": "bad",
-            }
-        )
+    result = nova.run(
+        {
+            "agent": "echo",
+            "command": "send_message",
+            "args": {"message": "ping"},
+            "token": "bad",
+        }
+    )
+
+    assert result["success"] is False
+    assert result["error"] == "invalid agent token"
 
     log_files = list(Path("logs/echo").glob("*.json"))
     assert log_files, "log file not created for invalid token"
