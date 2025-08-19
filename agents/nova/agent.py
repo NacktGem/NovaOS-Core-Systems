@@ -3,11 +3,11 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from agents.base import Agent
+from agents.base import BaseAgent
 from core.registry import AgentRegistry, AgentResponse
 
 
-class NovaAgent(Agent):
+class NovaAgent(BaseAgent):
     def __init__(self, registry: AgentRegistry) -> None:
         super().__init__("nova", description="Platform orchestrator")
         self._registry = registry
@@ -20,10 +20,8 @@ class NovaAgent(Agent):
         args = payload.get("args", {})
         token = payload.get("token")
         job = {"command": command, "args": args, "log": payload.get("log")}
-        resp: AgentResponse = self._registry.call(target, job, token)
-        return {
-            "invoked": target,
-            "success": resp.success,
-            "output": resp.output,
-            "error": resp.error,
-        }
+        try:
+            resp: AgentResponse = self._registry.call(target, job, token)
+            return {"success": resp.success, "output": resp.output, "error": resp.error}
+        except Exception as exc:  # noqa: BLE001
+            return {"success": False, "output": None, "error": str(exc)}
