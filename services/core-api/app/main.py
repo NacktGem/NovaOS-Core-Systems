@@ -17,6 +17,7 @@ from app.routes import (
     dmca,
     analytics,
     internal,
+    agents,
 )
 
 app = FastAPI(title="Nova Core API")
@@ -43,6 +44,7 @@ app.include_router(consent.router)
 app.include_router(internal.router)
 app.include_router(dmca.router)
 app.include_router(analytics.router)
+app.include_router(agents.router)
 
 
 @app.get("/healthz")
