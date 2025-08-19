@@ -46,8 +46,13 @@ class AgentRegistry:
             raise KeyError(f"agent '{name}' not found")
         agent = self._agents[name]
         try:
-            output = agent.run(job)
-            resp = AgentResponse(agent=name, success=True, output=output)
+            result = agent.run(job)
+            resp = AgentResponse(
+                agent=name,
+                success=bool(result.get("success")),
+                output=result.get("output"),
+                error=result.get("error"),
+            )
         except Exception as exc:  # noqa: BLE001
             resp = AgentResponse(agent=name, success=False, output=None, error=str(exc))
         self._log(job, resp)
@@ -65,7 +70,9 @@ class AgentRegistry:
                 "error": resp.error,
             },
         }
-        filename = self._log_dir / f"{resp.agent}-{int(now.timestamp())}.json"
+        agent_dir = self._log_dir / resp.agent
+        agent_dir.mkdir(parents=True, exist_ok=True)
+        filename = agent_dir / f"{int(now.timestamp())}.json"
         with filename.open("w", encoding="utf-8") as fh:
             json.dump(entry, fh, ensure_ascii=False, indent=2)
         print(json.dumps(entry, ensure_ascii=False))

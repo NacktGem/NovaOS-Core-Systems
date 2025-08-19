@@ -1,23 +1,27 @@
-"""Echo agent: simple message relay."""
+"""Audita agent: compliance and legal checks."""
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from agents.base import Agent
 
 
-class EchoAgent(Agent):
+class AuditaAgent(Agent):
+    """Performs simple text compliance scans."""
+
     def __init__(self) -> None:
-        super().__init__("echo", description="Comms relay agent")
+        super().__init__("audita", description="Compliance and audit agent")
 
     def run(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         command = payload.get("command")
         args = payload.get("args", {})
         try:
-            if command != "echo":
+            if command != "scan_text":
                 raise ValueError(f"unknown command '{command}'")
-            message = args.get("message", "")
-            output = {"echo": message}
+            text = args.get("text", "")
+            prohibited: List[str] = args.get("prohibited", [])
+            violations = [term for term in prohibited if term in text]
+            output = {"violations": violations, "compliant": not violations}
             if payload.get("log"):
                 self.log_result(output)
             return {"success": True, "output": output, "error": None}
