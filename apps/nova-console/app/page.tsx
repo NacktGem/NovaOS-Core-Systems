@@ -8,6 +8,7 @@ export default function Console(){
   const [payloads, setPayloads] = useState<Record<string,string>>({})
   const [result, setResult] = useState<Record<string, unknown> | null>(null)
   const [logLink, setLogLink] = useState<string | null>(null)
+  const [jobId, setJobId] = useState<string | null>(null)
 
   useEffect(()=>{
     const store: Record<string,string> = {}
@@ -33,8 +34,11 @@ export default function Console(){
       })
       const json = await res.json()
       setResult(json)
-      if(json.success){
-        setLogLink(`/logs/${agent}`)
+      setJobId(json.job_id ?? null)
+      if(json.job_id){
+        setLogLink(`/logs/${agent}/${json.job_id}.json`)
+      }else{
+        setLogLink(null)
       }
     }catch(err){
       setResult({success:false, output:null, error:String(err)})
@@ -48,11 +52,16 @@ export default function Console(){
           {agents.map(a=>(<option key={a}>{a}</option>))}
         </select>
         <button onClick={run} className="border px-3 py-1">Run</button>
-        {logLink && <a href={logLink} className="underline text-sm" target="_blank" rel="noreferrer">logs</a>}
+        {jobId && logLink && (
+          <a href={logLink} className="underline text-sm" target="_blank" rel="noreferrer">view log</a>
+        )}
       </div>
       <textarea value={payload} onChange={e=>setPayload(e.target.value)} rows={6} className="w-full border p-2 font-mono"></textarea>
       {result && (
-        <pre className="bg-gray-100 p-2 text-sm overflow-auto">{JSON.stringify(result,null,2)}</pre>
+        <div className="space-y-2">
+          <pre className="bg-gray-100 p-2 text-sm overflow-auto">{JSON.stringify(result,null,2)}</pre>
+          {jobId && <div className="text-sm">job_id: {jobId}</div>}
+        </div>
       )}
     </div>
   )

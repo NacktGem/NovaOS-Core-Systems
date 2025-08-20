@@ -6,7 +6,7 @@ const agents = ['nova','echo','glitch','lyra','velora','audita','riven'] as cons
 export default function Shell(){
   const [agent, setAgent] = useState<typeof agents[number]>('lyra')
   const [payload, setPayload] = useState('{"command":"","args":{}}')
-  const [logs, setLogs] = useState<string[]>([])
+  const [logs, setLogs] = useState<{ text: string; jobId?: string }[]>([])
 
   async function run(){
     try{
@@ -16,9 +16,9 @@ export default function Shell(){
         body: payload,
       })
       const json = await res.json()
-      setLogs(prev=>[...prev, JSON.stringify(json)])
+      setLogs(prev=>[...prev, {text: JSON.stringify(json), jobId: json.job_id}])
     }catch(err){
-      setLogs(prev=>[...prev, JSON.stringify({success:false, output:null, error:String(err)})])
+      setLogs(prev=>[...prev, {text: JSON.stringify({success:false, output:null, error:String(err)})}])
     }
   }
 
@@ -32,7 +32,21 @@ export default function Shell(){
       </div>
       <textarea value={payload} onChange={e=>setPayload(e.target.value)} rows={4} className="w-full border p-2 font-mono"></textarea>
       <div className="bg-black text-green-500 p-2 h-64 overflow-auto font-mono whitespace-pre-wrap">
-        {logs.map((l,i)=>(<div key={i}>{l}</div>))}
+        {logs.map((l,i)=>(
+          <div key={i}>
+            {l.text}
+            {l.jobId && (
+              <a
+                href={`/logs/${agent}/${l.jobId}.json`}
+                className="underline ml-2"
+                target="_blank"
+                rel="noreferrer"
+              >
+                view log
+              </a>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   )

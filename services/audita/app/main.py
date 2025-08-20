@@ -29,3 +29,13 @@ def dmca_report(reporter: str, target_post: str | None = None):
     with db() as conn:
         conn.execute("INSERT INTO legal.dmca_actions (reporter,target_post) VALUES (%s,%s)", (reporter, target_post))
     return {"ok": True}
+
+
+@app.get("/healthz")
+def healthz():
+    return {"status": "ok"}
+
+
+@app.get("/readyz")
+def readyz():
+    return {"status": "ok"}

@@ -18,3 +18,13 @@ def ingest(ev: EventIn):
   with db() as conn:
     conn.execute("INSERT INTO analytics.events (user_id,name,props) VALUES (%s,%s,%s)", (ev.user_id, ev.name, ev.props))
   return {"ok": True}
+
+
+@app.get("/healthz")
+def healthz():
+  return {"status": "ok"}
+
+
+@app.get("/readyz")
+def readyz():
+  return {"status": "ok"}

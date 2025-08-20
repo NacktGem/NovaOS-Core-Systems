@@ -26,10 +26,11 @@ def test_registry_invokes_agent(tmp_path, monkeypatch):
 
     assert result["success"] is True
     assert result["output"] == {"message": "ping"}
+    assert result["job_id"]
 
-    log_files = list(Path("logs/echo").glob("*.json"))
-    assert log_files, "log file not created"
-    data = json.loads(log_files[0].read_text(encoding="utf-8"))
+    log_file = Path("logs/echo") / f"{result['job_id']}.json"
+    assert log_file.exists(), "log file not created"
+    data = json.loads(log_file.read_text(encoding="utf-8"))
     assert data["response"]["output"] == {"message": "ping"}
 
 
@@ -50,10 +51,11 @@ def test_registry_logs_invalid_token(tmp_path, monkeypatch):
 
     assert result["success"] is False
     assert result["error"] == "invalid agent token"
+    assert result["job_id"]
 
-    log_files = list(Path("logs/echo").glob("*.json"))
-    assert log_files, "log file not created for invalid token"
-    data = json.loads(log_files[0].read_text(encoding="utf-8"))
+    log_file = Path("logs/echo") / f"{result['job_id']}.json"
+    assert log_file.exists(), "log file not created for invalid token"
+    data = json.loads(log_file.read_text(encoding="utf-8"))
     assert data["response"]["success"] is False
     assert data["response"]["error"] == "invalid agent token"
 
@@ -62,11 +64,14 @@ def test_registry_logs_missing_agent(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     registry = AgentRegistry()
 
-    with pytest.raises(KeyError):
-        registry.call("ghost", {"command": "noop", "args": {}})
+    result = registry.call("ghost", {"command": "noop", "args": {}})
 
-    log_files = list(Path("logs/ghost").glob("*.json"))
-    assert log_files, "log file not created for missing agent"
-    data = json.loads(log_files[0].read_text(encoding="utf-8"))
+    assert result.success is False
+    assert result.error == "agent 'ghost' not found"
+    assert result.job_id
+
+    log_file = Path("logs/ghost") / f"{result.job_id}.json"
+    assert log_file.exists(), "log file not created for missing agent"
+    data = json.loads(log_file.read_text(encoding="utf-8"))
     assert data["response"]["success"] is False
     assert data["response"]["error"] == "agent 'ghost' not found"

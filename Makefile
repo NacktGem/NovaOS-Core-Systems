@@ -3,24 +3,24 @@ SHELL := /bin/bash
 .PHONY: dev stop logs db-shell ps up down
 
 dev:
-\tdocker compose up -d db redis
-\t./scripts/dev.sh
+	docker compose up -d db redis
+	./scripts/dev.sh
 
 stop:
-\tdocker compose down
+	docker compose down
 
 logs:
-\tdocker compose logs -f
+	docker compose logs -f
 
 db-shell:
-\tdocker compose exec -e PGPASSWORD=$${POSTGRES_PASSWORD:-nova} db \
-\t\tpsql -U $${POSTGRES_USER:-nova} -d $${POSTGRES_DB:-nova}
+	docker compose exec -e PGPASSWORD=$${POSTGRES_PASSWORD:-nova} db \
+	psql -U $${POSTGRES_USER:-nova} -d $${POSTGRES_DB:-nova}
 
 ps:
-\tdocker compose ps
+	docker compose ps
 
 up:
-\tdocker compose up -d
+	docker compose --profile prod up -d --build
 
 down:
-\tdocker compose down -v
+	docker compose --profile prod down

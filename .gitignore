@@ -61,3 +61,4 @@ apps/**/public/*
 !**/.env.example
 !**/.env.core.example
 !**/.env.echo.example
+!**/.env.production.example

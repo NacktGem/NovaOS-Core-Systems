@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
+import uuid
 
 from agents.base import BaseAgent
 
@@ -19,6 +20,7 @@ class AgentResponse:
     success: bool
     output: Any
     error: Optional[str] = None
+    job_id: Optional[str] = None
 
 
 class AgentRegistry:
@@ -38,12 +40,14 @@ class AgentRegistry:
     def call(self, name: str, job: Dict[str, Any], token: Optional[str] = None) -> AgentResponse:
         if self._token and token != self._token:
             resp = AgentResponse(agent=name, success=False, output=None, error="invalid agent token")
-            self._log(job, resp)
-            raise PermissionError("invalid agent token")
+            job_id = self._log(job, resp)
+            resp.job_id = job_id
+            return resp
         if name not in self._agents:
             resp = AgentResponse(agent=name, success=False, output=None, error=f"agent '{name}' not found")
-            self._log(job, resp)
-            raise KeyError(f"agent '{name}' not found")
+            job_id = self._log(job, resp)
+            resp.job_id = job_id
+            return resp
         agent = self._agents[name]
         try:
             result = agent.run(job)
@@ -55,13 +59,16 @@ class AgentRegistry:
             )
         except Exception as exc:  # noqa: BLE001
             resp = AgentResponse(agent=name, success=False, output=None, error=str(exc))
-        self._log(job, resp)
+        job_id = self._log(job, resp)
+        resp.job_id = job_id
         return resp
 
-    def _log(self, job: Dict[str, Any], resp: AgentResponse) -> None:
+    def _log(self, job: Dict[str, Any], resp: AgentResponse) -> str:
         now = datetime.now(timezone.utc)
+        job_id = uuid.uuid4().hex
         entry = {
             "timestamp": now.isoformat(),
+            "job_id": job_id,
             "job": job,
             "response": {
                 "agent": resp.agent,
@@ -72,8 +79,9 @@ class AgentRegistry:
         }
         agent_dir = self._log_dir / resp.agent
         agent_dir.mkdir(parents=True, exist_ok=True)
-        filename = agent_dir / f"{int(now.timestamp())}.json"
+        filename = agent_dir / f"{job_id}.json"
         with filename.open("w", encoding="utf-8") as fh:
             json.dump(entry, fh, ensure_ascii=False, indent=2)
         print(json.dumps(entry, ensure_ascii=False))
+        return job_id
 

@@ -12,14 +12,17 @@ class LoginRateLimit(BaseHTTPMiddleware):
         self.window = window
 
     async def dispatch(self, request: Request, call_next):
-        if request.url.path == "/auth/login" and request.method == "POST":
+        path = request.url.path
+        if request.method == "POST" and (path == "/auth/login" or path.startswith("/agents")):
             ip = request.client.host if request.client else "unknown"
-            try:
-                body = await request.json()
-                email = body.get("email", "").lower()
-            except Exception:
-                email = ""
-            key = f"rl:login:{ip}:{email}"
+            email = ""
+            if path == "/auth/login":
+                try:
+                    body = await request.json()
+                    email = body.get("email", "").lower()
+                except Exception:
+                    email = ""
+            key = f"rl:{'login' if path == '/auth/login' else 'agent'}:{ip}:{email}"
             try:
                 pipe = self.redis.pipeline()
                 pipe.incr(key, 1)

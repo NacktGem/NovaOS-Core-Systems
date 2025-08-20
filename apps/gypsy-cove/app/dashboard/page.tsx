@@ -7,6 +7,7 @@ export default function Dashboard(){
   const [agent, setAgent] = useState<typeof agents[number]>('nova')
   const [payload, setPayload] = useState('{"command":"","args":{}}')
   const [result, setResult] = useState<Record<string, unknown> | null>(null)
+  const [jobId, setJobId] = useState<string | null>(null)
 
   async function run(){
     try{
@@ -17,6 +18,7 @@ export default function Dashboard(){
       })
       const json = await res.json()
       setResult(json)
+      setJobId(json.job_id ?? null)
     }catch(err){
       setResult({success:false, output:null, error:String(err)})
     }
@@ -32,7 +34,10 @@ export default function Dashboard(){
       </div>
       <textarea value={payload} onChange={e=>setPayload(e.target.value)} rows={6} className="w-full border p-2 font-mono"></textarea>
       {result && (
-        <pre className="bg-gray-100 p-2 text-sm overflow-auto">{JSON.stringify(result,null,2)}</pre>
+        <div className="space-y-2">
+          <pre className="bg-gray-100 p-2 text-sm overflow-auto">{JSON.stringify(result,null,2)}</pre>
+          {jobId && <a href={`/logs/${agent}/${jobId}.json`} className="underline text-sm" target="_blank" rel="noreferrer">view log</a>}
+        </div>
       )}
     </div>
   )
