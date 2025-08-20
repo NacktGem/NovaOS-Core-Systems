@@ -68,3 +68,18 @@ Env vars (.env.echo):
 
 ## Sovereign Standard
 Local-first, consent-bound, RBAC enforced, Founder controls everything.
+
+## CLI
+
+Run NovaOS agents directly from the terminal:
+
+```bash
+./scripts/run-agent.sh echo send_message '{"message":"hi"}'
+```
+
+Glitch forensics shortcuts:
+
+```bash
+./scripts/forensics.sh hash path/to/file
+./scripts/forensics.sh scan
+```
