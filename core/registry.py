@@ -37,15 +37,21 @@ class AgentRegistry:
             raise ValueError(f"agent '{name}' already registered")
         self._agents[name] = handler
 
-    def call(self, name: str, job: Dict[str, Any], token: Optional[str] = None) -> AgentResponse:
+    def call(
+        self,
+        name: str,
+        job: Dict[str, Any],
+        token: Optional[str] = None,
+        role: Optional[str] = None,
+    ) -> AgentResponse:
         if self._token and token != self._token:
             resp = AgentResponse(agent=name, success=False, output=None, error="invalid agent token")
-            job_id = self._log(job, resp)
+            job_id = self._log(job, resp, role)
             resp.job_id = job_id
             return resp
         if name not in self._agents:
             resp = AgentResponse(agent=name, success=False, output=None, error=f"agent '{name}' not found")
-            job_id = self._log(job, resp)
+            job_id = self._log(job, resp, role)
             resp.job_id = job_id
             return resp
         agent = self._agents[name]
@@ -59,16 +65,17 @@ class AgentRegistry:
             )
         except Exception as exc:  # noqa: BLE001
             resp = AgentResponse(agent=name, success=False, output=None, error=str(exc))
-        job_id = self._log(job, resp)
+        job_id = self._log(job, resp, role)
         resp.job_id = job_id
         return resp
 
-    def _log(self, job: Dict[str, Any], resp: AgentResponse) -> str:
+    def _log(self, job: Dict[str, Any], resp: AgentResponse, role: Optional[str]) -> str:
         now = datetime.now(timezone.utc)
         job_id = uuid.uuid4().hex
         entry = {
             "timestamp": now.isoformat(),
             "job_id": job_id,
+            "role": role,
             "job": job,
             "response": {
                 "agent": resp.agent,

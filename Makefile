@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: dev stop logs db-shell ps up down
+.PHONY: dev stop logs db-shell ps up down backup verify-backups migrate
 
 dev:
 	docker compose up -d db redis
@@ -23,4 +23,13 @@ up:
 	docker compose --profile prod up -d --build
 
 down:
-	docker compose --profile prod down
+        docker compose --profile prod down
+
+backup:
+        ./scripts/backup.sh
+
+verify-backups:
+        test -n "$$(find backups -maxdepth 1 -name 'backup-*.tgz' -mtime -1)"
+
+migrate:
+        docker compose --profile prod exec core-api alembic upgrade head

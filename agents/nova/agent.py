@@ -19,9 +19,10 @@ class NovaAgent(BaseAgent):
         command = payload.get("command")
         args = payload.get("args", {})
         token = payload.get("token")
+        role = payload.get("role")
         job = {"command": command, "args": args, "log": payload.get("log")}
         try:
-            resp: AgentResponse = self._registry.call(target, job, token)
+            resp: AgentResponse = self._registry.call(target, job, token, role)
             return {"success": resp.success, "output": resp.output, "error": resp.error, "job_id": resp.job_id}
         except Exception as exc:  # noqa: BLE001
             return {"success": False, "output": None, "error": str(exc)}

@@ -25,3 +25,11 @@
 - `/healthz` and `/readyz` return ok on all services
 - agent responses include `job_id` and UIs expose a **view log** link
 
+### Phase 5 usage
+- `/agents/{agent}` requires `x-role` in `GODMODE,SUPER_ADMIN,ADMIN_AGENT`
+- `/metrics` available when `PROM_ENABLED=true`
+
+### SLO targets
+- p95 agent latency < 500ms
+- core-api 5xx rate < 0.1%
+

@@ -1,8 +1,7 @@
 import os
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.db.base import get_session
 from app.middleware.rate_limit import LoginRateLimit
 from app.middleware.request_id import RequestIDMiddleware
 from app.security.csrf import CSRFMiddleware
@@ -17,9 +16,35 @@ from app.routes import (
     analytics,
     internal,
     agents,
+    logs,
 )
-
+PROM_ENABLED = os.getenv("PROM_ENABLED") == "true"
 app = FastAPI(title="Nova Core API")
+
+if PROM_ENABLED:
+    from prometheus_client import CONTENT_TYPE_LATEST, Counter, generate_latest
+
+    app.state.requests_total = Counter("requests_total", "Total HTTP requests")
+    app.state.agent_calls_total = Counter(
+        "agent_calls_total", "Agent calls", ["agent", "success"]
+    )
+    app.state.errors_total = Counter("errors_total", "Total errors")
+
+    @app.middleware("http")
+    async def metrics_middleware(request: Request, call_next):
+        app.state.requests_total.inc()
+        try:
+            response = await call_next(request)
+        except Exception:  # noqa: BLE001
+            app.state.errors_total.inc()
+            raise
+        if response.status_code >= 500:
+            app.state.errors_total.inc()
+        return response
+
+    @app.get("/metrics")
+    async def metrics():
+        return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 origins = os.getenv(
     "CORS_ORIGINS",
@@ -49,3 +74,4 @@ app.include_router(internal.router)
 app.include_router(dmca.router)
 app.include_router(analytics.router)
 app.include_router(agents.router)
+app.include_router(logs.router)
