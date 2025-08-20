@@ -31,6 +31,8 @@ const nextConfig: NextConfig = {
   },
   env: {
     CORE_API_BASE: process.env.CORE_API_BASE,
+    NEXT_PUBLIC_CORE_API_URL: process.env.CORE_API_BASE,
+    NEXT_PUBLIC_ECHO_WS_URL: process.env.ECHO_WS,
     ECHO_WS: process.env.ECHO_WS,
     SITE_URL: process.env.SITE_URL,
     GC_DOMAIN: process.env.GC_DOMAIN,
