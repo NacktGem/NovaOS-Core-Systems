@@ -9,7 +9,7 @@
     "lint:all": "pnpm dlx eslint .",
     "test:all": "pnpm -r run test",
     "test": "vitest run",
-    "dev": "concurrently -n api,echo,web,gc,nova \"pnpm --filter services/core-api dev\" \"pnpm --filter services/echo dev\" \"pnpm --filter apps/web-shell dev\" \"pnpm --filter apps/gypsy-cove dev\" \"pnpm --filter apps/nova-console dev\"",
+    "dev": "concurrently -n api,echo,web,gc,nova \"pnpm --filter ./services/core-api dev\" \"pnpm --filter ./services/echo dev\" \"pnpm --filter ./apps/web-shell dev\" \"pnpm --filter ./apps/gypsy-cove dev\" \"pnpm --filter ./apps/nova-console dev\"",
     "dev:all": "pnpm dev"
   },
   "devDependencies": {

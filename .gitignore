@@ -58,6 +58,6 @@ vaults/backups/
 *.webp
 *.gif
 apps/**/public/*
-!.env.example
-!.env.core.example
-!.env.echo.example
+!**/.env.example
+!**/.env.core.example
+!**/.env.echo.example

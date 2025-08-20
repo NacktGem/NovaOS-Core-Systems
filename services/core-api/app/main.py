@@ -22,7 +22,10 @@ from app.routes import (
 
 app = FastAPI(title="Nova Core API")
 
-origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
+origins = os.getenv(
+    "CORS_ORIGINS",
+    "http://localhost:3000,http://localhost:3001,http://localhost:3002",
+).split(",")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

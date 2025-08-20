@@ -2,7 +2,8 @@ import os
 import sys
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 sys.path.append(str(Path(__file__).resolve().parents[4]))
@@ -24,22 +25,22 @@ class Job(BaseModel):
     command: str
     args: dict = {}
     log: bool = False
-    token: str | None = None
 
 
 @router.post("/{agent}")
-def run_agent(agent: str, job: Job):
+async def run_agent(agent: str, job: Job, request: Request):
+    token = request.headers.get("x-nova-token")
+    auth = request.headers.get("authorization")
+    if not token and auth and auth.lower().startswith("bearer "):
+        token = auth.split(" ", 1)[1]
+    expected = os.getenv("NOVA_AGENT_TOKEN")
+    if token != expected:
+        return JSONResponse({"success": False, "output": None, "error": "invalid agent token"}, status_code=401)
     payload = {
         "agent": agent,
         "command": job.command,
         "args": job.args,
         "log": job.log,
+        "token": token,
     }
-    if job.token:
-        payload["token"] = job.token
-    try:
-        return _nova.run(payload)
-    except PermissionError as exc:
-        raise HTTPException(status_code=401, detail=str(exc)) from exc
-    except KeyError as exc:
-        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return _nova.run(payload)
