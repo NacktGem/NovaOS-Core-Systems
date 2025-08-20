@@ -10,12 +10,9 @@ export default function Shell(){
 
   async function run(){
     try{
-      const res = await fetch(`${process.env.NEXT_PUBLIC_CORE_API_URL}/agents/${agent}`,{
+      const res = await fetch(`/api/agents/${agent}`, {
         method:'POST',
-        headers:{
-          'Content-Type':'application/json',
-          'X-NOVA-TOKEN': process.env.NOVA_AGENT_TOKEN as string,
-        },
+        headers:{ 'Content-Type':'application/json' },
         body: payload,
       })
       const json = await res.json()

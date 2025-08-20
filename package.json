@@ -6,11 +6,11 @@
   "scripts": {
     "preinstall": "npx -y only-allow pnpm",
     "build:all": "pnpm -r run build",
-    "lint:all": "pnpm dlx eslint .",
-    "test:all": "pnpm -r run test",
+    "lint:all": "pnpm -r lint",
+    "test:all": "pnpm -r test",
     "test": "vitest run",
     "dev": "concurrently -n api,echo,web,gc,nova \"pnpm --filter ./services/core-api dev\" \"pnpm --filter ./services/echo dev\" \"pnpm --filter ./apps/web-shell dev\" \"pnpm --filter ./apps/gypsy-cove dev\" \"pnpm --filter ./apps/nova-console dev\"",
-    "dev:all": "pnpm dev"
+    "dev:all": "pnpm -r dev"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
