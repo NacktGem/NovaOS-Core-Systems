@@ -10,6 +10,7 @@ from app.db.base import get_session
 from app.db.models import Message, Room
 
 router = APIRouter(prefix="/internal", tags=["internal"])
+health_router = APIRouter()
 
 _INTERNAL_TOKEN = os.getenv("ECHO_INTERNAL_TOKEN", "")
 
@@ -44,3 +45,13 @@ def internal_messages(
     session.add(msg)
     session.flush()
     return {"id": str(msg.id)}
+
+
+@health_router.get("/healthz")
+def healthz():
+    return {"status": "ok"}
+
+
+@health_router.get("/readyz")
+def readyz():
+    return {"status": "ok"}

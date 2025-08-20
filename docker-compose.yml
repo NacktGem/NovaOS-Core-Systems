@@ -1,119 +1,46 @@
-version: "3.9"
-
-x-healthcheck-pg: &healthcheck_pg
-  test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nova} -d ${POSTGRES_DB:-nova}"]
-  interval: 5s
-  timeout: 3s
-  retries: 20
-  start_period: 10s
-
-x-healthcheck-http: &healthcheck_http
-  test: ["CMD", "curl", "-fsS", "http://localhost:healthz"]
-  interval: 5s
-  timeout: 3s
-  retries: 20
-  start_period: 10s
-
-networks:
-  nova_net:
-
-volumes:
-  pgdata:
-  redisdata:
-
+version: '3.9'
 services:
-  db:
-    image: postgres:16
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-nova}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nova}
-      POSTGRES_DB: ${POSTGRES_DB:-nova}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck: *healthcheck_pg
-    networks: [nova_net]
-
-  redis:
-    image: redis:7
-    restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes"]
-    volumes:
-      - redisdata:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-      start_period: 5s
-    networks: [nova_net]
-
   core-api:
-    build: ./services/core-api
-    restart: unless-stopped
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
-    env_file: [.env.core]
-    ports: ["8000:8000"]
-    healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:8000/healthz"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-      start_period: 10s
-    networks: [nova_net]
-
+    build:
+      context: .
+      dockerfile: services/core-api/Dockerfile
+    profiles: ['prod']
+    env_file: [.env]
+    volumes:
+      - ./logs:/app/logs
+    ports:
+      - '8760:8760'
   echo:
-    build: ./services/echo
-    restart: unless-stopped
-    depends_on:
-      redis:
-        condition: service_started
-      core-api:
-        condition: service_healthy
-    env_file: [.env.echo]
-    ports: ["8010:8010"]
-    healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:8010/healthz"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-      start_period: 10s
-    networks: [nova_net]
-
-  audita:
-    build: ./services/audita
-    restart: unless-stopped
-    depends_on:
-      db:
-        condition: service_healthy
-      core-api:
-        condition: service_healthy
-    ports: ["8020:8020"]
-    healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:8020/healthz"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-      start_period: 10s
-    networks: [nova_net]
-
-  velora:
-    build: ./services/velora
-    restart: unless-stopped
-    depends_on:
-      db:
-        condition: service_healthy
-      core-api:
-        condition: service_healthy
-    ports: ["8030:8030"]
-    healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:8030/healthz"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-      start_period: 10s
-    networks: [nova_net]
+    build:
+      context: .
+      dockerfile: services/echo/Dockerfile
+    profiles: ['prod']
+    env_file: [.env]
+    volumes:
+      - ./logs:/app/logs
+    ports:
+      - '8765:8765'
+  gypsy-cove:
+    build:
+      context: .
+      dockerfile: apps/gypsy-cove/Dockerfile
+    profiles: ['prod']
+    env_file: [.env]
+    ports:
+      - '3000:3000'
+  nova-console:
+    build:
+      context: .
+      dockerfile: apps/nova-console/Dockerfile
+    profiles: ['prod']
+    env_file: [.env]
+    ports:
+      - '3001:3001'
+  web-shell:
+    build:
+      context: .
+      dockerfile: apps/web-shell/Dockerfile
+    profiles: ['prod']
+    env_file: [.env]
+    ports:
+      - '3002:3002'

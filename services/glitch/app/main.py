@@ -26,6 +26,11 @@ async def healthz() -> JSONResponse:
     return JSONResponse({"status": "ok"})
 
 
+@app.get("/readyz")
+async def readyz() -> JSONResponse:
+    return JSONResponse({"status": "ok"})
+
+
 @app.get("/metrics")
 async def metrics() -> JSONResponse:
     # TODO: integrate with Prometheus client

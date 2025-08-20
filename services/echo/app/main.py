@@ -17,6 +17,14 @@ async def healthz(redis=Depends(get_redis)):
     return {"status": "ok"}
 
 
+@app.get("/readyz")
+async def readyz(redis=Depends(get_redis)):
+    pong = await redis.ping()
+    if not pong:
+        raise HTTPException(status_code=503, detail="redis not ready")
+    return {"status": "ok"}
+
+
 @app.websocket("/ws")
 async def ws_endpoint(websocket: WebSocket, room: str = Query(...)):
     try:

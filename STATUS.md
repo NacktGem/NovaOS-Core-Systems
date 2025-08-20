@@ -19,8 +19,9 @@
   - `NOVA_AGENT_TOKEN=changeme ./scripts/audit.sh generate_audit`
 
 ## Verify
-- `pnpm lint:all && pnpm test:all`
-- `pnpm dev:all` boots apps with at least one working route
-- UI Console shows agents + outputs
-- Logs written to `logs/{agent}/*.json`
+### Phase 4
+- `pnpm -r lint && pnpm -r test`
+- `make up` launches prod stack; `make down` stops it
+- `/healthz` and `/readyz` return ok on all services
+- agent responses include `job_id` and UIs expose a **view log** link
 
