@@ -1,4 +1,4 @@
-from . import auth, palettes, payments, rooms, messages, consent, dmca, analytics, agents
+from . import auth, palettes, payments, rooms, messages, consent, dmca, analytics, agents, logs
 
 __all__ = [
     "auth",
@@ -10,4 +10,5 @@ __all__ = [
     "dmca",
     "analytics",
     "agents",
+    "logs",
 ]

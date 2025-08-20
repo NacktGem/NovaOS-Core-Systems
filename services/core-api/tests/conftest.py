@@ -46,6 +46,9 @@ def setup_env(tmp_path: pathlib.Path):
     os.environ.setdefault("ECHO_INTERNAL_TOKEN", "dev_internal_token")
     os.environ.setdefault("CORS_ORIGINS", "http://test")
     os.environ.setdefault("REDIS_URL", "redis://test")
+    os.environ.setdefault(
+        "NOVA_AGENT_ROLES_ALLOW", "GODMODE,SUPER_ADMIN,ADMIN_AGENT"
+    )
 
 
 def patch_redis():

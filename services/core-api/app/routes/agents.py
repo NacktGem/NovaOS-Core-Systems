@@ -20,6 +20,8 @@ _registry.register("glitch", GlitchAgent())
 _registry.register("echo", EchoAgent())
 _nova = NovaAgent(_registry)
 
+_allow = {r.strip().upper() for r in os.getenv("NOVA_AGENT_ROLES_ALLOW", "GODMODE,SUPER_ADMIN,ADMIN_AGENT").split(",")}
+
 
 class Job(BaseModel):
     command: str
@@ -36,11 +38,21 @@ async def run_agent(agent: str, job: Job, request: Request):
     expected = os.getenv("NOVA_AGENT_TOKEN")
     if token != expected:
         return JSONResponse({"success": False, "output": None, "error": "invalid agent token"}, status_code=401)
+    role = request.headers.get("x-role", "").upper()
+    if role not in _allow:
+        return JSONResponse({"success": False, "output": None, "error": "forbidden"}, status_code=403)
     payload = {
         "agent": agent,
         "command": job.command,
         "args": job.args,
         "log": job.log,
         "token": token,
+        "role": role,
     }
-    return _nova.run(payload)
+    resp = _nova.run(payload)
+    metrics = getattr(request.app.state, "agent_calls_total", None)
+    if metrics:
+        metrics.labels(agent=agent, success=str(resp.get("success"))).inc()
+        if not resp.get("success"):
+            request.app.state.errors_total.inc()
+    return resp

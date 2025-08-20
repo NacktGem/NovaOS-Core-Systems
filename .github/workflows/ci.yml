@@ -13,6 +13,13 @@ jobs:
       - run: pnpm -r lint
       - run: pnpm -r build
       - run: pnpm -r test
+      - run: pnpm dlx license-checker-rseidelsohn --summary
+      - run: |
+          if command -v syft >/dev/null 2>&1; then
+            syft dir:. -o json > sbom.json
+          else
+            echo 'syft not installed'
+          fi
   python:
     runs-on: ubuntu-latest
     steps:
@@ -23,3 +30,12 @@ jobs:
       - run: uv venv
       - run: uv pip install -r requirements-dev.txt || true
       - run: pytest agents/glitch/tests core/tests -q
+      - run: |
+          cd services/core-api
+          alembic upgrade head --sql >/dev/null
+          heads=$(alembic heads | wc -l)
+          if [ "$heads" -ne 1 ]; then
+            echo 'multiple migration heads'
+            exit 1
+          fi
+          alembic current

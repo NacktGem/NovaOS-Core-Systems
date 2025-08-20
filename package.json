@@ -10,7 +10,8 @@
     "test:all": "pnpm -r test",
     "test": "vitest run",
     "dev": "concurrently -n api,echo,web,gc,nova \"pnpm --filter ./services/core-api dev\" \"pnpm --filter ./services/echo dev\" \"pnpm --filter ./apps/web-shell dev\" \"pnpm --filter ./apps/gypsy-cove dev\" \"pnpm --filter ./apps/nova-console dev\"",
-    "dev:all": "pnpm -r dev"
+    "dev:all": "pnpm -r dev",
+    "e2e": "bash scripts/e2e.sh"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
@@ -21,6 +22,8 @@
     "prettier": "^3.3.3",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.10.0",
-    "vitest": "^2.0.5"
+    "vitest": "^2.0.5",
+    "puppeteer": "^23.4.1",
+    "tsx": "^4.19.0"
   }
 }

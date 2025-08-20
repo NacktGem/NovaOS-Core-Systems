@@ -23,3 +23,20 @@
 ## Health
 Each service exposes `/healthz` and `/readyz`.
 Ensure reverse proxies preserve `X-Forwarded-For` and related headers for accurate logs.
+
+## Metrics
+Enable metrics with `PROM_ENABLED=true`.
+Example Prometheus scrape config:
+```yaml
+scrape_configs:
+  - job_name: core-api
+    static_configs:
+      - targets: ['localhost:8760']
+```
+
+## Restore
+Backups are stored in `backups/backup-*.tgz`.
+To restore:
+```bash
+tar xzf backups/backup-<timestamp>.tgz
+```
