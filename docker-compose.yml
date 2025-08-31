@@ -62,13 +62,11 @@ services:
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       JWT_PRIVATE_KEY_PATH: ${JWT_PRIVATE_KEY_PATH:-/run/secrets/dev_jwt_private.pem}
       JWT_PUBLIC_KEY_PATH: ${JWT_PUBLIC_KEY_PATH:-/run/secrets/dev_jwt_public.pem}
-      JWT_LIFETIME: ${JWT_LIFETIME:-900}
-    volumes:
-      - ./logs:/app/logs
-      - ./secrets:/run/secrets:ro
     secrets:
       - dev_jwt_private
       - dev_jwt_public
+    volumes:
+      - ./logs:/app/logs
     ports:
       - "8760:8760"
     depends_on:

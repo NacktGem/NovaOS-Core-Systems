@@ -1,0 +1,25 @@
+name: novaos-core-api
+services:
+  - name: core-api
+    image: ghcr.io/OWNER/NovaOS-Core-Systems/novaos-core-api:latest # replace OWNER or use DO registry
+    run_command: uvicorn app.main:app --host 0.0.0.0 --port 8760
+    envs:
+      - key: JWT_PRIVATE_KEY_PATH
+        scope: RUN_AND_BUILD
+      - key: JWT_PUBLIC_KEY_PATH
+        scope: RUN_AND_BUILD
+      - key: JWT_LIFETIME
+        scope: RUN_AND_BUILD
+    instance_size_slug: basic-xxs
+    instance_count: 1
+    http_port: 8760
+    routes:
+      - path: /
+    health_check:
+      protocol: HTTP
+      path: /health
+      port: 8760
+    secrets:
+      - key: JWT_PRIVATE_KEY
+      - key: JWT_PUBLIC_KEY
+    dockerfile_path: ./services/core-api/Dockerfile
