@@ -93,3 +93,4 @@ tools/node/pnpm-store/
 # VS Code workspace storage
 .vscode-test/
 
+.env
