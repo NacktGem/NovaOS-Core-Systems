@@ -69,8 +69,6 @@ services:
     secrets:
       - dev_jwt_private
       - dev_jwt_public
-    volumes:
-      - ./logs:/app/logs
     ports:
       - "8760:8760"
     depends_on:
