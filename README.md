@@ -83,3 +83,5 @@ Glitch forensics shortcuts:
 ./scripts/forensics.sh hash path/to/file
 ./scripts/forensics.sh scan
 ```
+
+<!-- ci: trigger core-api-deploy workflow -->
