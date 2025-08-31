@@ -6,18 +6,26 @@ endpoints for monitoring. Admin endpoints require an internal token.
 """
 
 import os
+import asyncio
 from fastapi import FastAPI, Header, HTTPException, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import PlainTextResponse, JSONResponse
 
-from agent_core import configure_logging, RedisBus, AgentWorker  # type: ignore
-
+from agent_core import configure_logging  # type: ignore
 
 app = FastAPI(title="Glitch Service")
+
+# Simple in-memory paused flag for the worker(s)
+_worker_paused = asyncio.Event()
+_worker_paused.set()  # set() == not paused; clear() == paused
+
+# Simple Prometheus-like metric counters
+_metrics = {"processed": 0, "errors": 0}
+
+INTERNAL_TOKEN = os.getenv("INTERNAL_TOKEN", "")
 
 
 @app.on_event("startup")
 async def startup_event() -> None:
-    # Configure logging once at startup
     configure_logging()
 
 
@@ -32,13 +40,12 @@ async def readyz() -> JSONResponse:
 
 
 @app.get("/metrics")
-async def metrics() -> JSONResponse:
-    # TODO: integrate with Prometheus client
-    return JSONResponse({"metrics": {}})
-
-
-# Simple admin auth via internal token from env
-INTERNAL_TOKEN = os.getenv("INTERNAL_TOKEN", "")
+async def metrics() -> PlainTextResponse:
+    # Render simple text metrics in Prometheus exposition format
+    body = []
+    body.append(f"glitch_processed_total {_metrics['processed']}")
+    body.append(f"glitch_errors_total {_metrics['errors']}")
+    return PlainTextResponse("\n".join(body), media_type="text/plain; version=0.0.4")
 
 
 def verify_admin(x_internal_token: str = Header("")) -> None:
@@ -49,12 +56,31 @@ def verify_admin(x_internal_token: str = Header("")) -> None:
 @app.post("/admin/pause")
 async def admin_pause(x_internal_token: str = Header("")) -> JSONResponse:
     verify_admin(x_internal_token)
-    # Implementation to pause worker would go here (stub)
+    _worker_paused.clear()
     return JSONResponse({"status": "paused"})
 
 
 @app.post("/admin/resume")
 async def admin_resume(x_internal_token: str = Header("")) -> JSONResponse:
     verify_admin(x_internal_token)
-    # Implementation to resume worker would go here (stub)
+    _worker_paused.set()
     return JSONResponse({"status": "resumed"})
+
+
+# Example worker coroutine that respects the paused state
+async def worker_loop():
+    while True:
+        await _worker_paused.wait()
+        # Process a task (placeholder for real work)
+        try:
+            # ... task processing logic ...
+            _metrics['processed'] += 1
+        except Exception:
+            _metrics['errors'] += 1
+        await asyncio.sleep(1)
+
+
+# Start background worker if not already managed externally
+@app.on_event("startup")
+async def start_worker_task():
+    app.state._worker_task = asyncio.create_task(worker_loop())
