@@ -10,21 +10,27 @@ from sqlalchemy.orm import Session
 from app.db.base import get_session
 from app.db.models import User
 
-# 🔐 Load key paths from environment (set by Docker)
-PRIVATE_KEY_PATH = os.getenv("JWT_PRIVATE_KEY_PATH")
-PUBLIC_KEY_PATH = os.getenv("JWT_PUBLIC_KEY_PATH")
 ALGORITHM = "RS256"
 LIFETIME_SECONDS = int(os.getenv("JWT_LIFETIME", "900"))
 
-# 🚫 Fail fast if env vars are missing
-if not PRIVATE_KEY_PATH or not PUBLIC_KEY_PATH:
-    raise RuntimeError("JWT_PRIVATE_KEY_PATH or JWT_PUBLIC_KEY_PATH is not set in environment.")
 
-# 🔐 Load keys
-with open(PRIVATE_KEY_PATH, "rb") as f:
-    _private_key = f.read()
-with open(PUBLIC_KEY_PATH, "rb") as f:
-    _public_key = f.read()
+def _read_key(path_env_name: str) -> bytes:
+    path = os.getenv(path_env_name)
+    if not path:
+        raise RuntimeError(f"{path_env_name} is not set in environment; set it to the PEM file path.")
+    try:
+        with open(path, "rb") as f:
+            return f.read()
+    except FileNotFoundError:
+        raise RuntimeError(f"Key file not found at {path} (env {path_env_name}).")
+
+
+def _get_private_key() -> bytes:
+    return _read_key("JWT_PRIVATE_KEY_PATH")
+
+
+def _get_public_key() -> bytes:
+    return _read_key("JWT_PUBLIC_KEY_PATH")
 
 
 def create_token(sub: str, claims: Dict[str, Any]) -> str:
@@ -34,11 +40,13 @@ def create_token(sub: str, claims: Dict[str, Any]) -> str:
         "exp": int(time.time()) + LIFETIME_SECONDS,
     }
     payload.update(claims)
-    return jwt.encode(payload, _private_key, algorithm=ALGORITHM)
+    private = _get_private_key()
+    return jwt.encode(payload, private, algorithm=ALGORITHM)
 
 
 def verify_token(token: str) -> Dict[str, Any]:
-    return jwt.decode(token, _public_key, algorithms=[ALGORITHM])
+    public = _get_public_key()
+    return jwt.decode(token, public, algorithms=[ALGORITHM])
 
 
 def get_current_user(
