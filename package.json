@@ -1,0 +1,29 @@
+{
+  "name": "novaos-core-systems",
+  "private": true,
+  "packageManager": "pnpm@10.14.0",
+  "workspaces": ["apps/*","services/*","packages/*","agents/*","modules/*"],
+  "scripts": {
+    "preinstall": "npx -y only-allow pnpm",
+    "build:all": "pnpm -r run build",
+    "lint:all": "pnpm -r lint",
+    "test:all": "pnpm -r test",
+    "test": "vitest run",
+    "dev": "concurrently -n api,echo,web,gc,nova \"pnpm --filter ./services/core-api dev\" \"pnpm --filter ./services/echo dev\" \"pnpm --filter ./apps/web-shell dev\" \"pnpm --filter ./apps/gypsy-cove dev\" \"pnpm --filter ./apps/nova-console dev\"",
+    "dev:all": "pnpm -r dev",
+    "e2e": "bash scripts/e2e.sh"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.13.0",
+    "@types/node": "^24.3.0",
+    "concurrently": "^9.1.0",
+    "critters": "^0.0.25",
+    "eslint": "^9.13.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.10.0",
+    "vitest": "^2.0.5",
+    "puppeteer": "^23.4.1",
+    "tsx": "^4.19.0"
+  }
+}

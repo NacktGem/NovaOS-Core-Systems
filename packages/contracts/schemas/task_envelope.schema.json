@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/task_envelope.schema.json",
+  "title": "TaskEnvelope",
+  "description": "Envelope describing a task dispatched on the agents bus.",
+  "type": "object",
+  "required": ["id", "type", "created_at", "priority", "actor", "payload"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "A unique identifier for the task."
+    },
+    "type": {
+      "type": "string",
+      "description": "The type of task being executed."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the task was created."
+    },
+    "priority": {
+      "type": "integer",
+      "description": "Relative priority of the task. 0 is highest."
+    },
+    "actor": {
+      "type": "string",
+      "description": "Name of the component creating the task."
+    },
+    "payload": {
+      "type": "object",
+      "description": "Arbitrary JSON payload for the task."
+    }
+  },
+  "additionalProperties": false
+}

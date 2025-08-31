@@ -1,0 +1,82 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "core-api"
+version = "0.1.0"
+description = "NovaOS Core API Service — Auth, Agent Orchestration, Redis, Postgres, Secure API"
+readme = "README.md"
+requires-python = ">=3.11"
+
+dependencies = [
+  "fastapi==0.116.1",
+  "uvicorn[standard]==0.35.0",                 # Includes watchgod, websockets, etc.
+  "pydantic==2.11.7",
+  "python-dotenv==1.0.1",
+  "itsdangerous==2.2.0",
+  "python-jose[cryptography]==3.3.0",          # JWT signing/verification
+  "argon2-cffi==23.1.0",                       # Secure password hashing
+  "sqlalchemy==2.0.34",
+  "psycopg[binary]==3.2.1",                    # PostgreSQL adapter
+  "alembic==1.13.2",                           # Database migrations
+  "redis==5.0.1",                              # Redis Pub/Sub + KV
+  "invoke==2.2.0",                             # CLI Task runner
+  "loguru==0.7.2",                             # Modern logging
+  "orjson==3.10.3",                            # Superfast JSON (FastAPI response class)
+  "typing-extensions>=4.5.0",
+  "starlette-context==0.3.6",                  # Middleware for request-level context (like req.id)
+  "httpx==0.28.1",                             # Async HTTP client (used by agents)
+]
+
+[project.optional-dependencies]
+dev = [
+  "ruff==0.6.9",
+  "mypy==1.10.0",
+  "pytest==8.4.1",
+  "pytest-asyncio==0.23.7",
+  "httpx==0.28.1",
+  "types-python-jose",
+  "types-redis",
+  "types-orjson",
+  "pre-commit",
+]
+
+[tool.setuptools]
+packages = ["app"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+plugins = ["pydantic.mypy"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = [
+  "F", "E", "W",          # pyflakes/pycodestyle
+  "I",                    # isort
+  "B",                    # bugbear
+  "UP",                   # pyupgrade
+  "SIM",                  # simplify
+  "C4",                   # comprehensions
+  "N",                    # pep8-naming
+  "D",                    # pydocstyle
+]
+ignore = ["D100", "D104", "D107"]  # Skip top-level docstring complaints
+
+[tool.pytest.ini_options]
+addopts = "-ra -q"
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.isort]
+profile = "black"
+line_length = 100
+known_first_party = ["app"]
+known_third_party = ["fastapi", "sqlalchemy", "redis", "uvicorn", "pydantic"]
+
