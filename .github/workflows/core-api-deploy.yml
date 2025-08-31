@@ -1,0 +1,74 @@
+name: Build, Push & Deploy Core API
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "services/core-api/**"
+      - ".github/workflows/core-api.yml"
+      - "do-appspec-core-api.yaml"
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/novaos-core-api:latest
+
+jobs:
+  build-and-push:
+    name: 🔧 Build & Push Core API
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧾 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🧩 Setup Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 📦 Install pnpm
+        run: npm install -g pnpm
+
+      - name: 📦 Install Workspace Dependencies
+        run: pnpm install -r
+
+      - name: 🛠️ Set up QEMU (multi-arch)
+        uses: docker/setup-qemu-action@v2
+
+      - name: 🛠️ Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: 🔐 Login to GitHub Container Registry
+        if: ${{ secrets.GHCR_PAT != '' }}
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT }}
+
+      - name: 🏗️ Build Docker Image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./services/core-api
+          file: ./services/core-api/Dockerfile
+          push: ${{ secrets.GHCR_PAT != '' }}
+          tags: ${{ env.IMAGE_NAME }}
+          provenance: false
+
+  deploy-to-do:
+    name: 🚀 Deploy to DigitalOcean
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+      - name: 🧾 Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: 🔐 Install doctl (DigitalOcean CLI)
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_API_TOKEN }}
+
+      - name: 🚀 Deploy DO App via App Spec
+        run: doctl apps update --spec do-appspec-core-api.yaml
+
