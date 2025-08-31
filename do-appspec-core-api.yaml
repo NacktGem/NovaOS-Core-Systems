@@ -23,3 +23,5 @@ services:
       - key: JWT_PRIVATE_KEY
       - key: JWT_PUBLIC_KEY
     dockerfile_path: ./services/core-api/Dockerfile
+
+# ci: trigger core-api-deploy workflow
