@@ -60,8 +60,12 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://nova:nova_pass@db:5432/nova_core}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
-      PRIVATE_KEY_PATH: ${JWT_PRIVATE_KEY_PATH:-/run/secrets/dev_jwt_private.pem}
-      PUBLIC_KEY_PATH: ${JWT_PUBLIC_KEY_PATH:-/run/secrets/dev_jwt_public.pem}
+      JWT_PRIVATE_KEY_PATH: ${JWT_PRIVATE_KEY_PATH:-/run/secrets/dev_jwt_private.pem}
+      JWT_PUBLIC_KEY_PATH: ${JWT_PUBLIC_KEY_PATH:-/run/secrets/dev_jwt_public.pem}
+      JWT_LIFETIME: ${JWT_LIFETIME:-900}
+    volumes:
+      - ./logs:/app/logs
+      - ./secrets:/run/secrets:ro
     secrets:
       - dev_jwt_private
       - dev_jwt_public
