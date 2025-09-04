@@ -1,9 +1,22 @@
 import os
 import json
 from typing import Any, Dict, List, Optional, Tuple
+from urllib.parse import urlparse
 
 import redis.asyncio as aioredis
 
+
+def _parse_redis_db_from_url(redis_url: str) -> int:
+    """Parse Redis database number from URL, defaulting to 0."""
+    try:
+        parsed = urlparse(redis_url)
+        if parsed.path and len(parsed.path) > 1:
+            # Extract DB number from path like '/2'
+            db_str = parsed.path.lstrip('/')
+            return int(db_str) if db_str.isdigit() else 0
+    except:
+        pass
+    return 0
 
 class RedisBus:
     """
@@ -13,12 +26,28 @@ class RedisBus:
     specialized behavior.
     """
 
-    def __init__(self, redis_url: str, stream_name: str, group_name: str, dlq_stream: Optional[str] = None) -> None:
+    def __init__(self, redis_url: str, stream_name: str, group_name: str, dlq_stream: Optional[str] = None, redis_db: Optional[int] = None) -> None:
         self.redis_url = redis_url
         self.stream_name = stream_name
         self.group_name = group_name
         self.dlq_stream = dlq_stream or f"{stream_name}:dlq"
-        self.client: aioredis.Redis = aioredis.from_url(redis_url, decode_responses=True)
+        
+        # Determine Redis DB
+        if redis_db is not None:
+            db_num = redis_db
+        elif os.getenv("REDIS_DB"):
+            db_num = int(os.getenv("REDIS_DB"))
+        else:
+            db_num = _parse_redis_db_from_url(redis_url)
+        
+        # Create base URL without database path
+        parsed = urlparse(redis_url)
+        base_url = f"{parsed.scheme}://{parsed.netloc}"
+        
+        self.client: aioredis.Redis = aioredis.from_url(base_url, db=db_num, decode_responses=True)
+        
+        # Log Redis connection for audit (basic print since this is a utility class)
+        print(f"RedisBus: Connected to Redis database {db_num} at {base_url}")
 
     async def ensure_group(self) -> None:
         """Create the stream and consumer group if they do not already exist."""
