@@ -1,5 +1,6 @@
 import os, json, threading, time, signal, sys
 import redis
+from .alog import info
 
 AGENT = os.getenv("AGENT_NAME", "unknown")
 REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
@@ -15,13 +16,14 @@ def _handle(msg):
         return
     op = data.get("op")
     if op == "ping":
-        # nothing to print in prod; heartbeat covers liveness
+        info("ping received")
         return
     if op == "cycle":
-        # graceful self-terminate so Docker restart policy takes over
+        info("cycle requested; exiting for supervisor restart")
         os._exit(0)
     if op == "task":
         # optional: surface a lightweight signal file the agent can watch
+        info("task received", {"args": data.get("args", {})})
         path = f"/tmp/agent_task_{AGENT}.json"
         try:
             with open(path, "w") as f:
