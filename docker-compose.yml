@@ -159,6 +159,7 @@ services:
     env_file: [.env]
     environment:
       NODE_ENV: production
+      PORT: 3002
       CORE_API_URL: ${CORE_API_URL:-http://core-api:8760}
     ports:
       - "3002:3002"
