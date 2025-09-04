@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+"""Glitch CLI executable script."""
+
+import sys
+import os
+from pathlib import Path
+
+# Add the project root and agents directory to Python path
+current_dir = Path(__file__).parent
+project_root = current_dir.parent.parent
+agents_dir = project_root / "agents"
+
+sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(agents_dir))
+
+# Now import and run the CLI
+try:
+    from glitch.cli import main
+    main()
+except ImportError:
+    print("Error: Could not import Glitch CLI modules")
+    sys.exit(1)
