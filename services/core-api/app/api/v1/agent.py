@@ -2,6 +2,7 @@ import json, time
 from fastapi import APIRouter, Depends
 from ...deps import get_redis, require_agent_token
 from ...schemas.agent import AgentBeat
+from ...schemas.command import AgentCommand
 
 router = APIRouter(prefix="/api/v1/agent", tags=["agent"])
 
@@ -31,3 +32,12 @@ async def online(r = Depends(get_redis)):
         if raw:
             out.append(json.loads(raw))
     return {"agents": out}
+
+@router.post("/command")
+async def command(cmd: AgentCommand, r = Depends(get_redis), _=Depends(require_agent_token)):
+    # Channel pattern: agent.{name}.control or agent.all.control
+    target = cmd.agent if cmd.agent != "all" else "all"
+    chan = f"agent.{target}.control"
+    payload = cmd.model_dump()
+    await r.publish(chan, json.dumps(payload))
+    return {"ok": True, "published": chan}
