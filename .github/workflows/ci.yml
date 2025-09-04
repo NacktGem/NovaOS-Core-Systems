@@ -14,12 +14,15 @@ jobs:
       - run: pnpm -r build
       - run: pnpm -r test
       - run: pnpm dlx license-checker-rseidelsohn --summary
-      - run: |
-          if command -v syft >/dev/null 2>&1; then
-            syft dir:. -o json > sbom.json
-          else
-            echo 'syft not installed'
-          fi
+      - name: Install Syft
+        run: curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+      - name: Generate SBOM
+        run: syft dir:. -o syft-json > .sbom/project-sbom.json
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-sbom
+          path: .sbom/project-sbom.json
   python:
     runs-on: ubuntu-latest
     steps:
