@@ -60,6 +60,7 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://nova:nova_pass@db:5432/nova_core}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      REDIS_DB: ${REDIS_DB}  # Optional Redis DB override
       JWT_PRIVATE_KEY_PATH: ${JWT_PRIVATE_KEY_PATH:-/run/secrets/dev_jwt_private.pem}
       JWT_PUBLIC_KEY_PATH: ${JWT_PUBLIC_KEY_PATH:-/run/secrets/dev_jwt_public.pem}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
@@ -94,6 +95,7 @@ services:
     environment:
       CORE_API_URL: ${CORE_API_URL:-http://core-api:8760}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      REDIS_DB: ${REDIS_DB}  # Optional Redis DB override
     volumes:
       - ./logs:/app/logs
     ports:
@@ -184,6 +186,7 @@ services:
       PYTHONUNBUFFERED: "1"
       CORE_API_URL: ${CORE_API_URL}
       REDIS_URL: ${REDIS_URL}
+      REDIS_DB: ${REDIS_DB}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
       AGENT_HEARTBEAT_INTERVAL: 20
     command: ["python", "-u", "scripts/run_agent_runtime.py", "agents/nova/agent.py", "nova"]
@@ -215,6 +218,7 @@ services:
       PYTHONUNBUFFERED: "1"
       CORE_API_URL: ${CORE_API_URL}
       REDIS_URL: ${REDIS_URL}
+      REDIS_DB: ${REDIS_DB}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
       AGENT_HEARTBEAT_INTERVAL: 20
     command: ["python", "-u", "scripts/run_agent_runtime.py", "agents/lyra/agent.py", "lyra"]
@@ -247,6 +251,7 @@ services:
       CORE_API_URL: ${CORE_API_URL}
       REDIS_URL: ${REDIS_URL}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
+      REDIS_DB: ${REDIS_DB}
       AGENT_HEARTBEAT_INTERVAL: 20
     command: ["python", "-u", "scripts/run_agent_runtime.py", "agents/velora/agent.py", "velora"]
     healthcheck:
@@ -278,6 +283,7 @@ services:
       CORE_API_URL: ${CORE_API_URL}
       REDIS_URL: ${REDIS_URL}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
+      REDIS_DB: ${REDIS_DB}
       AGENT_HEARTBEAT_INTERVAL: 20
     command: ["python", "-u", "scripts/run_agent_runtime.py", "agents/glitch/agent.py", "glitch"]
     healthcheck:
@@ -313,6 +319,7 @@ services:
       ECHO_INTERNAL_TOKEN: ${ECHO_INTERNAL_TOKEN}
       JWT_PUBLIC_KEY_PATH: ${JWT_PUBLIC_KEY_PATH}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
+      REDIS_DB: ${REDIS_DB}
       AGENT_HEARTBEAT_INTERVAL: 20
     command: ["python", "-u", "scripts/run_agent_runtime.py", "agents/echo/agent.py", "echo"]
     volumes:
@@ -365,6 +372,7 @@ services:
       CORE_API_URL: ${CORE_API_URL}
       REDIS_URL: ${REDIS_URL}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
+      REDIS_DB: ${REDIS_DB}
       AGENT_HEARTBEAT_INTERVAL: 20
     command: ["python", "-u", "scripts/run_agent_runtime.py", "agents/riven/agent.py", "riven"]
     healthcheck:
@@ -396,6 +404,7 @@ services:
       CORE_API_URL: ${CORE_API_URL}
       REDIS_URL: ${REDIS_URL}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
+      REDIS_DB: ${REDIS_DB}
       AGENT_HEARTBEAT_INTERVAL: 20
     command: ["python", "-u", "scripts/run_agent_runtime.py", "agents/audita/agent.py", "audita"]
     healthcheck:
