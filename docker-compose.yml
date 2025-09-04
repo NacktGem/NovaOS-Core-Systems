@@ -169,6 +169,85 @@ services:
       - nova_net
     profiles: ["app"]
 
+  # -------------------- AGENTS --------------------
+  agent-nova:
+    build:
+      context: .
+      dockerfile: build/dockerfiles/agent.nova.Dockerfile
+    image: ghcr.io/nacktgem/novaos-agent-nova:latest
+    restart: unless-stopped
+    profiles: ["agents"]
+    environment:
+      PYTHONUNBUFFERED: "1"
+
+  agent-lyra:
+    build:
+      context: .
+      dockerfile: build/dockerfiles/agent.lyra.Dockerfile
+    image: ghcr.io/nacktgem/novaos-agent-lyra:latest
+    restart: unless-stopped
+    profiles: ["agents"]
+    environment:
+      PYTHONUNBUFFERED: "1"
+
+  agent-velora:
+    build:
+      context: .
+      dockerfile: build/dockerfiles/agent.velora.Dockerfile
+    image: ghcr.io/nacktgem/novaos-agent-velora:latest
+    restart: unless-stopped
+    profiles: ["agents"]
+    environment:
+      PYTHONUNBUFFERED: "1"
+
+  agent-glitch:
+    build:
+      context: .
+      dockerfile: build/dockerfiles/agent.glitch.Dockerfile
+    image: ghcr.io/nacktgem/novaos-agent-glitch:latest
+    restart: unless-stopped
+    profiles: ["agents"]
+    environment:
+      PYTHONUNBUFFERED: "1"
+
+  agent-echo:
+    build:
+      context: .
+      dockerfile: build/dockerfiles/agent.echo.Dockerfile
+    image: ghcr.io/nacktgem/novaos-agent-echo:latest
+    restart: unless-stopped
+    profiles: ["agents"]
+    environment:
+      PYTHONUNBUFFERED: "1"
+      # Echo typically needs these; ensure they exist in your .env
+      # REDIS_URL: redis://redis:6379/0
+      # CORE_API_URL: http://core-api:8000
+      # JWT_PUBLIC_KEY_PATH: /run/secrets/jwt_pub
+      # ECHO_INTERNAL_TOKEN: ${ECHO_INTERNAL_TOKEN}
+    depends_on:
+      - redis
+      - core-api
+
+  agent-riven:
+    build:
+      context: .
+      dockerfile: build/dockerfiles/agent.riven.Dockerfile
+    image: ghcr.io/nacktgem/novaos-agent-riven:latest
+    restart: unless-stopped
+    profiles: ["agents"]
+    environment:
+      PYTHONUNBUFFERED: "1"
+
+  agent-audita:
+    build:
+      context: .
+      dockerfile: build/dockerfiles/agent.audita.Dockerfile
+    image: ghcr.io/nacktgem/novaos-agent-audita:latest
+    restart: unless-stopped
+    profiles: ["agents"]
+    environment:
+      PYTHONUNBUFFERED: "1"
+
 # -------------------- SECRETS --------------------
 secrets:
   dev_jwt_private:
