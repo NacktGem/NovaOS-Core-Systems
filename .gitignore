@@ -33,6 +33,10 @@ coverage/
 playwright-report/
 test-results/
 
+# SBOM files (generated in CI)
+.sbom/*.json
+!.sbom/.gitkeep
+
 # Secrets
 *.key
 *.pem
