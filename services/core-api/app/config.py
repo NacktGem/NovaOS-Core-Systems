@@ -8,5 +8,6 @@ class Settings(BaseSettings):
         env_file = ".env"
         env_prefix = ""
         case_sensitive = False
+        extra = "ignore"  # Allow extra fields in .env without validation
 
 settings = Settings()
