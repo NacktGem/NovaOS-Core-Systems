@@ -18,6 +18,7 @@ from app.routes import (
     agents,
     logs,
 )
+from app.api.v1.agent import router as agent_router
 PROM_ENABLED = os.getenv("PROM_ENABLED") == "true"
 app = FastAPI(title="Nova Core API")
 
@@ -74,4 +75,5 @@ app.include_router(internal.router)
 app.include_router(dmca.router)
 app.include_router(analytics.router)
 app.include_router(agents.router)
+app.include_router(agent_router)
 app.include_router(logs.router)
