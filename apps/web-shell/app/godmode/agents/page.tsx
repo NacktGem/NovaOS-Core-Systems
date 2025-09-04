@@ -171,18 +171,15 @@ function AgentCard({ a }: { a: AgentState }) {
         <KV k="Caps" v={(a.capabilities && a.capabilities.length) ? a.capabilities.join(", ") : "—"} />
       </div>
 
-      <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
+      <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
         <MiniButton
           title="Raw JSON"
           onClick={() => {
             const json = JSON.stringify(a, null, 2);
-            const blob = new Blob([json], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
             const w = window.open();
             if (w) {
               w.document.write(`<pre style="white-space:pre-wrap;color:#A33A5B;background:#000003;padding:12px">${json.replace(/</g,"&lt;")}</pre>`);
             } else {
-              URL.revokeObjectURL(url);
               alert(json);
             }
           }}
@@ -192,6 +189,26 @@ function AgentCard({ a }: { a: AgentState }) {
           onClick={async () => {
             const cmd = `curl -s ${location.origin}/api/agents/online | jq`;
             await navigator.clipboard.writeText(cmd);
+          }}
+        />
+        <MiniButton
+          title="Ping"
+          onClick={async () => {
+            await fetch("/api/agents/command", {
+              method: "POST",
+              headers: {"content-type":"application/json"},
+              body: JSON.stringify({ agent: a.agent, op: "ping", args: {} }),
+            });
+          }}
+        />
+        <MiniButton
+          title="Restart"
+          onClick={async () => {
+            await fetch("/api/agents/command", {
+              method: "POST",
+              headers: {"content-type":"application/json"},
+              body: JSON.stringify({ agent: a.agent, op: "cycle", args: {} }),
+            });
           }}
         />
       </div>

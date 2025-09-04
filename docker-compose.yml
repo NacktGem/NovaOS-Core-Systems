@@ -161,6 +161,7 @@ services:
       NODE_ENV: production
       PORT: 3002
       CORE_API_URL: ${CORE_API_URL:-http://core-api:8760}
+      AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
     ports:
       - "3002:3002"
     depends_on:
@@ -182,9 +183,10 @@ services:
     environment:
       PYTHONUNBUFFERED: "1"
       CORE_API_URL: ${CORE_API_URL}
+      REDIS_URL: ${REDIS_URL}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
       AGENT_HEARTBEAT_INTERVAL: 20
-    command: ["python", "-u", "scripts/run_with_heartbeat.py", "agents/nova/agent.py", "nova"]
+    command: ["python", "-u", "scripts/run_agent_runtime.py", "agents/nova/agent.py", "nova"]
     healthcheck:
       test: ["CMD", "python", "scripts/healthcheck.py", "agents/nova/agent.py"]
       interval: 20s
@@ -212,9 +214,10 @@ services:
     environment:
       PYTHONUNBUFFERED: "1"
       CORE_API_URL: ${CORE_API_URL}
+      REDIS_URL: ${REDIS_URL}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
       AGENT_HEARTBEAT_INTERVAL: 20
-    command: ["python", "-u", "scripts/run_with_heartbeat.py", "agents/lyra/agent.py", "lyra"]
+    command: ["python", "-u", "scripts/run_agent_runtime.py", "agents/lyra/agent.py", "lyra"]
     healthcheck:
       test: ["CMD", "python", "scripts/healthcheck.py", "agents/lyra/agent.py"]
       interval: 20s
@@ -242,9 +245,10 @@ services:
     environment:
       PYTHONUNBUFFERED: "1"
       CORE_API_URL: ${CORE_API_URL}
+      REDIS_URL: ${REDIS_URL}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
       AGENT_HEARTBEAT_INTERVAL: 20
-    command: ["python", "-u", "scripts/run_with_heartbeat.py", "agents/velora/agent.py", "velora"]
+    command: ["python", "-u", "scripts/run_agent_runtime.py", "agents/velora/agent.py", "velora"]
     healthcheck:
       test: ["CMD", "python", "scripts/healthcheck.py", "agents/velora/agent.py"]
       interval: 20s
@@ -272,9 +276,10 @@ services:
     environment:
       PYTHONUNBUFFERED: "1"
       CORE_API_URL: ${CORE_API_URL}
+      REDIS_URL: ${REDIS_URL}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
       AGENT_HEARTBEAT_INTERVAL: 20
-    command: ["python", "-u", "scripts/run_with_heartbeat.py", "agents/glitch/agent.py", "glitch"]
+    command: ["python", "-u", "scripts/run_agent_runtime.py", "agents/glitch/agent.py", "glitch"]
     healthcheck:
       test: ["CMD", "python", "scripts/healthcheck.py", "agents/glitch/agent.py"]
       interval: 20s
@@ -309,7 +314,7 @@ services:
       JWT_PUBLIC_KEY_PATH: ${JWT_PUBLIC_KEY_PATH}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
       AGENT_HEARTBEAT_INTERVAL: 20
-    command: ["python", "-u", "scripts/run_with_heartbeat.py", "agents/echo/agent.py", "echo"]
+    command: ["python", "-u", "scripts/run_agent_runtime.py", "agents/echo/agent.py", "echo"]
     volumes:
       - type: bind
         source: ./agents
@@ -358,9 +363,10 @@ services:
     environment:
       PYTHONUNBUFFERED: "1"
       CORE_API_URL: ${CORE_API_URL}
+      REDIS_URL: ${REDIS_URL}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
       AGENT_HEARTBEAT_INTERVAL: 20
-    command: ["python", "-u", "scripts/run_with_heartbeat.py", "agents/riven/agent.py", "riven"]
+    command: ["python", "-u", "scripts/run_agent_runtime.py", "agents/riven/agent.py", "riven"]
     healthcheck:
       test: ["CMD", "python", "scripts/healthcheck.py", "agents/riven/agent.py"]
       interval: 20s
@@ -388,9 +394,10 @@ services:
     environment:
       PYTHONUNBUFFERED: "1"
       CORE_API_URL: ${CORE_API_URL}
+      REDIS_URL: ${REDIS_URL}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
       AGENT_HEARTBEAT_INTERVAL: 20
-    command: ["python", "-u", "scripts/run_with_heartbeat.py", "agents/audita/agent.py", "audita"]
+    command: ["python", "-u", "scripts/run_agent_runtime.py", "agents/audita/agent.py", "audita"]
     healthcheck:
       test: ["CMD", "python", "scripts/healthcheck.py", "agents/audita/agent.py"]
       interval: 20s
