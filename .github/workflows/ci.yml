@@ -17,7 +17,12 @@ jobs:
       - name: Install Syft
         run: curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
       - name: Generate SBOM
-        run: syft dir:. -o syft-json > .sbom/project-sbom.json
+        run: |
+          mkdir -p .sbom
+          syft dir:. -o syft-json > .sbom/project-sbom.json || { echo "SBOM generation failed"; exit 1; }
+          if [ ! -s .sbom/project-sbom.json ]; then
+            echo "SBOM file is empty or not generated"; exit 1
+          fi
       - name: Upload SBOM
         uses: actions/upload-artifact@v4
         with:

@@ -55,7 +55,10 @@ jobs:
       - name: Generate SBOM for ${{ matrix.agent }}
         run: |
           mkdir -p .sbom
-          syft ghcr.io/${{ github.repository_owner }}/novaos-agent-${{ matrix.agent }}:${{ github.sha }} -o syft-json > .sbom/${{ matrix.agent }}-sbom.json
+          syft ghcr.io/${{ github.repository_owner }}/novaos-agent-${{ matrix.agent }}:${{ github.sha }} -o syft-json > .sbom/${{ matrix.agent }}-sbom.json || { echo "SBOM generation failed for ${{ matrix.agent }}"; exit 1; }
+          if [ ! -s .sbom/${{ matrix.agent }}-sbom.json ]; then
+            echo "SBOM file is empty for ${{ matrix.agent }}"; exit 1
+          fi
 
       - name: Upload SBOM for ${{ matrix.agent }}
         uses: actions/upload-artifact@v4
