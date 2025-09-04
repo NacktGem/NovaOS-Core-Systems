@@ -1,0 +1,36 @@
+name: Build Agents
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        agent:
+          - nova
+          - lyra
+          - velora
+          - glitch
+          - echo
+          - riven
+          - audita
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build ${{ matrix.agent }} image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: build/dockerfiles/agent.${{ matrix.agent }}.Dockerfile
+          push: false
+          tags: ghcr.io/nacktgem/novaos-agent-${{ matrix.agent }}:ci-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
