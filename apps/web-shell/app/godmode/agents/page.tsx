@@ -149,6 +149,20 @@ export default function AgentsPage() {
 
 function AgentCard({ a }: { a: AgentState }) {
   const stale = isStale(a.last_seen);
+  const [open, setOpen] = useState(false);
+  const [logs, setLogs] = useState<any[]>([]);
+  useEffect(() => {
+    if (!open) return;
+    let i: any;
+    const load = async () => {
+      const r = await fetch(`/api/agents/logs?agent=${encodeURIComponent(a.agent)}&limit=200`, { cache: "no-store" });
+      const j = await r.json();
+      setLogs(Array.isArray(j.logs) ? j.logs : []);
+    };
+    load();
+    i = setInterval(load, 2000);
+    return () => clearInterval(i);
+  }, [open, a.agent]);
 
   return (
     <div style={{
@@ -172,46 +186,37 @@ function AgentCard({ a }: { a: AgentState }) {
       </div>
 
       <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <MiniButton
-          title="Raw JSON"
-          onClick={() => {
-            const json = JSON.stringify(a, null, 2);
-            const w = window.open();
-            if (w) {
-              w.document.write(`<pre style="white-space:pre-wrap;color:#A33A5B;background:#000003;padding:12px">${json.replace(/</g,"&lt;")}</pre>`);
-            } else {
-              alert(json);
-            }
-          }}
-        />
-        <MiniButton
-          title="Copy cURL"
-          onClick={async () => {
-            const cmd = `curl -s ${location.origin}/api/agents/online | jq`;
-            await navigator.clipboard.writeText(cmd);
-          }}
-        />
-        <MiniButton
-          title="Ping"
-          onClick={async () => {
-            await fetch("/api/agents/command", {
-              method: "POST",
-              headers: {"content-type":"application/json"},
-              body: JSON.stringify({ agent: a.agent, op: "ping", args: {} }),
-            });
-          }}
-        />
-        <MiniButton
-          title="Restart"
-          onClick={async () => {
-            await fetch("/api/agents/command", {
-              method: "POST",
-              headers: {"content-type":"application/json"},
-              body: JSON.stringify({ agent: a.agent, op: "cycle", args: {} }),
-            });
-          }}
-        />
+        <MiniButton title="Raw JSON" onClick={() => {
+          const json = JSON.stringify(a, null, 2);
+          const w = window.open();
+          if (w) { w.document.write(`<pre style="white-space:pre-wrap;color:#A33A5B;background:#000003;padding:12px">${json.replace(/</g,"&lt;")}</pre>`); }
+          else { alert(json); }
+        }}/>
+        <MiniButton title="Copy cURL" onClick={async () => {
+          const cmd = `curl -s ${location.origin}/api/agents/online | jq`;
+          await navigator.clipboard.writeText(cmd);
+        }}/>
+        <MiniButton title="Ping" onClick={async () => {
+          await fetch("/api/agents/command", { method:"POST", headers:{ "content-type":"application/json" }, body: JSON.stringify({ agent: a.agent, op: "ping", args: {} }) });
+        }}/>
+        <MiniButton title="Restart" onClick={async () => {
+          await fetch("/api/agents/command", { method:"POST", headers:{ "content-type":"application/json" }, body: JSON.stringify({ agent: a.agent, op: "cycle", args: {} }) });
+        }}/>
+        <MiniButton title="Logs" onClick={() => setOpen(true)} />
       </div>
+
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <div style={{ fontSize: 12, color: "#6faab1", marginBottom: 8 }}>
+          {a.agent} • latest {logs.length} events
+        </div>
+        <div>
+          {logs.length === 0 ? (
+            <div style={{ color: "#A3D1D7" }}>No events yet.</div>
+          ) : logs.map((e) => (
+            <LogRow key={e.id} ts={e.ts} level={e.level} msg={e.msg} meta={e.meta} />
+          ))}
+        </div>
+      </Modal>
     </div>
   );
 }
@@ -261,5 +266,53 @@ function MiniButton({ title, onClick }: { title: string; onClick: () => void }) 
     >
       {title}
     </button>
+  );
+}
+
+function Modal({ open, onClose, children }: { open: boolean; onClose: () => void; children: any }) {
+  if (!open) return null;
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: "rgba(0,0,0,.6)",
+      display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50
+    }}>
+      <div style={{
+        width: "min(900px, 92vw)",
+        maxHeight: "80vh",
+        overflow: "auto",
+        background: "#0E1A22",
+        border: "1px solid #431D21",
+        borderRadius: 16,
+        padding: 16
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+          <div style={{ color: "#A33A5B", fontWeight: 600 }}>Logs</div>
+          <button onClick={onClose} style={{
+            background: "#19212A", color: "#A33A5B", border: "1px solid #431D21",
+            borderRadius: 8, padding: "6px 10px", cursor: "pointer", fontSize: 12
+          }}>Close</button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function LogRow({ ts, level, msg, meta }: any) {
+  const t = new Date(ts || Date.now()).toLocaleTimeString();
+  const color = level === "error" ? "#E66F5C" : level === "warn" ? "#FE9B62" : level === "debug" ? "#6faab1" : "#A33A5B";
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "100px 90px 1fr", gap: 12, padding: "6px 0", borderBottom: "1px dashed #23313c" }}>
+      <div style={{ color: "#6faab1", fontSize: 12 }}>{t}</div>
+      <div style={{ color, fontSize: 12, textTransform: "uppercase" }}>{level}</div>
+      <div>
+        <div style={{ color: "#A33A5B" }}>{msg}</div>
+        {meta && Object.keys(meta).length > 0 && (
+          <pre style={{ margin: 0, marginTop: 4, fontSize: 11, color: "#A3D1D7", background: "#0b1520", padding: 8, borderRadius: 8, overflowX: "auto" }}>
+            {JSON.stringify(meta, null, 2)}
+          </pre>
+        )}
+      </div>
+    </div>
   );
 }
