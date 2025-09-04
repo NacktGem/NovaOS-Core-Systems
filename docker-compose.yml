@@ -179,6 +179,22 @@ services:
     profiles: ["agents"]
     environment:
       PYTHONUNBUFFERED: "1"
+    healthcheck:
+      test: ["CMD", "python", "scripts/healthcheck.py", "agents/nova/agent.py"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,exec,uid=1000,gid=1000,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    ulimits:
+      nofile: 8192
+      nproc: 4096
 
   agent-lyra:
     build:
@@ -189,6 +205,22 @@ services:
     profiles: ["agents"]
     environment:
       PYTHONUNBUFFERED: "1"
+    healthcheck:
+      test: ["CMD", "python", "scripts/healthcheck.py", "agents/lyra/agent.py"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,exec,uid=1000,gid=1000,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    ulimits:
+      nofile: 8192
+      nproc: 4096
 
   agent-velora:
     build:
@@ -199,6 +231,22 @@ services:
     profiles: ["agents"]
     environment:
       PYTHONUNBUFFERED: "1"
+    healthcheck:
+      test: ["CMD", "python", "scripts/healthcheck.py", "agents/velora/agent.py"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,exec,uid=1000,gid=1000,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    ulimits:
+      nofile: 8192
+      nproc: 4096
 
   agent-glitch:
     build:
@@ -209,6 +257,22 @@ services:
     profiles: ["agents"]
     environment:
       PYTHONUNBUFFERED: "1"
+    healthcheck:
+      test: ["CMD", "python", "scripts/healthcheck.py", "agents/glitch/agent.py"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,exec,uid=1000,gid=1000,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    ulimits:
+      nofile: 8192
+      nproc: 4096
 
   agent-echo:
     build:
@@ -217,13 +281,48 @@ services:
     image: ghcr.io/nacktgem/novaos-agent-echo:latest
     restart: unless-stopped
     profiles: ["agents"]
+    secrets:
+      - jwt_pub
     environment:
       PYTHONUNBUFFERED: "1"
-      # Echo typically needs these; ensure they exist in your .env
-      # REDIS_URL: redis://redis:6379/0
-      # CORE_API_URL: http://core-api:8000
-      # JWT_PUBLIC_KEY_PATH: /run/secrets/jwt_pub
-      # ECHO_INTERNAL_TOKEN: ${ECHO_INTERNAL_TOKEN}
+      REDIS_URL: ${REDIS_URL}
+      CORE_API_URL: ${CORE_API_URL}
+      ECHO_INTERNAL_TOKEN: ${ECHO_INTERNAL_TOKEN}
+      JWT_PUBLIC_KEY_PATH: ${JWT_PUBLIC_KEY_PATH}
+    volumes:
+      - type: bind
+        source: ./agents
+        target: /app/agents
+        read_only: true
+      - type: bind
+        source: ./scripts
+        target: /app/scripts
+        read_only: true
+      - type: bind
+        source: ./packages
+        target: /app/packages
+        read_only: true
+      - type: bind
+        source: ./services
+        target: /app/services
+        read_only: true
+    healthcheck:
+      test: ["CMD", "python", "scripts/healthcheck.py", "agents/echo/agent.py"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,exec,uid=1000,gid=1000,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    ulimits:
+      nofile: 8192
+      nproc: 4096
+    configs: []
     depends_on:
       - redis
       - core-api
@@ -237,6 +336,22 @@ services:
     profiles: ["agents"]
     environment:
       PYTHONUNBUFFERED: "1"
+    healthcheck:
+      test: ["CMD", "python", "scripts/healthcheck.py", "agents/riven/agent.py"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,exec,uid=1000,gid=1000,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    ulimits:
+      nofile: 8192
+      nproc: 4096
 
   agent-audita:
     build:
@@ -247,6 +362,22 @@ services:
     profiles: ["agents"]
     environment:
       PYTHONUNBUFFERED: "1"
+    healthcheck:
+      test: ["CMD", "python", "scripts/healthcheck.py", "agents/audita/agent.py"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,exec,uid=1000,gid=1000,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    ulimits:
+      nofile: 8192
+      nproc: 4096
 
 # -------------------- SECRETS --------------------
 secrets:
@@ -254,3 +385,5 @@ secrets:
     file: ./secrets/dev_jwt_private.pem
   dev_jwt_public:
     file: ./secrets/dev_jwt_public.pem
+  jwt_pub:
+    file: secrets/jwt/jwt_public.pem
