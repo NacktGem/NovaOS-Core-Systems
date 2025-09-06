@@ -98,3 +98,14 @@ tools/node/pnpm-store/
 .vscode-test/
 
 .env
+# ai_models: large local model files
+ai_models/
+**/ai_models/**
+*.gguf
+*.bin
+*.pt
+*.pth
+*.safetensors
+*.onnx
+*.tar.gz
+*.zip
