@@ -2,40 +2,65 @@
   "models": [
     {
       "name": "e5-base-v2",
-      "type": "embeddings",
-      "path": "ai_models/embeddings/e5-base-v2/pytorch_model.bin",
-      "url": "https://huggingface.co/intfloat/e5-base-v2/resolve/main/pytorch_model.bin",
-      "sha256": "5b119cd34c663c26fcd8bbe82e9873e9a16c6588b9817a4243947a6de478c273",
-      "size_bytes": 437997357,
-      "status": "downloaded",
-      "downloaded_at": "2025-09-07T00:08:06Z"
+      "type": "embedding",
+      "path": "ai_models/e5-base-v2/",
+      "url": "https://huggingface.co/intfloat/e5-base-v2/resolve/main/model.safetensors",
+      "sha256": "d0d559c47d5f71b1d280b13b62a2657f3e3bc70c0786f9ab91a36545e6a8f693",
+      "size_bytes": 437955512,
+      "status": "bad_sha",
+      "downloaded_at": "2025-09-07T01:09:50Z"
     },
     {
-      "name": "nsfw-model-placeholder",
-      "type": "nsfw",
-      "path": "ai_models/nsfw/model.gguf",
-      "url": "",
-      "sha256": "",
-      "size_bytes": 0,
-      "status": "pending"
+      "name": "porn-detector-quant",
+      "type": "nsfw-detection",
+      "path": "ai_models/nsfw-porn-detector/",
+      "url": "https://huggingface.co/erotic-censor/porn-detection-model-GGUF/resolve/main/porn-detector-Q4_K_M.gguf",
+      "sha256": "PLACEHOLDER_SHA256_NSFW",
+      "size_bytes": 278501120,
+      "status": "failed",
+      "downloaded_at": null,
+      "http_last_checked": "2025-09-07T01:09:51Z"
     },
     {
-      "name": "family-model-placeholder",
-      "type": "family",
-      "path": "ai_models/family/model.gguf",
-      "url": "",
-      "sha256": "",
-      "size_bytes": 0,
-      "status": "pending"
+      "name": "clip-vit-base-patch32",
+      "type": "vision",
+      "path": "ai_models/clip-vit/",
+      "url": "https://huggingface.co/openai/clip-vit-base-patch32/resolve/main/pytorch_model.bin",
+      "sha256": "a63082132ba4f97a80bea76823f544493bffa8082296d62d71581a4feff1576f",
+      "size_bytes": 605247071,
+      "status": "bad_sha",
+      "downloaded_at": "2025-09-07T01:14:43Z"
     },
     {
-      "name": "education-model-placeholder",
-      "type": "education",
-      "path": "ai_models/education/model.gguf",
-      "url": "",
-      "sha256": "",
-      "size_bytes": 0,
-      "status": "pending"
+      "name": "layoutlmv3",
+      "type": "ocr",
+      "path": "ai_models/layoutlm/",
+      "url": "https://huggingface.co/microsoft/layoutlmv3-base/resolve/main/pytorch_model.bin",
+      "sha256": "3b631333e3cbcbef18801873b9f53c19bffddfd88922d805e7d309d7c019941f",
+      "size_bytes": 501380823,
+      "status": "bad_sha",
+      "downloaded_at": "2025-09-07T01:19:01Z"
+    },
+    {
+      "name": "bge-small-en",
+      "type": "embedding",
+      "path": "ai_models/bge-small-en/",
+      "url": "https://huggingface.co/BAAI/bge-small-en/resolve/main/model.safetensors",
+      "sha256": "e3f93baaef0f082d01814223d65942241664d215849a5b76a95f9d390da379b6",
+      "size_bytes": 133466304,
+      "status": "bad_sha",
+      "downloaded_at": "2025-09-07T01:20:07Z"
+    },
+    {
+      "name": "family-safety-filter",
+      "type": "family-filter",
+      "path": "ai_models/family-filter/",
+      "url": "https://huggingface.co/typoai/family-safe-classifier/resolve/main/family-safe-Q4_K_M.gguf",
+      "sha256": "PLACEHOLDER_SHA256_FAMILY",
+      "size_bytes": 312558992,
+      "status": "failed",
+      "downloaded_at": null,
+      "http_last_checked": "2025-09-07T01:20:07Z"
     }
   ]
 }
