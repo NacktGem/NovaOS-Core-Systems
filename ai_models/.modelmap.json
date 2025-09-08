@@ -7,8 +7,8 @@
       "url": "https://huggingface.co/intfloat/e5-base-v2/resolve/main/model.safetensors",
       "sha256": "d0d559c47d5f71b1d280b13b62a2657f3e3bc70c0786f9ab91a36545e6a8f693",
       "size_bytes": 437955512,
-      "status": "bad_sha",
-      "downloaded_at": "2025-09-07T01:09:50Z"
+      "status": "downloaded",
+      "downloaded_at": "2025-09-08T21:05:56Z"
     },
     {
       "name": "porn-detector-quant",
@@ -19,7 +19,7 @@
       "size_bytes": 278501120,
       "status": "failed",
       "downloaded_at": null,
-      "http_last_checked": "2025-09-07T01:09:51Z"
+      "http_last_checked": "2025-09-08T21:05:56Z"
     },
     {
       "name": "clip-vit-base-patch32",
@@ -28,8 +28,8 @@
       "url": "https://huggingface.co/openai/clip-vit-base-patch32/resolve/main/pytorch_model.bin",
       "sha256": "a63082132ba4f97a80bea76823f544493bffa8082296d62d71581a4feff1576f",
       "size_bytes": 605247071,
-      "status": "bad_sha",
-      "downloaded_at": "2025-09-07T01:14:43Z"
+      "status": "downloaded",
+      "downloaded_at": "2025-09-08T21:06:07Z"
     },
     {
       "name": "layoutlmv3",
@@ -38,8 +38,8 @@
       "url": "https://huggingface.co/microsoft/layoutlmv3-base/resolve/main/pytorch_model.bin",
       "sha256": "3b631333e3cbcbef18801873b9f53c19bffddfd88922d805e7d309d7c019941f",
       "size_bytes": 501380823,
-      "status": "bad_sha",
-      "downloaded_at": "2025-09-07T01:19:01Z"
+      "status": "downloaded",
+      "downloaded_at": "2025-09-08T21:06:19Z"
     },
     {
       "name": "bge-small-en",
@@ -48,8 +48,8 @@
       "url": "https://huggingface.co/BAAI/bge-small-en/resolve/main/model.safetensors",
       "sha256": "e3f93baaef0f082d01814223d65942241664d215849a5b76a95f9d390da379b6",
       "size_bytes": 133466304,
-      "status": "bad_sha",
-      "downloaded_at": "2025-09-07T01:20:07Z"
+      "status": "downloaded",
+      "downloaded_at": "2025-09-08T21:06:23Z"
     },
     {
       "name": "family-safety-filter",
@@ -60,7 +60,7 @@
       "size_bytes": 312558992,
       "status": "failed",
       "downloaded_at": null,
-      "http_last_checked": "2025-09-07T01:20:07Z"
+      "http_last_checked": "2025-09-08T21:06:23Z"
     }
   ]
 }

@@ -14,9 +14,9 @@ This file summarizes models managed by `ai_models/.modelmap.json`.
 
 - SHA256: d0d559c47d5f71b1d280b13b62a2657f3e3bc70c0786f9ab91a36545e6a8f693
 
-- Status: bad_sha
+- Status: downloaded
 
-- Downloaded at: 2025-09-07T01:09:50Z
+- Downloaded at: 2025-09-08T21:05:56Z
 
 
 
@@ -48,9 +48,9 @@ This file summarizes models managed by `ai_models/.modelmap.json`.
 
 - SHA256: a63082132ba4f97a80bea76823f544493bffa8082296d62d71581a4feff1576f
 
-- Status: bad_sha
+- Status: downloaded
 
-- Downloaded at: 2025-09-07T01:14:43Z
+- Downloaded at: 2025-09-08T21:06:07Z
 
 
 
@@ -66,9 +66,9 @@ This file summarizes models managed by `ai_models/.modelmap.json`.
 
 - SHA256: 3b631333e3cbcbef18801873b9f53c19bffddfd88922d805e7d309d7c019941f
 
-- Status: bad_sha
+- Status: downloaded
 
-- Downloaded at: 2025-09-07T01:19:01Z
+- Downloaded at: 2025-09-08T21:06:19Z
 
 
 
@@ -84,9 +84,9 @@ This file summarizes models managed by `ai_models/.modelmap.json`.
 
 - SHA256: e3f93baaef0f082d01814223d65942241664d215849a5b76a95f9d390da379b6
 
-- Status: bad_sha
+- Status: downloaded
 
-- Downloaded at: 2025-09-07T01:20:07Z
+- Downloaded at: 2025-09-08T21:06:23Z
 
 
 
