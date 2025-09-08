@@ -80,7 +80,7 @@ This file summarizes models managed by `ai_models/.modelmap.json`.
 
 - Path: `ai_models/nsfw-image-detector/`
 
-- URL: https://huggingface.co/Falconsai/nsfw_image_detection/resolve/main/model.pt
+- URL: https://huggingface.co/gptdotpy/nsfw-image-classification/resolve/main/pytorch_model.bin
 
 - Size: 191102976 bytes
 
@@ -96,7 +96,7 @@ This file summarizes models managed by `ai_models/.modelmap.json`.
 
 - Path: `ai_models/nsfw-text-detector/`
 
-- URL: https://huggingface.co/Falconsai/nsfw_text_classification/resolve/main/pytorch_model.bin
+- URL: https://huggingface.co/alexandrainst/bertopic-nsfw/resolve/main/model.tar.gz
 
 - Size: 123456789 bytes
 

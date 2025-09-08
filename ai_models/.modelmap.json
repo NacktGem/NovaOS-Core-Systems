@@ -44,23 +44,23 @@
       "name": "nsfw-image-detector",
       "type": "vision",
       "path": "ai_models/nsfw-image-detector/",
-      "url": "https://huggingface.co/Falconsai/nsfw_image_detection/resolve/main/model.pt",
+      "url": "https://huggingface.co/gptdotpy/nsfw-image-classification/resolve/main/pytorch_model.bin",
       "sha256": "",
       "size_bytes": 191102976,
       "status": "failed",
       "downloaded_at": null,
-      "http_last_checked": "2025-09-08T22:03:28Z"
+      "http_last_checked": "2025-09-08T23:52:44Z"
     },
     {
       "name": "nsfw-text-detector",
       "type": "content-moderation",
       "path": "ai_models/nsfw-text-detector/",
-      "url": "https://huggingface.co/Falconsai/nsfw_text_classification/resolve/main/pytorch_model.bin",
+      "url": "https://huggingface.co/alexandrainst/bertopic-nsfw/resolve/main/model.tar.gz",
       "sha256": "",
       "size_bytes": 123456789,
       "status": "failed",
       "downloaded_at": null,
-      "http_last_checked": "2025-09-08T22:03:28Z"
+      "http_last_checked": "2025-09-08T23:52:45Z"
     }
   ]
 }
