@@ -8,18 +8,7 @@
       "sha256": "d0d559c47d5f71b1d280b13b62a2657f3e3bc70c0786f9ab91a36545e6a8f693",
       "size_bytes": 437955512,
       "status": "downloaded",
-      "downloaded_at": "2025-09-08T21:05:56Z"
-    },
-    {
-      "name": "porn-detector-quant",
-      "type": "nsfw-detection",
-      "path": "ai_models/nsfw-porn-detector/",
-      "url": "https://huggingface.co/erotic-censor/porn-detection-model-GGUF/resolve/main/porn-detector-Q4_K_M.gguf",
-      "sha256": "PLACEHOLDER_SHA256_NSFW",
-      "size_bytes": 278501120,
-      "status": "failed",
-      "downloaded_at": null,
-      "http_last_checked": "2025-09-08T21:05:56Z"
+      "downloaded_at": "2025-09-06T20:34:00Z"
     },
     {
       "name": "clip-vit-base-patch32",
@@ -29,7 +18,7 @@
       "sha256": "a63082132ba4f97a80bea76823f544493bffa8082296d62d71581a4feff1576f",
       "size_bytes": 605247071,
       "status": "downloaded",
-      "downloaded_at": "2025-09-08T21:06:07Z"
+      "downloaded_at": "2025-09-08T00:00:00Z"
     },
     {
       "name": "layoutlmv3",
@@ -39,7 +28,7 @@
       "sha256": "3b631333e3cbcbef18801873b9f53c19bffddfd88922d805e7d309d7c019941f",
       "size_bytes": 501380823,
       "status": "downloaded",
-      "downloaded_at": "2025-09-08T21:06:19Z"
+      "downloaded_at": "2025-09-08T00:00:00Z"
     },
     {
       "name": "bge-small-en",
@@ -49,18 +38,29 @@
       "sha256": "e3f93baaef0f082d01814223d65942241664d215849a5b76a95f9d390da379b6",
       "size_bytes": 133466304,
       "status": "downloaded",
-      "downloaded_at": "2025-09-08T21:06:23Z"
+      "downloaded_at": "2025-09-08T00:00:00Z"
     },
     {
-      "name": "family-safety-filter",
-      "type": "family-filter",
-      "path": "ai_models/family-filter/",
-      "url": "https://huggingface.co/typoai/family-safe-classifier/resolve/main/family-safe-Q4_K_M.gguf",
-      "sha256": "PLACEHOLDER_SHA256_FAMILY",
-      "size_bytes": 312558992,
+      "name": "llama-guard-8b",
+      "type": "content-safety",
+      "path": "ai_models/llama-guard-8b/",
+      "url": "https://huggingface.co/QuantFactory/Meta-Llama-Guard-2-8B-GGUF/resolve/main/meta-llama-guard-2-8b.q5_k_m.gguf",
+      "sha256": "PLACEHOLDER_SHA256_GUARD2",
+      "size_bytes": 5033164800,
       "status": "failed",
       "downloaded_at": null,
-      "http_last_checked": "2025-09-08T21:06:23Z"
+      "http_last_checked": "2025-09-08T21:33:04Z"
+    },
+    {
+      "name": "shieldgemma-2b",
+      "type": "content-moderation",
+      "path": "ai_models/shieldgemma-2b/",
+      "url": "https://huggingface.co/QuantFactory/shieldgemma-2b-GGUF/resolve/main/shieldgemma-2b.gguf",
+      "sha256": "PLACEHOLDER_SHA256_SHIELD",
+      "size_bytes": 2147483648,
+      "status": "failed",
+      "downloaded_at": null,
+      "http_last_checked": "2025-09-08T21:33:05Z"
     }
   ]
 }

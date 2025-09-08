@@ -16,23 +16,7 @@ This file summarizes models managed by `ai_models/.modelmap.json`.
 
 - Status: downloaded
 
-- Downloaded at: 2025-09-08T21:05:56Z
-
-
-
-## porn-detector-quant
-
-- Type: nsfw-detection
-
-- Path: `ai_models/nsfw-porn-detector/`
-
-- URL: https://huggingface.co/erotic-censor/porn-detection-model-GGUF/resolve/main/porn-detector-Q4_K_M.gguf
-
-- Size: 278501120 bytes
-
-- SHA256: PLACEHOLDER_SHA256_NSFW
-
-- Status: failed
+- Downloaded at: 2025-09-06T20:34:00Z
 
 
 
@@ -50,7 +34,7 @@ This file summarizes models managed by `ai_models/.modelmap.json`.
 
 - Status: downloaded
 
-- Downloaded at: 2025-09-08T21:06:07Z
+- Downloaded at: 2025-09-08T00:00:00Z
 
 
 
@@ -68,7 +52,7 @@ This file summarizes models managed by `ai_models/.modelmap.json`.
 
 - Status: downloaded
 
-- Downloaded at: 2025-09-08T21:06:19Z
+- Downloaded at: 2025-09-08T00:00:00Z
 
 
 
@@ -86,21 +70,37 @@ This file summarizes models managed by `ai_models/.modelmap.json`.
 
 - Status: downloaded
 
-- Downloaded at: 2025-09-08T21:06:23Z
+- Downloaded at: 2025-09-08T00:00:00Z
 
 
 
-## family-safety-filter
+## llama-guard-8b
 
-- Type: family-filter
+- Type: content-safety
 
-- Path: `ai_models/family-filter/`
+- Path: `ai_models/llama-guard-8b/`
 
-- URL: https://huggingface.co/typoai/family-safe-classifier/resolve/main/family-safe-Q4_K_M.gguf
+- URL: https://huggingface.co/QuantFactory/Meta-Llama-Guard-2-8B-GGUF/resolve/main/meta-llama-guard-2-8b.q5_k_m.gguf
 
-- Size: 312558992 bytes
+- Size: 5033164800 bytes
 
-- SHA256: PLACEHOLDER_SHA256_FAMILY
+- SHA256: PLACEHOLDER_SHA256_GUARD2
+
+- Status: failed
+
+
+
+## shieldgemma-2b
+
+- Type: content-moderation
+
+- Path: `ai_models/shieldgemma-2b/`
+
+- URL: https://huggingface.co/QuantFactory/shieldgemma-2b-GGUF/resolve/main/shieldgemma-2b.gguf
+
+- Size: 2147483648 bytes
+
+- SHA256: PLACEHOLDER_SHA256_SHIELD
 
 - Status: failed
 
