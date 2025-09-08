@@ -88,6 +88,8 @@ This file summarizes models managed by `ai_models/.modelmap.json`.
 
 - Status: failed
 
+- HTTP last checked: 2025-09-08T21:33:32Z
+
 
 
 ## shieldgemma-2b
@@ -103,5 +105,7 @@ This file summarizes models managed by `ai_models/.modelmap.json`.
 - SHA256: PLACEHOLDER_SHA256_SHIELD
 
 - Status: failed
+
+- HTTP last checked: 2025-09-08T21:33:33Z
 
 
