@@ -74,38 +74,34 @@ This file summarizes models managed by `ai_models/.modelmap.json`.
 
 
 
-## llama-guard-8b
+## nsfw-image-detector
 
-- Type: content-safety
+- Type: vision
 
-- Path: `ai_models/llama-guard-8b/`
+- Path: `ai_models/nsfw-image-detector/`
 
-- URL: https://huggingface.co/QuantFactory/Meta-Llama-Guard-2-8B-GGUF/resolve/main/meta-llama-guard-2-8b.q5_k_m.gguf
+- URL: https://huggingface.co/Falconsai/nsfw_image_detection/resolve/main/model.pt
 
-- Size: 5033164800 bytes
+- Size: 191102976 bytes
 
-- SHA256: PLACEHOLDER_SHA256_GUARD2
+- SHA256: *unknown*
 
 - Status: failed
 
-- HTTP last checked: 2025-09-08T21:33:32Z
 
 
-
-## shieldgemma-2b
+## nsfw-text-detector
 
 - Type: content-moderation
 
-- Path: `ai_models/shieldgemma-2b/`
+- Path: `ai_models/nsfw-text-detector/`
 
-- URL: https://huggingface.co/QuantFactory/shieldgemma-2b-GGUF/resolve/main/shieldgemma-2b.gguf
+- URL: https://huggingface.co/Falconsai/nsfw_text_classification/resolve/main/pytorch_model.bin
 
-- Size: 2147483648 bytes
+- Size: 123456789 bytes
 
-- SHA256: PLACEHOLDER_SHA256_SHIELD
+- SHA256: *unknown*
 
 - Status: failed
-
-- HTTP last checked: 2025-09-08T21:33:33Z
 
 

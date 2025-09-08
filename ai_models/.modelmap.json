@@ -41,26 +41,26 @@
       "downloaded_at": "2025-09-08T00:00:00Z"
     },
     {
-      "name": "llama-guard-8b",
-      "type": "content-safety",
-      "path": "ai_models/llama-guard-8b/",
-      "url": "https://huggingface.co/QuantFactory/Meta-Llama-Guard-2-8B-GGUF/resolve/main/meta-llama-guard-2-8b.q5_k_m.gguf",
-      "sha256": "PLACEHOLDER_SHA256_GUARD2",
-      "size_bytes": 5033164800,
+      "name": "nsfw-image-detector",
+      "type": "vision",
+      "path": "ai_models/nsfw-image-detector/",
+      "url": "https://huggingface.co/Falconsai/nsfw_image_detection/resolve/main/model.pt",
+      "sha256": "",
+      "size_bytes": 191102976,
       "status": "failed",
       "downloaded_at": null,
-      "http_last_checked": "2025-09-08T21:33:32Z"
+      "http_last_checked": "2025-09-08T22:03:28Z"
     },
     {
-      "name": "shieldgemma-2b",
+      "name": "nsfw-text-detector",
       "type": "content-moderation",
-      "path": "ai_models/shieldgemma-2b/",
-      "url": "https://huggingface.co/QuantFactory/shieldgemma-2b-GGUF/resolve/main/shieldgemma-2b.gguf",
-      "sha256": "PLACEHOLDER_SHA256_SHIELD",
-      "size_bytes": 2147483648,
+      "path": "ai_models/nsfw-text-detector/",
+      "url": "https://huggingface.co/Falconsai/nsfw_text_classification/resolve/main/pytorch_model.bin",
+      "sha256": "",
+      "size_bytes": 123456789,
       "status": "failed",
       "downloaded_at": null,
-      "http_last_checked": "2025-09-08T21:33:33Z"
+      "http_last_checked": "2025-09-08T22:03:28Z"
     }
   ]
 }
