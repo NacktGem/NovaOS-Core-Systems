@@ -1,46 +1,6 @@
 {
   "models": [
     {
-      "name": "e5-base-v2",
-      "type": "embedding",
-      "path": "ai_models/e5-base-v2/",
-      "url": "https://huggingface.co/intfloat/e5-base-v2/resolve/main/model.safetensors",
-      "sha256": "d0d559c47d5f71b1d280b13b62a2657f3e3bc70c0786f9ab91a36545e6a8f693",
-      "size_bytes": 437955512,
-      "status": "downloaded",
-      "downloaded_at": "2025-09-06T20:34:00Z"
-    },
-    {
-      "name": "clip-vit-base-patch32",
-      "type": "vision",
-      "path": "ai_models/clip-vit/",
-      "url": "https://huggingface.co/openai/clip-vit-base-patch32/resolve/main/pytorch_model.bin",
-      "sha256": "a63082132ba4f97a80bea76823f544493bffa8082296d62d71581a4feff1576f",
-      "size_bytes": 605247071,
-      "status": "downloaded",
-      "downloaded_at": "2025-09-08T00:00:00Z"
-    },
-    {
-      "name": "layoutlmv3",
-      "type": "ocr",
-      "path": "ai_models/layoutlm/",
-      "url": "https://huggingface.co/microsoft/layoutlmv3-base/resolve/main/pytorch_model.bin",
-      "sha256": "3b631333e3cbcbef18801873b9f53c19bffddfd88922d805e7d309d7c019941f",
-      "size_bytes": 501380823,
-      "status": "downloaded",
-      "downloaded_at": "2025-09-08T00:00:00Z"
-    },
-    {
-      "name": "bge-small-en",
-      "type": "embedding",
-      "path": "ai_models/bge-small-en/",
-      "url": "https://huggingface.co/BAAI/bge-small-en/resolve/main/model.safetensors",
-      "sha256": "e3f93baaef0f082d01814223d65942241664d215849a5b76a95f9d390da379b6",
-      "size_bytes": 133466304,
-      "status": "downloaded",
-      "downloaded_at": "2025-09-08T00:00:00Z"
-    },
-    {
       "name": "nsfw-image-detector",
       "type": "vision",
       "path": "ai_models/nsfw-image-detector/",
@@ -49,7 +9,7 @@
       "size_bytes": 191102976,
       "status": "failed",
       "downloaded_at": null,
-      "http_last_checked": "2025-09-08T23:52:44Z"
+      "http_last_checked": "2025-09-09T00:51:44Z"
     },
     {
       "name": "nsfw-text-detector",
@@ -60,7 +20,7 @@
       "size_bytes": 123456789,
       "status": "failed",
       "downloaded_at": null,
-      "http_last_checked": "2025-09-08T23:52:45Z"
+      "http_last_checked": "2025-09-09T00:51:45Z"
     }
   ]
 }
