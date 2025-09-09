@@ -2,15 +2,15 @@
 
 This file summarizes models managed by `ai_models/.modelmap.json`.
 
-## nsfw-image-detector
+## yolov5-nsfw-image
 
 - Type: vision
 
-- Path: `ai_models/nsfw-image-detector/`
+- Path: `ai_models/yolov5-nsfw-image/`
 
-- URL: https://huggingface.co/gptdotpy/nsfw-image-classification/resolve/main/pytorch_model.bin
+- URL: https://huggingface.co/wavymulder/nsfw_image_detection/resolve/main/pytorch_model.bin
 
-- Size: 191102976 bytes
+- Size: *unknown*
 
 - SHA256: *unknown*
 
@@ -18,15 +18,15 @@ This file summarizes models managed by `ai_models/.modelmap.json`.
 
 
 
-## nsfw-text-detector
+## roberta-nsfw-text
 
-- Type: content-moderation
+- Type: text
 
-- Path: `ai_models/nsfw-text-detector/`
+- Path: `ai_models/roberta-nsfw-text/`
 
-- URL: https://huggingface.co/alexandrainst/bertopic-nsfw/resolve/main/model.tar.gz
+- URL: https://huggingface.co/j-hartmann/emotion-english-distilroberta-base/resolve/main/pytorch_model.bin
 
-- Size: 123456789 bytes
+- Size: *unknown*
 
 - SHA256: *unknown*
 

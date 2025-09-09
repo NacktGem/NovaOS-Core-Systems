@@ -1,26 +1,26 @@
 {
   "models": [
     {
-      "name": "nsfw-image-detector",
+      "name": "yolov5-nsfw-image",
       "type": "vision",
-      "path": "ai_models/nsfw-image-detector/",
-      "url": "https://huggingface.co/gptdotpy/nsfw-image-classification/resolve/main/pytorch_model.bin",
+      "path": "ai_models/yolov5-nsfw-image/",
+      "url": "https://huggingface.co/wavymulder/nsfw_image_detection/resolve/main/pytorch_model.bin",
       "sha256": "",
-      "size_bytes": 191102976,
+      "size_bytes": 0,
       "status": "failed",
       "downloaded_at": null,
-      "http_last_checked": "2025-09-09T00:54:30Z"
+      "http_last_checked": "2025-09-09T00:59:21Z"
     },
     {
-      "name": "nsfw-text-detector",
-      "type": "content-moderation",
-      "path": "ai_models/nsfw-text-detector/",
-      "url": "https://huggingface.co/alexandrainst/bertopic-nsfw/resolve/main/model.tar.gz",
+      "name": "roberta-nsfw-text",
+      "type": "text",
+      "path": "ai_models/roberta-nsfw-text/",
+      "url": "https://huggingface.co/j-hartmann/emotion-english-distilroberta-base/resolve/main/pytorch_model.bin",
       "sha256": "",
-      "size_bytes": 123456789,
+      "size_bytes": 0,
       "status": "failed",
       "downloaded_at": null,
-      "http_last_checked": "2025-09-09T00:54:31Z"
+      "http_last_checked": "2025-09-09T00:59:21Z"
     }
   ]
 }
