@@ -1,0 +1,17 @@
+Preparing to download nsfw-image-detector -> /home/mkdct/NovaOS-Core-Systems-wsl/ai_models/nsfw-image-detector
+Running: curl -L -C - --retry 5 --retry-delay 5 --fail -H Authorization: Bearer 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 -o /home/mkdct/NovaOS-Core-Systems-wsl/ai_models/nsfw-image-detector https://huggingface.co/gptdotpy/nsfw-image-classification/resolve/main/pytorch_model.bin
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0    39    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+curl: (22) The requested URL returned error: 401
+curl failed: Command '['curl', '-L', '-C', '-', '--retry', '5', '--retry-delay', '5', '--fail', '-H', 'Authorization: Bearer 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', '-o', '/home/mkdct/NovaOS-Core-Systems-wsl/ai_models/nsfw-image-detector', 'https://huggingface.co/gptdotpy/nsfw-image-classification/resolve/main/pytorch_model.bin']' returned non-zero exit status 22.
+Failed to download nsfw-image-detector
+Preparing to download nsfw-text-detector -> /home/mkdct/NovaOS-Core-Systems-wsl/ai_models/nsfw-text-detector
+Running: curl -L -C - --retry 5 --retry-delay 5 --fail -H Authorization: Bearer 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 -o /home/mkdct/NovaOS-Core-Systems-wsl/ai_models/nsfw-text-detector https://huggingface.co/alexandrainst/bertopic-nsfw/resolve/main/model.tar.gz
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0    39    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+curl: (22) The requested URL returned error: 401
+curl failed: Command '['curl', '-L', '-C', '-', '--retry', '5', '--retry-delay', '5', '--fail', '-H', 'Authorization: Bearer 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', '-o', '/home/mkdct/NovaOS-Core-Systems-wsl/ai_models/nsfw-text-detector', 'https://huggingface.co/alexandrainst/bertopic-nsfw/resolve/main/model.tar.gz']' returned non-zero exit status 22.
+Failed to download nsfw-text-detector
+Wrote updated modelmap to /home/mkdct/NovaOS-Core-Systems-wsl/ai_models/.modelmap.json

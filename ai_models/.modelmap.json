@@ -9,7 +9,7 @@
       "size_bytes": 191102976,
       "status": "failed",
       "downloaded_at": null,
-      "http_last_checked": "2025-09-09T00:51:44Z"
+      "http_last_checked": "2025-09-09T00:52:39Z"
     },
     {
       "name": "nsfw-text-detector",
@@ -20,7 +20,7 @@
       "size_bytes": 123456789,
       "status": "failed",
       "downloaded_at": null,
-      "http_last_checked": "2025-09-09T00:51:45Z"
+      "http_last_checked": "2025-09-09T00:52:40Z"
     }
   ]
 }
