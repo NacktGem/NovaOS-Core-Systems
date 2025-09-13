@@ -4,29 +4,15 @@ import logging
 import pathlib
 from functools import lru_cache
 from typing import Optional, Mapping
-from urllib.parse import urlparse
 
 import httpx
 import redis.asyncio as redis
 
 
-def _parse_redis_db_from_url(redis_url: str) -> int:
-    """Parse Redis database number from URL, defaulting to 0."""
-    try:
-        parsed = urlparse(redis_url)
-        if parsed.path and len(parsed.path) > 1:
-            # Extract DB number from path like '/2'
-            db_str = parsed.path.lstrip('/')
-            return int(db_str) if db_str.isdigit() else 0
-    except:
-        pass
-    return 0
-
 @lru_cache(maxsize=1)
 def get_settings() -> dict:
     return {
         "redis_url": os.getenv("REDIS_URL", "redis://localhost:6379/0"),
-        "redis_db": int(os.getenv("REDIS_DB")) if os.getenv("REDIS_DB") else None,
         "core_api_url": os.getenv("CORE_API_URL", "http://core-api:8000").rstrip("/"),
         "jwt_public_key_path": os.getenv("JWT_PUBLIC_KEY_PATH", "./keys/dev_jwt_public.pem"),
         "jwt_public_key_inline": os.getenv("JWT_PUBLIC_KEY"),  # optional inline PEM
@@ -43,28 +29,11 @@ async def get_redis() -> redis.Redis:
     global _redis_client
     if _redis_client is None:
         settings = get_settings()
-        
-        # Determine Redis DB
-        if settings["redis_db"] is not None:
-            db_num = settings["redis_db"]
-        else:
-            db_num = _parse_redis_db_from_url(settings["redis_url"])
-        
-        # Create base URL without database path
-        parsed = urlparse(settings["redis_url"])
-        base_url = f"{parsed.scheme}://{parsed.netloc}"
-        
         _redis_client = redis.from_url(
-            base_url,
-            db=db_num,
+            settings["redis_url"],
             encoding="utf-8",
             decode_responses=True,
         )
-        
-        # Log Redis connection for audit
-        logger = get_logger()
-        logger.info(f"echo-ws: Connected to Redis database {db_num} at {base_url}")
-        
     return _redis_client
 
 

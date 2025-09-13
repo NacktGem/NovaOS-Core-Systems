@@ -1,0 +1,200 @@
+./.git/hooks/pre-push.sample:20:# with "WIP" (work in progress).
+./.git/hooks/pre-push.sample:43:		# Check for WIP commit
+./.git/hooks/pre-push.sample:44:		commit=$(git rev-list -n 1 --grep '^WIP' "$range")
+./.git/hooks/pre-push.sample:47:			echo >&2 "Found WIP commit in $local_ref, not pushing"
+./.git/hooks/sendemail-validate.sample:22:# Replace the TODO placeholders with appropriate checks according to your
+./.git/hooks/sendemail-validate.sample:27:	# TODO: Replace with appropriate checks (e.g. spell checking).
+./.git/hooks/sendemail-validate.sample:35:	# TODO: Replace with appropriate checks for this patch
+./.git/hooks/sendemail-validate.sample:41:	# TODO: Replace with appropriate checks for the whole series
+./.venv/bin/stubgen:3:from mypy.stubgen import main
+./.venv/bin/stubtest:3:from mypy.stubtest import main
+./.venv/lib/python3.12/site-packages/annotated_types/__init__.py:201:            raise NotImplementedError  # more helpful than "None has no attribute..." type errors
+./.venv/lib/python3.12/site-packages/annotated_types/__init__.py:290:    You may also pass a specific timezone string or tzinfo object such as
+./.venv/lib/python3.12/site-packages/annotated_types-0.7.0.dist-info/METADATA:148:expresses that any timezone-aware datetime is allowed. You may also pass a specific
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:149:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:168:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:173:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:178:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:189:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:194:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:205:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:210:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:220:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:230:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:235:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:248:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:253:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:260:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:265:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:270:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:275:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:286:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:305:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:327:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:334:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:339:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:344:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:349:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:354:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:359:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:364:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:369:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:374:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:379:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:386:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:391:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:398:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:403:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:408:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:413:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_eventloop.py:418:        pass
+./.venv/lib/python3.12/site-packages/anyio/abc/_sockets.py:181:        pass
+./.venv/lib/python3.12/site-packages/anyio/from_thread.py:262:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/from_thread.py:511:                pass
+./.venv/lib/python3.12/site-packages/anyio/lowlevel.py:154:                pass
+./.venv/lib/python3.12/site-packages/anyio/streams/file.py:48:            pass
+./.venv/lib/python3.12/site-packages/anyio/streams/tls.py:252:                raise NotImplementedError(
+./.venv/lib/python3.12/site-packages/anyio/streams/tls.py:257:        raise NotImplementedError(
+./.venv/lib/python3.12/site-packages/anyio/streams/tls.py:329:            # any asyncio implementation, so we explicitly pass the exception to log
+./.venv/lib/python3.12/site-packages/anyio/to_interpreter.py:142:            raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/to_interpreter.py:145:            pass
+./.venv/lib/python3.12/site-packages/anyio/to_process.py:79:                pass
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:806:                    pass
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:990:            pass
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:1123:        except NotImplementedError:
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:1124:            pass
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:1304:            pass
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:1312:                pass
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:1507:                    except (ValueError, NotImplementedError):
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:1508:                        pass
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:1532:            except (ValueError, NotImplementedError):
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:1533:                pass
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:2727:                pass
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:2734:                pass
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:2738:        except NotImplementedError:
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:2754:                pass
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:2780:                pass
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:2787:                pass
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:2791:        except NotImplementedError:
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:2807:                pass
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:2822:            pass
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:2827:                pass
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:2832:                    pass
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:2836:                except NotImplementedError:
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:2844:            pass
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:2849:                pass
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:2854:                    pass
+./.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py:2858:                except NotImplementedError:
+./.venv/lib/python3.12/site-packages/anyio/_backends/_trio.py:956:            pass
+./.venv/lib/python3.12/site-packages/anyio/_core/_asyncio_selector_thread.py:39:            pass
+./.venv/lib/python3.12/site-packages/anyio/_core/_asyncio_selector_thread.py:66:            pass
+./.venv/lib/python3.12/site-packages/anyio/_core/_asyncio_selector_thread.py:136:                            pass
+./.venv/lib/python3.12/site-packages/anyio/_core/_asyncio_selector_thread.py:138:                        pass
+./.venv/lib/python3.12/site-packages/anyio/_core/_asyncio_selector_thread.py:148:                        pass  # the loop was already closed
+./.venv/lib/python3.12/site-packages/anyio/_core/_asyncio_selector_thread.py:156:                        pass  # the loop was already closed
+./.venv/lib/python3.12/site-packages/anyio/_core/_eventloop.py:57:        pass
+./.venv/lib/python3.12/site-packages/anyio/_core/_fileio.py:416:        def info(self) -> Any:  # TODO: add return type annotation when Typeshed gets it
+./.venv/lib/python3.12/site-packages/anyio/_core/_sockets.py:575:    :param flags: flags to pass to upstream ``getaddrinfo()``
+./.venv/lib/python3.12/site-packages/anyio/_core/_sockets.py:608:    :param flags: flags to pass to upstream ``getnameinfo()``
+./.venv/lib/python3.12/site-packages/anyio/_core/_subprocesses.py:46:    :param command: either a string to pass to the shell, or an iterable of strings
+./.venv/lib/python3.12/site-packages/anyio/_core/_subprocesses.py:150:    :param command: either a string to pass to the shell, or an iterable of strings
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:89:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:93:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:103:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:107:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:168:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:177:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:181:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:185:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:193:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:400:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:409:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:413:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:418:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:423:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:431:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:501:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:509:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:524:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:528:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:533:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:538:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:548:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:558:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:566:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:575:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:585:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:595:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_synchronization.py:604:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_tasks.py:14:        pass
+./.venv/lib/python3.12/site-packages/anyio/_core/_tasks.py:35:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_tasks.py:45:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_tasks.py:49:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_tasks.py:54:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_tasks.py:67:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_tasks.py:77:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_tasks.py:81:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_tasks.py:84:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_tasks.py:92:        raise NotImplementedError
+./.venv/lib/python3.12/site-packages/anyio/_core/_testing.py:40:        return NotImplemented
+./.venv/lib/python3.12/site-packages/black/cache.py:150:            pass
+./.venv/lib/python3.12/site-packages/black/concurrency.py:39:        pass
+./.venv/lib/python3.12/site-packages/black/concurrency.py:92:    except (ImportError, NotImplementedError, OSError):
+./.venv/lib/python3.12/site-packages/black/concurrency.py:166:    except NotImplementedError:
+./.venv/lib/python3.12/site-packages/black/concurrency.py:168:        pass
+./.venv/lib/python3.12/site-packages/black/files.py:154:            pass
+./.venv/lib/python3.12/site-packages/black/files.py:158:            pass
+./.venv/lib/python3.12/site-packages/black/files.py:284:        pass
+./.venv/lib/python3.12/site-packages/black/handle_ipynb_magics.py:172:        pass
+./.venv/lib/python3.12/site-packages/black/linegen.py:57:    is_stub_body,
+./.venv/lib/python3.12/site-packages/black/linegen.py:58:    is_stub_suite,
+./.venv/lib/python3.12/site-packages/black/linegen.py:293:        if is_stub_suite(node):
+./.venv/lib/python3.12/site-packages/black/linegen.py:307:            if is_parent_function_or_class(node) and is_stub_body(node):
+./.venv/lib/python3.12/site-packages/black/linegen.py:315:            if node.parent and is_stub_suite(node.parent):
+./.venv/lib/python3.12/site-packages/black/linegen.py:428:                # docstring differently on the second pass, normalize it early.
+./.venv/lib/python3.12/site-packages/black/linegen.py:536:        # TODO: Uncomment Implementation to format f-string children
+./.venv/lib/python3.12/site-packages/black/linegen.py:980:                pass
+./.venv/lib/python3.12/site-packages/black/linegen.py:1574:    # Removing all unnecessary parentheses in with statements in one pass is a tad
+./.venv/lib/python3.12/site-packages/black/lines.py:144:    def is_stub_class(self) -> bool:
+./.venv/lib/python3.12/site-packages/black/lines.py:170:    def is_stub_def(self) -> bool:
+./.venv/lib/python3.12/site-packages/black/lines.py:635:                if previous_def.is_class and not previous_def.is_stub_class:
+./.venv/lib/python3.12/site-packages/black/lines.py:697:            if self.mode.is_pyi and current_line.is_stub_class:
+./.venv/lib/python3.12/site-packages/black/lines.py:698:                # Insert an empty line after a decorated stub class
+./.venv/lib/python3.12/site-packages/black/lines.py:733:                elif current_line.is_stub_class and self.previous_line.is_stub_class:
+./.venv/lib/python3.12/site-packages/black/lines.py:760:            if self.previous_line.is_stub_def and not user_had_newline:
+./.venv/lib/python3.12/site-packages/black/nodes.py:398:        # TODO: add fstring here?
+./.venv/lib/python3.12/site-packages/black/nodes.py:812:def is_stub_suite(node: Node) -> bool:
+./.venv/lib/python3.12/site-packages/black/nodes.py:813:    """Return True if `node` is a suite with a stub body."""
+./.venv/lib/python3.12/site-packages/black/nodes.py:832:    return is_stub_body(node.children[2])
+./.venv/lib/python3.12/site-packages/black/nodes.py:835:def is_stub_body(node: LN) -> bool:
+./.venv/lib/python3.12/site-packages/black/numerics.py:52:        pass
+./.venv/lib/python3.12/site-packages/black/parsing.py:138:    # TODO: support Python 4+ ;)
+./.venv/lib/python3.12/site-packages/black/parsing.py:154:            pass
+./.venv/lib/python3.12/site-packages/black/ranges.py:94:    3.   pass
+./.venv/lib/python3.12/site-packages/black/ranges.py:104:    6.   pass
+./.venv/lib/python3.12/site-packages/black/ranges.py:176:    NOTE: During pass (2), comment prefixes and indentations are ALWAYS
+./.venv/lib/python3.12/site-packages/black/ranges.py:178:    more formatting to pass (1). However, it's hard to get it correct when
+./.venv/lib/python3.12/site-packages/black/ranges.py:224:        # its body on the same line. Example: `if cond: pass`.
+./.venv/lib/python3.12/site-packages/black/ranges.py:442:          pass
+./.venv/lib/python3.12/site-packages/black/ranges.py:447:       (4, 4)  ->  (3, 3), is_changed_block=False (the "pass" line)
+./.venv/lib/python3.12/site-packages/black/ranges.py:455:      (4, 4)->(3, 3)    4.   pass             3.   pass
+./.venv/lib/python3.12/site-packages/black/resources/black.schema.json:38:      "description": "Format all input files like typing stubs regardless of file extension. This is useful when piping source on standard input.",
+./.venv/lib/python3.12/site-packages/black/trans.py:404:        listed in StringMerger._validate_msg(...)'s docstring pass.
+./.venv/lib/python3.12/site-packages/black/trans.py:551:            _validate_msg(...) pass.
+./.venv/lib/python3.12/site-packages/black/trans.py:756:            * Ok(None), if ALL validation checks (listed below) pass.
+./.venv/lib/python3.12/site-packages/black/trans.py:1191:                # If the previous leaf is an empty LPAR placeholder, we should skip it.
+./.venv/lib/python3.12/site-packages/black/trans.py:1221:                # If the next leaf is an empty RPAR placeholder, we should skip it.
+./.venv/lib/python3.12/site-packages/black/__init__.py:270:        "Format all input files like typing stubs regardless of file extension. This"
+./.venv/lib/python3.12/site-packages/black/__init__.py:617:        err("Cannot pass both `pyi` and `ipynb` flags!")
+./.venv/lib/python3.12/site-packages/black/__init__.py:654:        # You can still pass -v to get verbose output.
+./.venv/lib/python3.12/site-packages/black/__init__.py:1056:    equivalent, or if a second pass of the formatter would format the
+./.venv/lib/python3.12/site-packages/black/__init__.py:1159:                pass
+./.venv/lib/python3.12/site-packages/black/__init__.py:1209:    # Forced second pass to work around optional trailing commas (becoming
+./.venv/lib/python3.12/site-packages/black/__init__.py:1210:    # forced trailing commas on pass 2) interacting differently with optional
+./.venv/lib/python3.12/site-packages/black/__init__.py:1565:            diff(src, dst, "source", "first pass"),
+./.venv/lib/python3.12/site-packages/black/__init__.py:1566:            diff(dst, newdst, "first pass", "second pass"),
+./.venv/lib/python3.12/site-packages/black/__init__.py:1570:            " pass of the formatter.  Please report a bug on"
+./.venv/lib/python3.12/site-packages/black-25.1.0.dist-info/METADATA:352:  fn(*args: *tuple[*Ts, T]) -> None: pass`) (#4440)
+./.venv/lib/python3.12/site-packages/black-25.1.0.dist-info/METADATA:555:- Add extra blank lines in stubs in a few cases (#3564, #3862)
+./.venv/lib/python3.12/site-packages/black-25.1.0.dist-info/METADATA:581:- For stubs, fix logic to enforce empty line after nested classes with bodies (#4141)
+./.venv/lib/python3.12/site-packages/black-25.1.0.dist-info/METADATA:725:- Fix the action failing when Black check doesn't pass (#3957)
