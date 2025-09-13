@@ -1,0 +1,28 @@
+# Ignore node modules and artifacts that shouldn't be sent to docker daemon
+node_modules
+**/node_modules
+artifacts
+artifacts/**
+
+# Python envs, caches, and git
+.venv
+venv
+__pycache__
+*.pyc
+.git
+.git/**
+
+# Logs and temp
+logs
+logs/**
+tmp
+tmp/**
+
+# Editor/project files
+.vscode
+.idea
+
+# Build outputs
+build
+build/**
+

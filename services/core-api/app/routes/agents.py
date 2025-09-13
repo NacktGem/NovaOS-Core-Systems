@@ -6,16 +6,38 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
+
 # -------- Robust Root Resolver --------
 def find_project_root(markers={".git", "pyproject.toml", "core"}, max_depth=10) -> Path:
-    current = Path(__file__).resolve()
+    # start searching from the directory containing this file (not the file path)
+    current = Path(__file__).resolve().parent
     for _ in range(max_depth):
         if any((current / marker).exists() for marker in markers):
             return current
         if current.parent == current:
             break
         current = current.parent
+
+    # Fallback: check common container/workdir locations (e.g. /app)
+    fallback_paths = [Path("/app")] + [Path(p) for p in sys.path if p]
+    for p in fallback_paths:
+        try:
+            if any((p / marker).exists() for marker in markers):
+                return p
+        except Exception:
+            continue
+
+    # As a last resort, attempt to locate a top-level 'core' module package
+    for entry in sys.path:
+        try:
+            cand = Path(entry) / "core"
+            if cand.exists():
+                return Path(entry)
+        except Exception:
+            continue
+
     raise RuntimeError("Could not locate project root")
+
 
 project_root = find_project_root()
 if str(project_root) not in sys.path:
@@ -71,7 +93,8 @@ async def run_agent(agent: str, job: Job, request: Request):
 
     if agent not in _registry.agents:
         return JSONResponse(
-            {"success": False, "output": None, "error": f"agent '{agent}' not found"}, status_code=404
+            {"success": False, "output": None, "error": f"agent '{agent}' not found"},
+            status_code=404,
         )
 
     payload = {
