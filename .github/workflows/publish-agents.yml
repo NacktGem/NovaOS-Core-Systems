@@ -21,6 +21,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+<<<<<<< HEAD
+=======
+      - name: Install Syft
+        run: curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3
+
+>>>>>>> origin/main
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -32,6 +41,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build & Push ${{ matrix.agent }}
+<<<<<<< HEAD
+=======
+        id: build
+>>>>>>> origin/main
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -43,4 +56,27 @@ jobs:
           provenance: true
           sbom: true
           cache-from: type=gha
+<<<<<<< HEAD
           cache-to: type=gha,mode=max
+=======
+          cache-to: type=gha,mode=max
+
+      - name: Generate SBOM for ${{ matrix.agent }}
+        run: |
+          mkdir -p .sbom
+          syft ghcr.io/${{ github.repository_owner }}/novaos-agent-${{ matrix.agent }}:${{ github.sha }} -o syft-json > .sbom/${{ matrix.agent }}-sbom.json || { echo "SBOM generation failed for ${{ matrix.agent }}"; exit 1; }
+          if [ ! -s .sbom/${{ matrix.agent }}-sbom.json ]; then
+            echo "SBOM file is empty for ${{ matrix.agent }}"; exit 1
+          fi
+
+      - name: Upload SBOM for ${{ matrix.agent }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.agent }}-sbom
+          path: .sbom/${{ matrix.agent }}-sbom.json
+
+      - name: Sign image with cosign
+        run: |
+          cosign sign --yes ghcr.io/${{ github.repository_owner }}/novaos-agent-${{ matrix.agent }}:${{ github.sha }}
+          cosign sign --yes ghcr.io/${{ github.repository_owner }}/novaos-agent-${{ matrix.agent }}:latest
+>>>>>>> origin/main

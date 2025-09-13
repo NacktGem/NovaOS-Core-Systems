@@ -25,11 +25,6 @@ htmlcov/
 # Build / Artifacts
 artifacts/
 ai_models/
-<<<<<<< HEAD
-# Allow metadata about models to be tracked
-!ai_models/.modelmap.json
-=======
->>>>>>> origin/main
 # tools scripts tracked in git
 vaults/
 *.log
@@ -38,13 +33,10 @@ coverage/
 playwright-report/
 test-results/
 
-<<<<<<< HEAD
-=======
 # SBOM files (generated in CI)
 .sbom/*.json
 !.sbom/.gitkeep
 
->>>>>>> origin/main
 # Secrets
 *.key
 *.pem
@@ -106,28 +98,3 @@ tools/node/pnpm-store/
 .vscode-test/
 
 .env
-<<<<<<< HEAD
-=======
-# ai_models: large local model files
-ai_models/
-**/ai_models/**
-*.gguf
-*.bin
-*.pt
-*.pth
-*.safetensors
-*.onnx
-*.tar.gz
-*.zip
-# ai_models: large local model files
-ai_models/
-**/ai_models/**
-*.gguf
-*.bin
-*.pt
-*.pth
-*.safetensors
-*.onnx
-*.tar.gz
-*.zip
->>>>>>> origin/main
