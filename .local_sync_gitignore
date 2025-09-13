@@ -1,0 +1,10 @@
+.venv
+node_modules
+.next
+env
+secrets
+keys
+vaults
+*.env
+.DS_Store
+.tmp

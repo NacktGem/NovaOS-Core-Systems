@@ -1,0 +1,3 @@
+# Minimal test/runtime deps for Python agents only
+pytest>=8.2,<9
+pytest-mock>=3.12,<4

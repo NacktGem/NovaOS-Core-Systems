@@ -1,0 +1,30 @@
+1:./.git/hooks/pre-push.sample:20:# with "WIP" (work in progress).
+2:./.git/hooks/pre-push.sample:43:		# Check for WIP commit
+3:./.git/hooks/pre-push.sample:44:		commit=$(git rev-list -n 1 --grep '^WIP' "$range")
+4:./.git/hooks/pre-push.sample:47:			echo >&2 "Found WIP commit in $local_ref, not pushing"
+5:./.git/hooks/sendemail-validate.sample:22:# Replace the TODO placeholders with appropriate checks according to your
+6:./.git/hooks/sendemail-validate.sample:27:	# TODO: Replace with appropriate checks (e.g. spell checking).
+7:./.git/hooks/sendemail-validate.sample:35:	# TODO: Replace with appropriate checks for this patch
+8:./.git/hooks/sendemail-validate.sample:41:	# TODO: Replace with appropriate checks for the whole series
+9:./.venv/bin/stubgen:3:from mypy.stubgen import main
+10:./.venv/bin/stubtest:3:from mypy.stubtest import main
+11907:./AGENT_SPEC.md:4:All logic in `.codexrc.md` must follow these specs exactly — no placeholders.
+11908:./AGENT_SPEC.md:23:        raise NotImplementedError
+11909:./apps/gypsy-cove/__tests__/config.spec.ts:4:  it("has placeholders", () => {
+11910:./apps/nova-console/app/consent/page.tsx:8:      <input name="user_id" placeholder="user id"/>
+11911:./apps/nova-console/app/consent/page.tsx:9:      <input name="kind" placeholder="kind"/>
+11912:./apps/nova-console/app/ops/page.tsx:16:        <input name="name" placeholder="event"/>
+11913:./apps/nova-console/app/ops/page.tsx:20:        <input name="creator_id" placeholder="creator"/>
+11914:./apps/nova-console/app/ops/page.tsx:21:        <input name="post_id" placeholder="post"/>
+11915:./apps/nova-console/__tests__/config.spec.ts:4:  it("has placeholders", () => {
+11916:./apps/web-shell/app/api/unlock/route.ts:58:    const pass = typeof body?.password === "string" ? body.password : "";
+11917:./apps/web-shell/app/api/unlock/route.ts:60:    if (!pass) {
+11918:./apps/web-shell/app/api/unlock/route.ts:74:    const ok = constantTimeEquals(pass, expected);
+11919:./apps/web-shell/app/page.tsx:23:      setError('Enter pass')
+11920:./apps/web-shell/app/page.tsx:66:              <h2 id="unlock-title" className="text-2xl mb-2">Enter pass</h2>
+11921:./apps/web-shell/__tests__/config.spec.ts:4:  it("has placeholders", () => {
+11922:./services/agent-core/bus.py:30:            pass
+11923:./services/agent-core/worker.py:25:        raise NotImplementedError("AgentWorker subclasses must implement handle_task()")
+11926:./services/core-api/app/db/base.py:16:    pass
+11927:./services/core-api/app/middleware/rate_limit.py:34:                pass
+11928:./services/core-api/tests/test_palettes.py:7:def test_palettes_list_and_unlock_stub(client, session):
