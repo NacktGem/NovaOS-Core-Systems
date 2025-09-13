@@ -69,8 +69,6 @@ Env vars (.env.echo):
 ## Sovereign Standard
 Local-first, consent-bound, RBAC enforced, Founder controls everything.
 
-<<<<<<< HEAD
-=======
 ## Supply Chain Security
 NovaOS implements **Stage 11 Sovereign Standard** for complete supply chain transparency:
 - **SBOM Generation**: Every container includes a Software Bill of Materials
@@ -79,7 +77,6 @@ NovaOS implements **Stage 11 Sovereign Standard** for complete supply chain tran
 
 See [docs/SUPPLY_CHAIN_VERIFICATION.md](docs/SUPPLY_CHAIN_VERIFICATION.md) for verification commands.
 
->>>>>>> origin/main
 ## CLI
 
 Run NovaOS agents directly from the terminal:
