@@ -1,5 +1,10 @@
 name: ci
-on: [push, pull_request]
+
+on:
+  push:
+    branches: [main, '**']
+  pull_request:
+
 jobs:
   node:
     runs-on: ubuntu-latest
@@ -47,3 +52,507 @@ jobs:
             exit 1
           fi
           alembic current
+
+  core-api-smoke-test:
+    name: core-api-smoke-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Check required files
+        id: gate
+        shell: bash
+        run: |
+          missing=0
+          for f in env/config.json secrets/dev_jwt_private.pem secrets/dev_jwt_public.pem; do
+            if [ ! -f "$f" ]; then
+              echo "Missing $f"
+              missing=1
+            fi
+          done
+          if [ "$missing" -eq 0 ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build core-api image (prod)
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker build -f services/core-api/Dockerfile -t nova-core-api-prod:ci .
+
+      - name: Run container
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker run -d --name nova-core-api-test -p 8000:8000 \
+            -v ${{ github.workspace }}/env/config.json:/app/env/config.json:ro \
+            -v ${{ github.workspace }}/secrets/dev_jwt_private.pem:/run/secrets/dev_jwt_private:ro \
+            -v ${{ github.workspace }}/secrets/dev_jwt_public.pem:/run/secrets/dev_jwt_public:ro \
+            -e JWT_PRIVATE_KEY_PATH=/run/secrets/dev_jwt_private \
+            -e JWT_PUBLIC_KEY_PATH=/run/secrets/dev_jwt_public \
+            -e AGENT_SHARED_TOKEN=devtoken \
+            -e HOST=0.0.0.0 \
+            -e PORT=8000 \
+            nova-core-api-prod:ci
+
+      - name: Wait for service to be ready
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          for i in {1..20}; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/internal/healthz || true)
+            if [ "$code" = "200" ]; then
+              echo "Service healthy"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Service failed to become healthy"
+          docker logs nova-core-api-test || true
+          exit 1
+
+      - name: Assert identity log present
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker logs nova-core-api-test | grep "NovaOS identity loaded from /app/env/config.json"
+
+      - name: Stop and remove container
+        if: always()
+        run: |
+          docker stop nova-core-api-test || true
+          docker rm nova-core-api-test || true
+
+  glitch-smoke-test:
+    name: glitch-smoke-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Check required files
+        id: gate
+        shell: bash
+        run: |
+          missing=0
+          for f in env/config.json secrets/dev_jwt_private.pem secrets/dev_jwt_public.pem; do
+            if [ ! -f "$f" ]; then
+              echo "Missing $f"
+              missing=1
+            fi
+          done
+          if [ "$missing" -eq 0 ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build glitch image (prod)
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker build -f services/glitch/Dockerfile -t nova-glitch-prod:ci .
+
+      - name: Run container
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker run -d --name nova-glitch-test -p 8800:8000 \
+            -v ${{ github.workspace }}/env/config.json:/app/env/config.json:ro \
+            -v ${{ github.workspace }}/secrets/dev_jwt_private.pem:/run/secrets/dev_jwt_private:ro \
+            -v ${{ github.workspace }}/secrets/dev_jwt_public.pem:/run/secrets/dev_jwt_public:ro \
+            -e JWT_PRIVATE_KEY_PATH=/run/secrets/dev_jwt_private \
+            -e JWT_PUBLIC_KEY_PATH=/run/secrets/dev_jwt_public \
+            -e AGENT_SHARED_TOKEN=devtoken \
+            -e HOST=0.0.0.0 \
+            -e PORT=8000 \
+            nova-glitch-prod:ci
+
+      - name: Wait for service to be ready
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          for i in {1..20}; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8800/internal/healthz || true)
+            if [ "$code" = "200" ]; then
+              echo "Service healthy"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Service failed to become healthy"
+          docker logs nova-glitch-test || true
+          exit 1
+
+      - name: Assert identity log present
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker logs nova-glitch-test | grep "\[NovaOS\] identity loaded from /app/env/config.json"
+
+      - name: Stop and remove container
+        if: always()
+        run: |
+          docker stop nova-glitch-test || true
+          docker rm nova-glitch-test || true
+
+  lyra-smoke-test:
+    name: lyra-smoke-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Check required files
+        id: gate
+        shell: bash
+        run: |
+          missing=0
+          for f in env/config.json secrets/dev_jwt_private.pem secrets/dev_jwt_public.pem; do
+            if [ ! -f "$f" ]; then
+              echo "Missing $f"
+              missing=1
+            fi
+          done
+          if [ "$missing" -eq 0 ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build lyra image (prod)
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker build -f services/lyra/Dockerfile -t nova-lyra-prod:ci .
+
+      - name: Run container
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker run -d --name nova-lyra-test -p 8900:8000 \
+            -v ${{ github.workspace }}/env/config.json:/app/env/config.json:ro \
+            -v ${{ github.workspace }}/secrets/dev_jwt_private.pem:/run/secrets/dev_jwt_private:ro \
+            -v ${{ github.workspace }}/secrets/dev_jwt_public.pem:/run/secrets/dev_jwt_public:ro \
+            -e JWT_PRIVATE_KEY_PATH=/run/secrets/dev_jwt_private \
+            -e JWT_PUBLIC_KEY_PATH=/run/secrets/dev_jwt_public \
+            -e AGENT_SHARED_TOKEN=devtoken \
+            -e HOST=0.0.0.0 \
+            -e PORT=8000 \
+            nova-lyra-prod:ci
+
+      - name: Wait for service to be ready
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          for i in {1..20}; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8900/internal/healthz || true)
+            if [ "$code" = "200" ]; then
+              echo "Service healthy"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Service failed to become healthy"
+          docker logs nova-lyra-test || true
+          exit 1
+
+      - name: Assert identity log present
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker logs nova-lyra-test | grep "\[NovaOS\] identity loaded from /app/env/config.json"
+
+      - name: Stop and remove container
+        if: always()
+        run: |
+          docker stop nova-lyra-test || true
+          docker rm nova-lyra-test || true
+
+  velora-smoke-test:
+    name: velora-smoke-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Check required files
+        id: gate
+        shell: bash
+        run: |
+          missing=0
+          for f in env/config.json secrets/dev_jwt_private.pem secrets/dev_jwt_public.pem; do
+            if [ ! -f "$f" ]; then
+              echo "Missing $f"
+              missing=1
+            fi
+          done
+          if [ "$missing" -eq 0 ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build velora image (prod)
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker build -f services/velora/Dockerfile -t nova-velora-prod:ci .
+
+      - name: Run container
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker run -d --name nova-velora-test -p 9000:8000 \
+            -v ${{ github.workspace }}/env/config.json:/app/env/config.json:ro \
+            -v ${{ github.workspace }}/secrets/dev_jwt_private.pem:/run/secrets/dev_jwt_private:ro \
+            -v ${{ github.workspace }}/secrets/dev_jwt_public.pem:/run/secrets/dev_jwt_public:ro \
+            -e JWT_PRIVATE_KEY_PATH=/run/secrets/dev_jwt_private \
+            -e JWT_PUBLIC_KEY_PATH=/run/secrets/dev_jwt_public \
+            -e AGENT_SHARED_TOKEN=devtoken \
+            -e HOST=0.0.0.0 \
+            -e PORT=8000 \
+            nova-velora-prod:ci
+
+      - name: Wait for service to be ready
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          for i in {1..20}; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9000/internal/healthz || true)
+            if [ "$code" = "200" ]; then
+              echo "Service healthy"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Service failed to become healthy"
+          docker logs nova-velora-test || true
+          exit 1
+
+      - name: Assert identity log present
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker logs nova-velora-test | grep "\[NovaOS\] identity loaded from /app/env/config.json"
+
+      - name: Stop and remove container
+        if: always()
+        run: |
+          docker stop nova-velora-test || true
+          docker rm nova-velora-test || true
+
+  riven-smoke-test:
+    name: riven-smoke-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Check required files
+        id: gate
+        shell: bash
+        run: |
+          missing=0
+          for f in env/config.json secrets/dev_jwt_private.pem secrets/dev_jwt_public.pem; do
+            if [ ! -f "$f" ]; then
+              echo "Missing $f"
+              missing=1
+            fi
+          done
+          if [ "$missing" -eq 0 ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build riven image (prod)
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker build -f services/riven/Dockerfile -t nova-riven-prod:ci .
+
+      - name: Run container
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker run -d --name nova-riven-test -p 9100:8000 \
+            -v ${{ github.workspace }}/env/config.json:/app/env/config.json:ro \
+            -v ${{ github.workspace }}/secrets/dev_jwt_private.pem:/run/secrets/dev_jwt_private:ro \
+            -v ${{ github.workspace }}/secrets/dev_jwt_public.pem:/run/secrets/dev_jwt_public:ro \
+            -e JWT_PRIVATE_KEY_PATH=/run/secrets/dev_jwt_private \
+            -e JWT_PUBLIC_KEY_PATH=/run/secrets/dev_jwt_public \
+            -e AGENT_SHARED_TOKEN=devtoken \
+            -e HOST=0.0.0.0 \
+            -e PORT=8000 \
+            nova-riven-prod:ci
+
+      - name: Wait for service to be ready
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          for i in {1..20}; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9100/internal/healthz || true)
+            if [ "$code" = "200" ]; then
+              echo "Service healthy"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Service failed to become healthy"
+          docker logs nova-riven-test || true
+          exit 1
+
+      - name: Assert identity log present
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker logs nova-riven-test | grep "\[NovaOS\] identity loaded from /app/env/config.json"
+
+      - name: Stop and remove container
+        if: always()
+        run: |
+          docker stop nova-riven-test || true
+          docker rm nova-riven-test || true
+
+  echo-smoke-test:
+    name: echo-smoke-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Check required files
+        id: gate
+        shell: bash
+        run: |
+          missing=0
+          for f in env/config.json secrets/dev_jwt_private.pem secrets/dev_jwt_public.pem; do
+            if [ ! -f "$f" ]; then
+              echo "Missing $f"
+              missing=1
+            fi
+          done
+          if [ "$missing" -eq 0 ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build echo image (prod)
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker build -f services/echo/Dockerfile -t nova-echo-prod:ci .
+
+      - name: Run container
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker run -d --name nova-echo-test -p 9200:8000 \
+            -v ${{ github.workspace }}/env/config.json:/app/env/config.json:ro \
+            -v ${{ github.workspace }}/secrets/dev_jwt_private.pem:/run/secrets/dev_jwt_private:ro \
+            -v ${{ github.workspace }}/secrets/dev_jwt_public.pem:/run/secrets/dev_jwt_public:ro \
+            -e JWT_PRIVATE_KEY_PATH=/run/secrets/dev_jwt_private \
+            -e JWT_PUBLIC_KEY_PATH=/run/secrets/dev_jwt_public \
+            -e AGENT_SHARED_TOKEN=devtoken \
+            -e HOST=0.0.0.0 \
+            -e PORT=8000 \
+            nova-echo-prod:ci
+
+      - name: Wait for service to be ready
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          for i in {1..20}; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9200/internal/healthz || true)
+            if [ "$code" = "200" ]; then
+              echo "Service healthy"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Service failed to become healthy"
+          docker logs nova-echo-test || true
+          exit 1
+
+      - name: Assert identity log present
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker logs nova-echo-test | grep "\[NovaOS\] identity loaded from /app/env/config.json"
+
+      - name: Stop and remove container
+        if: always()
+        run: |
+          docker stop nova-echo-test || true
+          docker rm nova-echo-test || true
+
+  audita-smoke-test:
+    name: audita-smoke-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Check required files
+        id: gate
+        shell: bash
+        run: |
+          missing=0
+          for f in env/config.json secrets/dev_jwt_private.pem secrets/dev_jwt_public.pem; do
+            if [ ! -f "$f" ]; then
+              echo "Missing $f"
+              missing=1
+            fi
+          done
+          if [ "$missing" -eq 0 ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build audita image (prod)
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker build -f services/audita/Dockerfile -t nova-audita-prod:ci .
+
+      - name: Run container
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker run -d --name nova-audita-test -p 9300:8000 \
+            -v ${{ github.workspace }}/env/config.json:/app/env/config.json:ro \
+            -v ${{ github.workspace }}/secrets/dev_jwt_private.pem:/run/secrets/dev_jwt_private:ro \
+            -v ${{ github.workspace }}/secrets/dev_jwt_public.pem:/run/secrets/dev_jwt_public:ro \
+            -e JWT_PRIVATE_KEY_PATH=/run/secrets/dev_jwt_private \
+            -e JWT_PUBLIC_KEY_PATH=/run/secrets/dev_jwt_public \
+            -e AGENT_SHARED_TOKEN=devtoken \
+            -e HOST=0.0.0.0 \
+            -e PORT=8000 \
+            nova-audita-prod:ci
+
+      - name: Wait for service to be ready
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          for i in {1..20}; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9300/internal/healthz || true)
+            if [ "$code" = "200" ]; then
+              echo "Service healthy"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Service failed to become healthy"
+          docker logs nova-audita-test || true
+          exit 1
+
+      - name: Assert identity log present
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker logs nova-audita-test | grep "\[NovaOS\] identity loaded from /app/env/config.json"
+
+      - name: Stop and remove container
+        if: always()
+        run: |
+          docker stop nova-audita-test || true
+          docker rm nova-audita-test || true

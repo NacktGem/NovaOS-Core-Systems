@@ -1,16 +1,38 @@
-"""Glitch service main application.
+"""Glitch service main application (Sovereign Standard compliant).
 
-This service performs moderation tasks for chat messages. It consumes tasks
-from the agents bus and applies heuristic rules. Exposes health and metrics
-endpoints for monitoring. Admin endpoints require an internal token.
+Implements FastAPI service exposing:
+  - GET /internal/healthz
+  - GET /internal/readyz
+  - GET /version
+  - GET /status
+  - POST /run
+
+Also loads identity from /app/env/config.json and self-registers with core-api.
 """
+
+from __future__ import annotations
 
 import os
 import asyncio
+import socket
+import time
+from datetime import datetime, timezone
+from typing import Any, Dict
+
 from fastapi import FastAPI, Header, HTTPException, status
 from fastapi.responses import PlainTextResponse, JSONResponse
+from pydantic import BaseModel
 
 from agent_core import configure_logging  # type: ignore
+from env.identity import load_identity, CONFIG_PATH  # type: ignore
+from agents.glitch.agent import GlitchAgent  # type: ignore
+
+
+class RunJob(BaseModel):
+    command: str
+    args: Dict[str, Any] = {}
+    log: bool = False
+
 
 app = FastAPI(title="Glitch Service")
 
@@ -23,20 +45,79 @@ _metrics = {"processed": 0, "errors": 0}
 
 INTERNAL_TOKEN = os.getenv("INTERNAL_TOKEN", "")
 
+# Sovereign identity + metadata
+IDENTITY = load_identity()
+try:
+    # Explicit standard log line (in addition to identity loader's own print)
+    print(f"[NovaOS] identity loaded from {CONFIG_PATH.resolve()}")
+except Exception:
+    # Best-effort logging; identity loader already emitted something
+    pass
+
+SERVICE_NAME = "glitch"
+GIT_COMMIT = os.getenv("GIT_COMMIT", "unknown")
+CORE_API_URL = os.getenv("CORE_API_URL", "http://core-api:8000")
+AGENT_TOKEN = os.getenv("AGENT_SHARED_TOKEN", "")
+
+_agent = GlitchAgent()
+
 
 @app.on_event("startup")
 async def startup_event() -> None:
     configure_logging()
+    # Background worker for metrics demo (non-blocking)
+    app.state._worker_task = asyncio.create_task(worker_loop())
+    # Heartbeat to core-api
+    app.state._hb_task = asyncio.create_task(_heartbeat_loop())
 
 
-@app.get("/healthz")
-async def healthz() -> JSONResponse:
+@app.on_event("shutdown")
+async def shutdown_event() -> None:
+    for name in ("_hb_task", "_worker_task"):
+        task = getattr(app.state, name, None)
+        if task:
+            task.cancel()
+
+
+@app.get("/internal/healthz")
+async def internal_healthz() -> JSONResponse:
     return JSONResponse({"status": "ok"})
 
 
-@app.get("/readyz")
-async def readyz() -> JSONResponse:
+@app.get("/internal/readyz")
+async def internal_readyz() -> JSONResponse:
     return JSONResponse({"status": "ok"})
+
+
+@app.get("/version")
+async def version() -> Dict[str, Any]:
+    return {
+        "service": SERVICE_NAME,
+        "name": IDENTITY.get("name", "NovaOS"),
+        "version": IDENTITY.get("version", os.getenv("GLITCH_VERSION", "0.0.0")),
+        "commit": GIT_COMMIT,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+@app.get("/status")
+async def status_page() -> Dict[str, Any]:
+    return {
+        "agent": SERVICE_NAME,
+        "threat_level": _agent.get_threat_level(),
+        "active_scans": _agent.get_active_scans(),
+        "last_scan_time": _agent.get_last_scan_time(),
+        "metrics": _metrics,
+    }
+
+
+@app.post("/run")
+async def run(job: RunJob) -> Dict[str, Any]:
+    try:
+        payload = {"command": job.command, "args": job.args}
+        return _agent.run(payload)
+    except Exception as e:  # noqa: BLE001
+        return {"success": False, "output": None, "error": str(e)}
 
 
 @app.get("/metrics")
@@ -71,16 +152,34 @@ async def admin_resume(x_internal_token: str = Header("")) -> JSONResponse:
 async def worker_loop():
     while True:
         await _worker_paused.wait()
-        # Process a task (placeholder for real work)
+        # Simulate background metric activity
         try:
-            # ... task processing logic ...
-            _metrics['processed'] += 1
+            _metrics["processed"] += 1
         except Exception:
-            _metrics['errors'] += 1
+            _metrics["errors"] += 1
         await asyncio.sleep(1)
 
 
-# Start background worker if not already managed externally
-@app.on_event("startup")
-async def start_worker_task():
-    app.state._worker_task = asyncio.create_task(worker_loop())
+async def _heartbeat_loop() -> None:
+    """Self-register to core-api periodically."""
+    import httpx
+
+    ttl = 90
+    headers = {"x-agent-token": AGENT_TOKEN} if AGENT_TOKEN else {}
+    payload = {
+        "agent": SERVICE_NAME,
+        "version": IDENTITY.get("version", "0.0.0"),
+        "host": socket.gethostname(),
+        "pid": os.getpid(),
+        "capabilities": ["forensics", "security", "moderation"],
+    }
+
+    while True:
+        try:
+            url = f"{CORE_API_URL.rstrip('/')}/api/v1/agent/heartbeat"
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                await client.post(url, json=payload, headers=headers)
+        except Exception as e:  # noqa: BLE001
+            # Log and continue; do not crash the service if core-api is offline
+            print(f"heartbeat failed: {e}")
+        await asyncio.sleep(ttl // 2)

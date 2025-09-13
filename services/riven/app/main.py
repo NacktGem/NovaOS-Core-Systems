@@ -1,4 +1,4 @@
-"""Audita service main application (Sovereign Standard compliant).
+"""Riven service main application (Sovereign Standard compliant).
 
 Exposes:
   - GET /internal/healthz
@@ -16,20 +16,15 @@ from __future__ import annotations
 import os
 import asyncio
 import socket
-import hashlib
-import shutil
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any, Dict
 
-import psycopg  # type: ignore
-from psycopg.rows import dict_row  # type: ignore
-from fastapi import FastAPI, UploadFile, Form, HTTPException
+from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from env.identity import load_identity, CONFIG_PATH  # type: ignore
-from agents.audita.agent import AuditaAgent  # type: ignore
+from agents.riven.agent import RivenAgent  # type: ignore
 
 
 class RunJob(BaseModel):
@@ -37,7 +32,7 @@ class RunJob(BaseModel):
     args: Dict[str, Any] = {}
 
 
-app = FastAPI(title="Audita Service")
+app = FastAPI(title="Riven Service")
 
 IDENTITY = load_identity()
 try:
@@ -45,12 +40,12 @@ try:
 except Exception:
     pass
 
-SERVICE_NAME = "audita"
+SERVICE_NAME = "riven"
 GIT_COMMIT = os.getenv("GIT_COMMIT", "unknown")
 CORE_API_URL = os.getenv("CORE_API_URL", "http://core-api:8000")
 AGENT_TOKEN = os.getenv("AGENT_SHARED_TOKEN", "")
 
-_agent = AuditaAgent()
+_agent = RivenAgent()
 
 
 @app.on_event("startup")
@@ -80,7 +75,7 @@ async def version() -> Dict[str, Any]:
     return {
         "service": SERVICE_NAME,
         "name": IDENTITY.get("name", "NovaOS"),
-        "version": IDENTITY.get("version", os.getenv("AUDITA_VERSION", "0.0.0")),
+        "version": IDENTITY.get("version", os.getenv("RIVEN_VERSION", "0.0.0")),
         "commit": GIT_COMMIT,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
@@ -90,6 +85,7 @@ async def version() -> Dict[str, Any]:
 async def status_page() -> Dict[str, Any]:
     return {
         "agent": SERVICE_NAME,
+        "log_dir": str(_agent._log_dir),  # type: ignore[attr-defined]
     }
 
 
@@ -112,7 +108,7 @@ async def _heartbeat_loop() -> None:
         "version": IDENTITY.get("version", "0.0.0"),
         "host": socket.gethostname(),
         "pid": os.getpid(),
-        "capabilities": ["compliance", "legal", "audit"],
+        "capabilities": ["family", "safety", "tracking"],
     }
 
     while True:
@@ -123,54 +119,3 @@ async def _heartbeat_loop() -> None:
         except Exception as e:  # noqa: BLE001
             print(f"heartbeat failed: {e}")
         await asyncio.sleep(ttl // 2)
-
-
-# --- Existing Audita features (preserved) ---
-DB = os.getenv("DATABASE_URL", "postgresql://localhost/novaos")
-STORAGE = Path(os.getenv("CONSENT_STORE", "artifacts/consents"))
-STORAGE.mkdir(parents=True, exist_ok=True)
-
-
-def db():
-    return psycopg.connect(DB, row_factory=dict_row)
-
-
-@app.post("/consent/upload")
-async def upload_consent(
-    user_id: str = Form(...),
-    kind: str = Form(...),
-    file: UploadFile | None = None,
-):
-    if not file:
-        raise HTTPException(400, "file required")
-    dest = STORAGE / f"{datetime.utcnow().timestamp()}_{file.filename}"
-    with dest.open("wb") as f:
-        shutil.copyfileobj(file.file, f)
-    sha = hashlib.sha256(dest.read_bytes()).hexdigest()
-    with db() as conn:
-        conn.execute(
-            "INSERT INTO consent.consents (user_id,kind,sha256,file_path) VALUES (%s,%s,%s,%s)",
-            (user_id, kind, sha, str(dest)),
-        )
-    return {"ok": True, "sha256": sha}
-
-
-@app.post("/dmca/report")
-def dmca_report(reporter: str, target_post: str | None = None):
-    with db() as conn:
-        conn.execute(
-            "INSERT INTO legal.dmca_actions (reporter,target_post) VALUES (%s,%s)",
-            (reporter, target_post),
-        )
-    return {"ok": True}
-
-
-# Back-compat simple health endpoints
-@app.get("/healthz")
-def healthz():
-    return {"status": "ok"}
-
-
-@app.get("/readyz")
-def readyz():
-    return {"status": "ok"}

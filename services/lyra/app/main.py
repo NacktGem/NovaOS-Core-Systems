@@ -3,44 +3,34 @@ from __future__ import annotations
 import asyncio
 import os
 import socket
+import time
 from datetime import datetime, timezone
 from typing import Any, Dict
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from env.identity import load_identity, CONFIG_PATH
-from agents.velora.agent import VeloraAgent
-
-# Optional analytics DB support preserved
-import psycopg  # type: ignore
-from psycopg.rows import dict_row  # type: ignore
+from agents.lyra.agent import LyraAgent
 
 
-DB = os.getenv("DATABASE_URL", "postgresql://localhost/novaos")
-app = FastAPI(title="Velora Service")
+class RunJob(BaseModel):
+    command: str
+    args: Dict[str, Any] = {}
+    log: bool = False
 
 
-def db():
-    return psycopg.connect(DB, row_factory=dict_row)
+app = FastAPI(title="Lyra Service")
 
-
-class EventIn(BaseModel):
-    user_id: str | None = None
-    name: str
-    props: dict = {}
-
-
-# --- Sovereign identity and metadata ---
 IDENTITY = load_identity()
 print(f"[NovaOS] identity loaded from {CONFIG_PATH.resolve()}")
 
-SERVICE_NAME = "velora"
+SERVICE_NAME = "lyra"
 GIT_COMMIT = os.getenv("GIT_COMMIT", "unknown")
 CORE_API_URL = os.getenv("CORE_API_URL", "http://core-api:8000")
 AGENT_TOKEN = os.getenv("AGENT_SHARED_TOKEN", "")
 
-_agent = VeloraAgent()
+_agent = LyraAgent()
 
 
 @app.on_event("startup")
@@ -65,7 +55,7 @@ async def _heartbeat_loop() -> None:
         "version": IDENTITY.get("version", "0.0.0"),
         "host": socket.gethostname(),
         "pid": os.getpid(),
-        "capabilities": ["analytics", "automation", "crm"],
+        "capabilities": ["education", "creative", "herbalist"],
     }
 
     while True:
@@ -78,14 +68,13 @@ async def _heartbeat_loop() -> None:
         await asyncio.sleep(ttl // 2)
 
 
-# --- Sovereign endpoints ---
 @app.get("/internal/healthz")
-async def internal_healthz() -> Dict[str, str]:
+async def healthz() -> Dict[str, str]:
     return {"status": "ok"}
 
 
 @app.get("/internal/readyz")
-async def internal_readyz() -> Dict[str, str]:
+async def readyz() -> Dict[str, str]:
     return {"status": "ok"}
 
 
@@ -93,7 +82,7 @@ async def internal_readyz() -> Dict[str, str]:
 async def version() -> Dict[str, Any]:
     return {
         "service": SERVICE_NAME,
-        "version": IDENTITY.get("version", os.getenv("VELORA_VERSION", "0.0.0")),
+        "version": IDENTITY.get("version", os.getenv("LYRA_VERSION", "0.0.0")),
         "commit": GIT_COMMIT,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
@@ -104,15 +93,9 @@ async def status() -> Dict[str, Any]:
     return {
         "agent": SERVICE_NAME,
         "state": {
-            "log_dir": str(_agent._log_dir),  # internal path used by VeloraAgent
+            "log_dir": str(_agent._log_dir),  # internal path used by LyraAgent
         },
     }
-
-
-class RunJob(BaseModel):
-    command: str
-    args: Dict[str, Any] = {}
-    log: bool = False
 
 
 @app.post("/run")
@@ -120,16 +103,7 @@ async def run(job: RunJob) -> Dict[str, Any]:
     try:
         payload = {"command": job.command, "args": job.args}
         return _agent.run(payload)
+    except HTTPException:
+        raise
     except Exception as e:  # noqa: BLE001
         return {"success": False, "output": None, "error": str(e)}
-
-
-# --- Existing analytics endpoint retained ---
-@app.post("/ingest")
-def ingest(ev: EventIn):
-    with db() as conn:
-        conn.execute(
-            "INSERT INTO analytics.events (user_id,name,props) VALUES (%s,%s,%s)",
-            (ev.user_id, ev.name, ev.props),
-        )
-    return {"ok": True}
