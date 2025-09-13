@@ -14,7 +14,7 @@ COPY core /app/core
 COPY env /app/env
 COPY agents /app/agents
 COPY services/agent-core /app/agent_core
-COPY services/echo /app/services/echo
+COPY services/lyra /app/services/lyra
 
 RUN pip install --no-cache-dir \
     fastapi==0.116.1 \
@@ -26,7 +26,7 @@ RUN pip install --no-cache-dir \
 
 RUN chmod -R a+rX /app/env || true
 
-WORKDIR /app/services/echo
+WORKDIR /app/services/lyra
 
 COPY services/core-api/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh

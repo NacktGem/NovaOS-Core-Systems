@@ -19,16 +19,27 @@ from app.routes import (
     logs,
 )
 from app.api.v1.agent import router as agent_router
+
 PROM_ENABLED = os.getenv("PROM_ENABLED") == "true"
 app = FastAPI(title="Nova Core API")
+
+
+@app.on_event("startup")
+def _load_identity_on_startup():
+    try:
+        # import here to ensure env package is available at runtime
+        from env.identity import load_identity
+
+        load_identity()
+    except Exception as e:
+        print(f"⚠️ Failed to load identity on startup: {e}")
+
 
 if PROM_ENABLED:
     from prometheus_client import CONTENT_TYPE_LATEST, Counter, generate_latest
 
     app.state.requests_total = Counter("requests_total", "Total HTTP requests")
-    app.state.agent_calls_total = Counter(
-        "agent_calls_total", "Agent calls", ["agent", "success"]
-    )
+    app.state.agent_calls_total = Counter("agent_calls_total", "Agent calls", ["agent", "success"])
     app.state.errors_total = Counter("errors_total", "Total errors")
 
     @app.middleware("http")
@@ -46,6 +57,7 @@ if PROM_ENABLED:
     @app.get("/metrics")
     async def metrics():
         return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
 
 origins = os.getenv(
     "CORS_ORIGINS",
@@ -70,10 +82,25 @@ app.include_router(payments.router)
 app.include_router(rooms.router)
 app.include_router(messages.router)
 app.include_router(consent.router)
-app.include_router(internal.health_router)
+app.include_router(internal.health_router, prefix="/internal")
 app.include_router(internal.router)
 app.include_router(dmca.router)
 app.include_router(analytics.router)
 app.include_router(agents.router)
 app.include_router(agent_router)
 app.include_router(logs.router)
+
+# --- Sovereign Standard: /version ---
+from datetime import datetime, timezone  # noqa: E402
+
+GIT_COMMIT = os.getenv("GIT_COMMIT", "unknown")
+
+
+@app.get("/version")
+def version():
+    return {
+        "service": "core-api",
+        "version": os.getenv("CORE_API_VERSION", "0.0.0"),
+        "commit": GIT_COMMIT,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }

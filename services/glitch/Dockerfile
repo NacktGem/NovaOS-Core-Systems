@@ -10,12 +10,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
+# Copy only what Glitch needs at runtime
 COPY core /app/core
 COPY env /app/env
 COPY agents /app/agents
 COPY services/agent-core /app/agent_core
-COPY services/echo /app/services/echo
+COPY services/glitch /app/services/glitch
 
+# Install production dependencies only
 RUN pip install --no-cache-dir \
     fastapi==0.116.1 \
     "uvicorn[standard]==0.35.0" \
@@ -24,9 +26,10 @@ RUN pip install --no-cache-dir \
     redis==5.0.1 \
     orjson==3.10.3
 
+# Ensure env dir is readable even if bind-mounted differently
 RUN chmod -R a+rX /app/env || true
 
-WORKDIR /app/services/echo
+WORKDIR /app/services/glitch
 
 COPY services/core-api/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
