@@ -33,3 +33,35 @@ This file summarizes models managed by `ai_models/.modelmap.json`.
 - Status: failed
 
 
+
+## nsfw-image-detector
+
+- Type: vision
+
+- Path: `ai_models/nsfw-image-detector/`
+
+- URL: https://huggingface.co/wavymulder/nsfw_image_detection/resolve/main/pytorch_model.bin
+
+- Size: *unknown*
+
+- SHA256: *unknown*
+
+- Status: pending
+
+
+
+## nsfw-text-detector
+
+- Type: text
+
+- Path: `ai_models/nsfw-text-detector/`
+
+- URL: https://huggingface.co/unitary/toxic-bert/resolve/main/pytorch_model.bin
+
+- Size: *unknown*
+
+- SHA256: *unknown*
+
+- Status: pending
+
+

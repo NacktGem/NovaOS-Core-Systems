@@ -21,6 +21,26 @@
       "status": "failed",
       "downloaded_at": null,
       "http_last_checked": "2025-09-09T00:59:21Z"
+    },
+    {
+      "name": "nsfw-image-detector",
+      "type": "vision",
+      "path": "ai_models/nsfw-image-detector/",
+      "url": "https://huggingface.co/wavymulder/nsfw_image_detection/resolve/main/pytorch_model.bin",
+      "sha256": "",
+      "size_bytes": 0,
+      "status": "pending",
+      "downloaded_at": null
+    },
+    {
+      "name": "nsfw-text-detector",
+      "type": "text",
+      "path": "ai_models/nsfw-text-detector/",
+      "url": "https://huggingface.co/unitary/toxic-bert/resolve/main/pytorch_model.bin",
+      "sha256": "",
+      "size_bytes": 0,
+      "status": "pending",
+      "downloaded_at": null
     }
   ]
 }
