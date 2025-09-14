@@ -29,6 +29,7 @@ SERVICE_NAME = "lyra"
 GIT_COMMIT = os.getenv("GIT_COMMIT", "unknown")
 CORE_API_URL = os.getenv("CORE_API_URL", "http://core-api:8000")
 AGENT_TOKEN = os.getenv("AGENT_SHARED_TOKEN", "")
+SERVICE_VERSION = IDENTITY.get("version", os.getenv("LYRA_VERSION", "0.0.0"))
 
 _agent = LyraAgent()
 
@@ -82,7 +83,7 @@ async def readyz() -> Dict[str, str]:
 async def version() -> Dict[str, Any]:
     return {
         "service": SERVICE_NAME,
-        "version": IDENTITY.get("version", os.getenv("LYRA_VERSION", "0.0.0")),
+        "version": SERVICE_VERSION,
         "commit": GIT_COMMIT,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }

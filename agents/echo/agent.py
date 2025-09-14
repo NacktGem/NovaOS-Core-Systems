@@ -12,6 +12,26 @@ from agents.base import BaseAgent
 class EchoAgent(BaseAgent):
     def __init__(self) -> None:
         super().__init__("echo", description="Comms relay agent")
+        self._platform_log = Path("/logs/echo.log")
+        self._platform_log.parent.mkdir(parents=True, exist_ok=True)
+
+    def _wrap(self, command: str, details: dict | None, error: str | None) -> Dict[str, Any]:
+        success = error is None
+        summary = (
+            f"Echo completed '{command}'"
+            if success
+            else f"Echo failed '{command}': {error}"
+        )
+        try:
+            with self._platform_log.open("a", encoding="utf-8") as fh:
+                fh.write(f"{summary} | details={details} | error={error}\n")
+        except Exception:
+            pass
+        return {
+            "success": success,
+            "output": {"summary": summary, "details": details or {}, "logs_path": str(self._platform_log)},
+            "error": error,
+        }
 
     def run(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         command = payload.get("command")
@@ -19,7 +39,9 @@ class EchoAgent(BaseAgent):
         try:
             if command == "send_message":
                 message = args.get("message", "")
-                return {"success": True, "output": {"message": message}, "error": None}
+                recipient = args.get("recipient")
+                details = {"message": message, "recipient": recipient, "delivery": "simulated"}
+                return self._wrap(command, details, None)
 
             if command == "send_file":
                 src = Path(args.get("src", ""))
@@ -28,24 +50,20 @@ class EchoAgent(BaseAgent):
                     raise FileNotFoundError(f"missing source file: {src}")
                 dst.parent.mkdir(parents=True, exist_ok=True)
                 copy2(src, dst)
-                return {"success": True, "output": {"copied": str(dst)}, "error": None}
+                return self._wrap(command, {"copied": str(dst)}, None)
 
             if command == "send_voice":
                 path = Path(args.get("path", ""))
                 if not path.is_file():
                     raise FileNotFoundError(f"voice file not found: {path}")
                 sha256 = hashlib.sha256(path.read_bytes()).hexdigest()
-                return {"success": True, "output": {"sha256": sha256}, "error": None}
+                return self._wrap(command, {"sha256": sha256}, None)
 
             if command == "broadcast":
                 message = args.get("message", "")
                 recipients: List[str] = args.get("recipients", [])
-                return {
-                    "success": True,
-                    "output": {"message": message, "recipients": recipients},
-                    "error": None,
-                }
+                return self._wrap(command, {"message": message, "recipients": recipients}, None)
 
-            raise ValueError(f"unknown command '{command}'")
+            return self._wrap(command or "", None, f"unknown command '{command}'")
         except Exception as exc:  # noqa: BLE001
-            return {"success": False, "output": None, "error": str(exc)}
+            return self._wrap(command or "", None, str(exc))

@@ -9,12 +9,42 @@ from typing import Any, Dict, List
 
 from agents.base import BaseAgent
 
+# Optional analytics tools:
+# REQUIRES pandas — Not installed by default
+#   pip install pandas
+
 
 class VeloraAgent(BaseAgent):
     def __init__(self) -> None:
         super().__init__("velora", description="Business analytics agent")
         self._log_dir = Path("logs/velora")
         self._log_dir.mkdir(parents=True, exist_ok=True)
+        self._platform_log = Path("/logs/velora.log")
+        self._platform_log.parent.mkdir(parents=True, exist_ok=True)
+
+    def _log(self, entry: Dict[str, Any]) -> None:
+        try:
+            self._platform_log.write_text(
+                (self._platform_log.read_text(encoding="utf-8") if self._platform_log.exists() else "")
+                + json.dumps(entry) + "\n",
+                encoding="utf-8",
+            )
+        except Exception:
+            pass
+
+    def _wrap(self, command: str, details: Dict[str, Any] | None, error: str | None) -> Dict[str, Any]:
+        success = error is None
+        summary = (
+            f"Velora completed '{command}'"
+            if success
+            else f"Velora failed '{command}': {error}"
+        )
+        self._log({"command": command, "success": success, "error": error})
+        return {
+            "success": success,
+            "output": {"summary": summary, "details": details or {}, "logs_path": str(self._platform_log)},
+            "error": error,
+        }
 
     def run(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         command = payload.get("command")
@@ -24,11 +54,8 @@ class VeloraAgent(BaseAgent):
                 data: Dict[str, float] = args.get("data", {})
                 total = sum(data.values())
                 avg = total / len(data) if data else 0
-                return {
-                    "success": True,
-                    "output": {"total": total, "average": avg, "metrics": data},
-                    "error": None,
-                }
+                details = {"total": total, "average": avg, "metrics": data}
+                return self._wrap(command, details, None)
 
             if command == "schedule_post":
                 content = args.get("content", "")
@@ -40,7 +67,7 @@ class VeloraAgent(BaseAgent):
                 entry = {"content": content, "when": when.isoformat()}
                 entries.append(entry)
                 schedule_file.write_text(json.dumps(entries, ensure_ascii=False, indent=2), encoding="utf-8")
-                return {"success": True, "output": entry, "error": None}
+                return self._wrap(command, entry, None)
 
             if command == "forecast_revenue":
                 history: List[float] = args.get("history", [])
@@ -48,7 +75,7 @@ class VeloraAgent(BaseAgent):
                     raise ValueError("history requires at least two points")
                 growth = history[-1] - history[-2]
                 forecast = history[-1] + growth
-                return {"success": True, "output": {"forecast": forecast}, "error": None}
+                return self._wrap(command, {"forecast": forecast}, None)
 
             if command == "crm_export":
                 clients: List[Dict[str, Any]] = args.get("clients", [])
@@ -58,14 +85,54 @@ class VeloraAgent(BaseAgent):
                     writer.writeheader()
                     for c in clients:
                         writer.writerow({"name": c.get("name"), "email": c.get("email")})
-                return {"success": True, "output": {"exported": str(path)}, "error": None}
+                return self._wrap(command, {"exported": str(path)}, None)
 
             if command == "ad_generate":
                 product = args.get("product", "")
                 audience = args.get("audience", "")
                 copy = f"Attention {audience}! Experience the power of {product}."
-                return {"success": True, "output": {"ad": copy}, "error": None}
+                return self._wrap(command, {"ad": copy}, None)
 
-            raise ValueError(f"unknown command '{command}'")
+            if command == "analyze_dataset":
+                # Accept CSV or JSON file
+                path = Path(args.get("path", ""))
+                if not path.is_file():
+                    return self._wrap(command, None, f"dataset not found: {path}")
+                # Try pandas for richer analysis
+                df = None
+                try:
+                    import pandas as pd  # type: ignore
+
+                    if path.suffix.lower() == ".csv":
+                        df = pd.read_csv(path)
+                    else:
+                        df = pd.read_json(path)
+                    summary = {
+                        "rows": int(df.shape[0]),
+                        "cols": int(df.shape[1]),
+                        "columns": list(map(str, df.columns)),
+                    }
+                    numeric = df.select_dtypes(include=["number"]).describe().to_dict()
+                    details = {"summary": summary, "numeric_stats": numeric}
+                    return self._wrap(command, details, None)
+                except Exception:
+                    # Lightweight fallback without pandas
+                    try:
+                        if path.suffix.lower() == ".csv":
+                            with path.open("r", encoding="utf-8") as fh:
+                                reader = csv.DictReader(fh)
+                                rows = list(reader)
+                                cols = reader.fieldnames or []
+                        else:
+                            rows = json.loads(path.read_text(encoding="utf-8"))
+                            if isinstance(rows, dict):
+                                rows = [rows]
+                            cols = list(rows[0].keys()) if rows else []
+                        details = {"rows": len(rows), "columns": cols[:50]}
+                        return self._wrap(command, details, None)
+                    except Exception as e:
+                        return self._wrap(command, None, str(e))
+
+            return self._wrap(command or "", None, f"unknown command '{command}'")
         except Exception as exc:  # noqa: BLE001
-            return {"success": False, "output": None, "error": str(exc)}
+            return self._wrap(command or "", None, str(exc))

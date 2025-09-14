@@ -15,6 +15,14 @@ from typing import Any, Dict, List, Optional
 
 from agents.base import BaseAgent
 
+# Optional external tools that enhance capabilities:
+# REQUIRES python-magic — Not installed by default
+#   pip install python-magic
+# REQUIRES binwalk — Not installed by default (system tool)
+#   apt-get update && apt-get install -y binwalk
+# REQUIRES exiftool — Not installed by default (system tool)
+#   apt-get update && apt-get install -y exiftool
+
 
 class GlitchAgent(BaseAgent):
     """Elite digital forensics + anti-forensics agent for NovaOS.
@@ -39,6 +47,51 @@ class GlitchAgent(BaseAgent):
         
         self.logs_dir = Path("/tmp/glitch/logs")
         self.logs_dir.mkdir(parents=True, exist_ok=True)
+        # Unified platform logs directory
+        self.platform_logs_dir = Path("/logs")
+        self.platform_logs_dir.mkdir(parents=True, exist_ok=True)
+        self.platform_log_file = self.platform_logs_dir / "glitch.log"
+
+    def _write_platform_log(self, entry: Dict[str, Any]) -> None:
+        try:
+            entry_with_ts = {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                **entry,
+            }
+            with self.platform_log_file.open("a", encoding="utf-8") as fh:
+                fh.write(json.dumps(entry_with_ts, ensure_ascii=False) + "\n")
+        except Exception:
+            # Never break the agent on logging failures
+            pass
+
+    def _wrap_result(
+        self, command: str, args: Dict[str, Any], inner: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Wrap internal method result into standardized structure and log to /logs."""
+        success = bool(inner.get("success"))
+        details = inner.get("output")
+        error = inner.get("error")
+        summary = (
+            f"Glitch executed '{command}' successfully"
+            if success
+            else f"Glitch failed executing '{command}': {error}"
+        )
+        wrapped_output = {
+            "summary": summary,
+            "details": details,
+            "logs_path": str(self.platform_log_file),
+        }
+        self._write_platform_log(
+            {
+                "agent": self.name,
+                "command": command,
+                "args": args,
+                "success": success,
+                "error": error,
+                "details_keys": list(details.keys()) if isinstance(details, dict) else None,
+            }
+        )
+        return {"success": success, "output": wrapped_output, "error": error}
     
     def get_threat_level(self) -> str:
         """Get current threat level based on recent findings."""
@@ -103,45 +156,55 @@ class GlitchAgent(BaseAgent):
         
         try:
             if command == "hash_file":
-                return self._hash_file(args)
-            
-            elif command == "scan_system": 
-                return self._scan_system(args)
-            
+                inner = self._hash_file(args)
+                return self._wrap_result(command, args, inner)
+
+            elif command == "scan_system":
+                inner = self._scan_system(args)
+                return self._wrap_result(command, args, inner)
+
             elif command == "detect_entropy":
-                return self._detect_entropy(args)
-            
+                inner = self._detect_entropy(args)
+                return self._wrap_result(command, args, inner)
+
             elif command == "sandbox_check":
-                return self._sandbox_check(args)
-            
+                inner = self._sandbox_check(args)
+                return self._wrap_result(command, args, inner)
+
             elif command == "network_probe":
-                return self._network_probe(args)
-            
+                inner = self._network_probe(args)
+                return self._wrap_result(command, args, inner)
+
             elif command == "deep_scan_file":
-                return self._deep_scan_file(args)
-            
+                inner = self._deep_scan_file(args)
+                return self._wrap_result(command, args, inner)
+
             elif command == "scan_memory":
-                return self._scan_memory(args)
-            
+                inner = self._scan_memory(args)
+                return self._wrap_result(command, args, inner)
+
             elif command == "detect_rootkit":
-                return self._detect_rootkit(args)
-            
+                inner = self._detect_rootkit(args)
+                return self._wrap_result(command, args, inner)
+
             elif command == "analyze_logs":
-                return self._analyze_logs(args)
-            
+                inner = self._analyze_logs(args)
+                return self._wrap_result(command, args, inner)
+
             elif command == "check_integrity":
-                return self._check_integrity(args)
-            
+                inner = self._check_integrity(args)
+                return self._wrap_result(command, args, inner)
+
             else:
                 raise ValueError(f"unknown command '{command}'")
-        
+
         except Exception as exc:
-            self.log_finding("command_error", {
-                "command": command,
-                "error": str(exc),
-                "args": args
-            })
-            return {"success": False, "output": None, "error": str(exc)}
+            self.log_finding(
+                "command_error",
+                {"command": command, "error": str(exc), "args": args},
+            )
+            inner = {"success": False, "output": None, "error": str(exc)}
+            return self._wrap_result(command, args, inner)
     
     def _hash_file(self, args: Dict[str, Any]) -> Dict[str, Any]:
         """Enhanced file hashing with additional forensic metadata."""

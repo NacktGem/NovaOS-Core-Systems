@@ -18,7 +18,7 @@ for cand in PROJECT_ROOT_CANDIDATES:
     if cand.exists() and str(cand) not in sys.path:
         sys.path.append(str(cand))
 
-from env.identity import load_identity  # noqa: E402
+from env.identity import load_identity, CONFIG_PATH  # noqa: E402
 from agents.nova.agent import NovaAgent  # noqa: E402
 from core.registry import AgentResponse  # noqa: E402
 
@@ -73,10 +73,16 @@ class ProxyRegistry:
 app = FastAPI(title="Nova Orchestrator")
 
 IDENTITY = load_identity()
+# Explicit standard identity log line
+try:
+    print(f"[NovaOS] identity loaded from {CONFIG_PATH.resolve()}")
+except Exception:
+    pass
 SERVICE_NAME = "nova-orchestrator"
 GIT_COMMIT = os.getenv("GIT_COMMIT", "unknown")
 CORE_API_URL = os.getenv("CORE_API_URL", "http://core-api:8000")
 AGENT_TOKEN = os.getenv("AGENT_SHARED_TOKEN") or os.getenv("NOVA_AGENT_TOKEN", "")
+SERVICE_VERSION = IDENTITY.get("version", os.getenv("NOVA_ORCHESTRATOR_VERSION", "0.0.0"))
 
 _registry = ProxyRegistry(CORE_API_URL, token=AGENT_TOKEN)
 _nova = NovaAgent(_registry)
@@ -136,7 +142,7 @@ async def version() -> Dict[str, Any]:
     return {
         "service": SERVICE_NAME,
         "name": IDENTITY.get("name", "NovaOS"),
-        "version": IDENTITY.get("version", "0.0.0"),
+        "version": SERVICE_VERSION,
         "commit": GIT_COMMIT,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
