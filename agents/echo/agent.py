@@ -1,4 +1,5 @@
 """Echo agent: message and file relay."""
+
 from __future__ import annotations
 
 import hashlib
@@ -17,11 +18,7 @@ class EchoAgent(BaseAgent):
 
     def _wrap(self, command: str, details: dict | None, error: str | None) -> Dict[str, Any]:
         success = error is None
-        summary = (
-            f"Echo completed '{command}'"
-            if success
-            else f"Echo failed '{command}': {error}"
-        )
+        summary = f"Echo completed '{command}'" if success else f"Echo failed '{command}': {error}"
         try:
             with self._platform_log.open("a", encoding="utf-8") as fh:
                 fh.write(f"{summary} | details={details} | error={error}\n")
@@ -29,7 +26,11 @@ class EchoAgent(BaseAgent):
             pass
         return {
             "success": success,
-            "output": {"summary": summary, "details": details or {}, "logs_path": str(self._platform_log)},
+            "output": {
+                "summary": summary,
+                "details": details or {},
+                "logs_path": str(self._platform_log),
+            },
             "error": error,
         }
 

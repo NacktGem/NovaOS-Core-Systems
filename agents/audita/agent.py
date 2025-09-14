@@ -1,4 +1,5 @@
 """Audita agent: compliance and legal checks."""
+
 from __future__ import annotations
 
 import csv
@@ -31,17 +32,21 @@ class AuditaAgent(BaseAgent):
         except Exception:
             pass
 
-    def _wrap(self, command: str, details: Dict[str, Any] | None, error: str | None) -> Dict[str, Any]:
+    def _wrap(
+        self, command: str, details: Dict[str, Any] | None, error: str | None
+    ) -> Dict[str, Any]:
         success = error is None
         summary = (
-            f"Audita completed '{command}'"
-            if success
-            else f"Audita failed '{command}': {error}"
+            f"Audita completed '{command}'" if success else f"Audita failed '{command}': {error}"
         )
         self._log({"command": command, "success": success, "error": error})
         return {
             "success": success,
-            "output": {"summary": summary, "details": details or {}, "logs_path": str(self._platform_log)},
+            "output": {
+                "summary": summary,
+                "details": details or {},
+                "logs_path": str(self._platform_log),
+            },
             "error": error,
         }
 
@@ -74,7 +79,13 @@ class AuditaAgent(BaseAgent):
                             with pdf.open("rb") as fh:
                                 reader = PyPDF2.PdfReader(fh)
                                 form = reader.metadata is not None
-                                forms.append({"file": str(pdf), "has_metadata": form, "pages": len(reader.pages)})
+                                forms.append(
+                                    {
+                                        "file": str(pdf),
+                                        "has_metadata": form,
+                                        "pages": len(reader.pages),
+                                    }
+                                )
                         details["pdf_checks"] = forms
                     except Exception:
                         details["pdf_checks"] = "PyPDF2 not available"
@@ -102,7 +113,9 @@ class AuditaAgent(BaseAgent):
                 income = sum(args.get("income", []))
                 expenses = sum(args.get("expenses", []))
                 taxable = income - expenses
-                return self._wrap(command, {"income": income, "expenses": expenses, "taxable": taxable}, None)
+                return self._wrap(
+                    command, {"income": income, "expenses": expenses, "taxable": taxable}, None
+                )
 
             if command == "dmca_notice":
                 claimant = args.get("claimant", "")

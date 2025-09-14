@@ -19,55 +19,20 @@ for cand in PROJECT_ROOT_CANDIDATES:
         sys.path.append(str(cand))
 
 from env.identity import load_identity, CONFIG_PATH  # noqa: E402
-from agents.nova.agent import NovaAgent  # noqa: E402
-from core.registry import AgentResponse  # noqa: E402
+from core.registry import AgentResponse, AgentRegistry  # noqa: E402
 
 
-class Job(BaseModel):
+class OrchestrationRequest(BaseModel):
+    agent: str
     command: str
     args: dict = {}
     log: bool = False
 
 
-class ProxyRegistry:
-    """HTTP proxy to core-api /agents/{agent} endpoint to satisfy NovaAgent contract."""
-
-    def __init__(self, base_url: str, token: str, allow_roles: str = "GODMODE") -> None:
-        self.base_url = base_url.rstrip('/')
-        self.token = token
-        self.allow_role = allow_roles
-
-    def call(
-        self, name: str, job: Dict[str, Any], token: str | None = None, role: str | None = None
-    ) -> AgentResponse:
-        import httpx
-
-        url = f"{self.base_url}/agents/{name}"
-        headers = {
-            "authorization": f"Bearer {self.token}",
-            "x-role": (role or self.allow_role),
-        }
-        resp = httpx.post(
-            url,
-            json={
-                "command": job.get("command"),
-                "args": job.get("args", {}),
-                "log": bool(job.get("log")),
-            },
-            headers=headers,
-            timeout=30.0,
-        )
-        data = (
-            resp.json()
-            if resp.content
-            else {"success": False, "output": None, "error": f"HTTP {resp.status_code}"}
-        )
-        return AgentResponse(
-            agent=name,
-            success=bool(data.get("success")),
-            output=data.get("output"),
-            error=data.get("error"),
-        )
+def _ensure_logs_dir() -> Path:
+    p = Path("/logs")
+    p.mkdir(parents=True, exist_ok=True)
+    return p
 
 
 app = FastAPI(title="Nova Orchestrator")
@@ -80,12 +45,45 @@ except Exception:
     pass
 SERVICE_NAME = "nova-orchestrator"
 GIT_COMMIT = os.getenv("GIT_COMMIT", "unknown")
-CORE_API_URL = os.getenv("CORE_API_URL", "http://core-api:8000")
 AGENT_TOKEN = os.getenv("AGENT_SHARED_TOKEN") or os.getenv("NOVA_AGENT_TOKEN", "")
 SERVICE_VERSION = IDENTITY.get("version", os.getenv("NOVA_ORCHESTRATOR_VERSION", "0.0.0"))
+_orchestrator_log = _ensure_logs_dir() / "orchestrator.log"
 
-_registry = ProxyRegistry(CORE_API_URL, token=AGENT_TOKEN)
-_nova = NovaAgent(_registry)
+# Local agent registry using in-process agent implementations
+_registry = AgentRegistry(token=None)
+_agent_instances: Dict[str, Any] = {}
+
+
+def _get_agent_instance(name: str):
+    """Lazy import and cache agent singletons by name."""
+    key = name.lower()
+    if key in _agent_instances:
+        return _agent_instances[key]
+    try:
+        if key == "glitch":
+            from agents.glitch.agent import GlitchAgent as _Cls  # type: ignore
+        elif key == "lyra":
+            from agents.lyra.agent import LyraAgent as _Cls  # type: ignore
+        elif key == "velora":
+            from agents.velora.agent import VeloraAgent as _Cls  # type: ignore
+        elif key == "audita":
+            from agents.audita.agent import AuditaAgent as _Cls  # type: ignore
+        elif key == "riven":
+            from agents.riven.agent import RivenAgent as _Cls  # type: ignore
+        elif key == "echo":
+            from agents.echo.agent import EchoAgent as _Cls  # type: ignore
+        else:
+            raise KeyError(f"unknown agent '{name}'")
+        inst = _Cls()
+        _agent_instances[key] = inst
+        # Register in central registry for standardized logging (job logs per agent)
+        try:
+            _registry.register(key, inst)
+        except Exception:
+            pass
+        return inst
+    except Exception as e:  # noqa: BLE001
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @app.on_event("startup")
@@ -95,6 +93,13 @@ async def on_startup() -> None:
     print(f"{SERVICE_NAME} online: version={IDENTITY.get('version')} commit={GIT_COMMIT}")
     # Start self-registration heartbeat to core-api
     app.state._hb_task = asyncio.create_task(_heartbeat_loop())
+    # Preload common agents (lazy loading will also work)
+    for a in ["glitch", "lyra", "velora", "audita", "riven", "echo"]:
+        try:
+            _get_agent_instance(a)
+        except Exception:
+            # Non-fatal; agent can still be imported on-demand later
+            pass
 
 
 @app.on_event("shutdown")
@@ -119,7 +124,8 @@ async def _heartbeat_loop() -> None:
 
     while True:
         try:
-            url = f"{CORE_API_URL}/api/v1/agent/heartbeat"
+            core_api_url = os.getenv("CORE_API_URL", "http://core-api:8000")
+            url = f"{core_api_url}/api/v1/agent/heartbeat"
             async with httpx.AsyncClient(timeout=10.0) as client:
                 await client.post(url, json=payload, headers=headers)
         except Exception as e:  # noqa: BLE001
@@ -153,26 +159,38 @@ async def status() -> Dict[str, Any]:
     return {
         "agent": "nova",
         "uptime": time.time(),
-        "registry": {"base_url": CORE_API_URL},
+        "registry": {"base_url": os.getenv("CORE_API_URL", "http://core-api:8000")},
     }
 
 
 @app.post("/run")
-async def run(job: Job) -> Dict[str, Any]:
+async def run(req: OrchestrationRequest) -> Dict[str, Any]:
+    # Log orchestration request
     try:
-        payload = {
-            "agent": job.args.get("agent") or job.args.get("target") or "",
-            "command": job.command,
-            "args": job.args,
-            "log": job.log,
-            "token": AGENT_TOKEN,
-            "role": os.getenv("NOVA_AGENT_ROLE", "GODMODE"),
+        with _orchestrator_log.open("a", encoding="utf-8") as fh:
+            fh.write(
+                f"{datetime.now(timezone.utc).isoformat()} agent={req.agent} command={req.command}\n"
+            )
+    except Exception:
+        pass
+
+    # Resolve agent and execute via central registry
+    _get_agent_instance(req.agent)
+    job = {"command": req.command, "args": req.args, "log": bool(req.log)}
+    try:
+        resp: AgentResponse = _registry.call(req.agent, job, token=AGENT_TOKEN)
+        # Flatten structured output to top-level as required
+        summary = details = logs_path = None
+        if isinstance(resp.output, dict):
+            summary = resp.output.get("summary")
+            details = resp.output.get("details")
+            logs_path = resp.output.get("logs_path")
+        return {
+            "success": resp.success,
+            "summary": summary,
+            "details": details,
+            "logs_path": logs_path,
+            "error": resp.error,
         }
-        if not payload["agent"]:
-            raise HTTPException(status_code=400, detail="missing 'agent' in args")
-        result = _nova.run(payload)
-        return result
-    except HTTPException:
-        raise
     except Exception as e:  # noqa: BLE001
-        return {"success": False, "output": None, "error": str(e)}
+        return {"success": False, "summary": None, "details": None, "logs_path": None, "error": str(e)}

@@ -1,4 +1,5 @@
 """Lyra agent: educational and creative assistant."""
+
 from __future__ import annotations
 
 import json
@@ -38,17 +39,19 @@ class LyraAgent(BaseAgent):
         except Exception:
             pass
 
-    def _wrap(self, command: str, details: Dict[str, Any] | None, error: str | None) -> Dict[str, Any]:
+    def _wrap(
+        self, command: str, details: Dict[str, Any] | None, error: str | None
+    ) -> Dict[str, Any]:
         success = error is None
-        summary = (
-            f"Lyra completed '{command}'"
-            if success
-            else f"Lyra failed '{command}': {error}"
-        )
+        summary = f"Lyra completed '{command}'" if success else f"Lyra failed '{command}': {error}"
         self._log({"command": command, "success": success, "error": error})
         return {
             "success": success,
-            "output": {"summary": summary, "details": details or {}, "logs_path": str(self._platform_log)},
+            "output": {
+                "summary": summary,
+                "details": details or {},
+                "logs_path": str(self._platform_log),
+            },
             "error": error,
         }
 
@@ -96,7 +99,9 @@ class LyraAgent(BaseAgent):
                 if not img.is_file():
                     return self._wrap(command, None, f"image not found: {img}")
                 ocr_text = self._ocr_image(img)
-                prompt = f"Write a concise, evocative caption for an image. Extracted text: {ocr_text!r}"
+                prompt = (
+                    f"Write a concise, evocative caption for an image. Extracted text: {ocr_text!r}"
+                )
                 caption = self._llm_generate(prompt)
                 details = {"path": str(img.resolve()), "caption": caption, "ocr_text": ocr_text}
                 return self._wrap(command, details, None)
@@ -120,7 +125,9 @@ class LyraAgent(BaseAgent):
                     if plant in tokens:
                         guess = plant
                         break
-                return self._wrap(command, {"path": str(img), "guess": guess, "evidence": ocr_text[:200]}, None)
+                return self._wrap(
+                    command, {"path": str(img), "guess": guess, "evidence": ocr_text[:200]}, None
+                )
 
             if command == "create_prompt":
                 ptype = args.get("type", "writing")
@@ -149,7 +156,9 @@ class LyraAgent(BaseAgent):
                 if herb not in guides:
                     return self._wrap(command, None, f"no dosage guide for {herb}")
                 dose = guides[herb] * weight
-                return self._wrap(command, {"dose_mg": dose, "herb": herb, "weight_kg": weight}, None)
+                return self._wrap(
+                    command, {"dose_mg": dose, "herb": herb, "weight_kg": weight}, None
+                )
 
             return self._wrap(command or "", None, f"unknown command '{command}'")
         except Exception as exc:  # noqa: BLE001

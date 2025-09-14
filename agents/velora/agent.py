@@ -1,4 +1,5 @@
 """Velora agent: analytics and business automation."""
+
 from __future__ import annotations
 
 import csv
@@ -25,24 +26,33 @@ class VeloraAgent(BaseAgent):
     def _log(self, entry: Dict[str, Any]) -> None:
         try:
             self._platform_log.write_text(
-                (self._platform_log.read_text(encoding="utf-8") if self._platform_log.exists() else "")
-                + json.dumps(entry) + "\n",
+                (
+                    self._platform_log.read_text(encoding="utf-8")
+                    if self._platform_log.exists()
+                    else ""
+                )
+                + json.dumps(entry)
+                + "\n",
                 encoding="utf-8",
             )
         except Exception:
             pass
 
-    def _wrap(self, command: str, details: Dict[str, Any] | None, error: str | None) -> Dict[str, Any]:
+    def _wrap(
+        self, command: str, details: Dict[str, Any] | None, error: str | None
+    ) -> Dict[str, Any]:
         success = error is None
         summary = (
-            f"Velora completed '{command}'"
-            if success
-            else f"Velora failed '{command}': {error}"
+            f"Velora completed '{command}'" if success else f"Velora failed '{command}': {error}"
         )
         self._log({"command": command, "success": success, "error": error})
         return {
             "success": success,
-            "output": {"summary": summary, "details": details or {}, "logs_path": str(self._platform_log)},
+            "output": {
+                "summary": summary,
+                "details": details or {},
+                "logs_path": str(self._platform_log),
+            },
             "error": error,
         }
 
@@ -66,7 +76,9 @@ class VeloraAgent(BaseAgent):
                     entries = json.loads(schedule_file.read_text(encoding="utf-8"))
                 entry = {"content": content, "when": when.isoformat()}
                 entries.append(entry)
-                schedule_file.write_text(json.dumps(entries, ensure_ascii=False, indent=2), encoding="utf-8")
+                schedule_file.write_text(
+                    json.dumps(entries, ensure_ascii=False, indent=2), encoding="utf-8"
+                )
                 return self._wrap(command, entry, None)
 
             if command == "forecast_revenue":

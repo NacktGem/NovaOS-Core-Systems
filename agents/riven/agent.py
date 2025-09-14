@@ -1,4 +1,5 @@
 """Riven agent: parental and survival support."""
+
 from __future__ import annotations
 
 import json
@@ -85,21 +86,26 @@ class RivenAgent(BaseAgent):
         except Exception as exc:  # noqa: BLE001
             return self._wrap(command or "", None, str(exc))
 
-    def _wrap(self, command: str, details: Dict[str, Any] | None, error: str | None) -> Dict[str, Any]:
+    def _wrap(
+        self, command: str, details: Dict[str, Any] | None, error: str | None
+    ) -> Dict[str, Any]:
         success = error is None
         summary = (
-            f"Riven completed '{command}'"
-            if success
-            else f"Riven failed '{command}': {error}"
+            f"Riven completed '{command}'" if success else f"Riven failed '{command}': {error}"
         )
         try:
             with self._platform_log.open("a", encoding="utf-8") as fh:
-                fh.write(json.dumps({"command": command, "success": success, "error": error}) + "\n")
+                fh.write(
+                    json.dumps({"command": command, "success": success, "error": error}) + "\n"
+                )
         except Exception:
             pass
         return {
             "success": success,
-            "output": {"summary": summary, "details": details or {}, "logs_path": str(self._platform_log)},
+            "output": {
+                "summary": summary,
+                "details": details or {},
+                "logs_path": str(self._platform_log),
+            },
             "error": error,
         }
-
