@@ -6,7 +6,7 @@ const agents = ['nova', 'echo', 'glitch', 'lyra', 'velora', 'audita', 'riven'] a
 export default function Console() {
     const [agent, setAgent] = useState<typeof agents[number]>('lyra')
     const [payload, setPayload] = useState('{"command":"","args":{}}')
-    const [logs, setLogs] = useState<{ text: string; jobId?: string }[]>([])
+    const [logs, setLogs] = useState<{ text: string; logsPath?: string }[]>([])
 
     async function run() {
         try {
@@ -16,7 +16,7 @@ export default function Console() {
                 body: payload,
             })
             const json = await res.json()
-            setLogs(prev => [...prev, { text: JSON.stringify(json), jobId: json.job_id }])
+            setLogs(prev => [...prev, { text: JSON.stringify(json), logsPath: json.logs_path }])
         } catch (err) {
             setLogs(prev => [...prev, { text: JSON.stringify({ success: false, output: null, error: String(err) }) }])
         }
@@ -35,9 +35,9 @@ export default function Console() {
                 {logs.map((l, i) => (
                     <div key={i}>
                         {l.text}
-                        {l.jobId && (
+                        {l.logsPath && (
                             <a
-                                href={`/logs/${agent}/${l.jobId}.json`}
+                                href={l.logsPath}
                                 className="underline ml-2"
                                 target="_blank"
                                 rel="noreferrer"
