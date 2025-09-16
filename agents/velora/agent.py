@@ -8,7 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List
 
-from agents.base import BaseAgent
+from agents.base import BaseAgent, resolve_platform_log
 
 # Optional analytics tools:
 # REQUIRES pandas — Not installed by default
@@ -20,8 +20,7 @@ class VeloraAgent(BaseAgent):
         super().__init__("velora", description="Business analytics agent")
         self._log_dir = Path("logs/velora")
         self._log_dir.mkdir(parents=True, exist_ok=True)
-        self._platform_log = Path("/logs/velora.log")
-        self._platform_log.parent.mkdir(parents=True, exist_ok=True)
+        self._platform_log = resolve_platform_log("velora")
 
     def _log(self, entry: Dict[str, Any]) -> None:
         try:

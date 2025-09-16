@@ -7,14 +7,13 @@ from pathlib import Path
 from shutil import copy2
 from typing import Any, Dict, List
 
-from agents.base import BaseAgent
+from agents.base import BaseAgent, resolve_platform_log
 
 
 class EchoAgent(BaseAgent):
     def __init__(self) -> None:
         super().__init__("echo", description="Comms relay agent")
-        self._platform_log = Path("/logs/echo.log")
-        self._platform_log.parent.mkdir(parents=True, exist_ok=True)
+        self._platform_log = resolve_platform_log("echo")
 
     def _wrap(self, command: str, details: dict | None, error: str | None) -> Dict[str, Any]:
         success = error is None

@@ -8,7 +8,7 @@ import shutil
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-from agents.base import BaseAgent
+from agents.base import BaseAgent, resolve_platform_log
 
 
 class RivenAgent(BaseAgent):
@@ -16,8 +16,7 @@ class RivenAgent(BaseAgent):
         super().__init__("riven", description="Parental and survival agent")
         self._log_dir = Path("logs/riven")
         self._log_dir.mkdir(parents=True, exist_ok=True)
-        self._platform_log = Path("/logs/riven.log")
-        self._platform_log.parent.mkdir(parents=True, exist_ok=True)
+        self._platform_log = resolve_platform_log("riven")
 
     def _append_json(self, filename: str, entry: Dict[str, Any]) -> None:
         path = self._log_dir / filename

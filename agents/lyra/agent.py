@@ -7,7 +7,7 @@ import random
 from pathlib import Path
 from typing import Any, Dict, List
 
-from agents.base import BaseAgent
+from agents.base import BaseAgent, resolve_platform_log
 
 # Optional external tools:
 # REQUIRES pytesseract — Not installed by default (OCR)
@@ -21,8 +21,7 @@ class LyraAgent(BaseAgent):
         super().__init__("lyra", description="Creative tutor and herbalist")
         self._log_dir = Path("logs/lyra")
         self._log_dir.mkdir(parents=True, exist_ok=True)
-        self._platform_log = Path("/logs/lyra.log")
-        self._platform_log.parent.mkdir(parents=True, exist_ok=True)
+        self._platform_log = resolve_platform_log("lyra")
 
     def _append_json(self, filename: str, entry: Dict[str, Any]) -> None:
         file_path = self._log_dir / filename

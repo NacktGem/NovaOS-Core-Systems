@@ -193,4 +193,10 @@ async def run(req: OrchestrationRequest) -> Dict[str, Any]:
             "error": resp.error,
         }
     except Exception as e:  # noqa: BLE001
-        return {"success": False, "summary": None, "details": None, "logs_path": None, "error": str(e)}
+        return {
+            "success": False,
+            "summary": None,
+            "details": None,
+            "logs_path": None,
+            "error": str(e),
+        }

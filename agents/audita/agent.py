@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List
 
-from agents.base import BaseAgent
+from agents.base import BaseAgent, resolve_platform_log
 
 # Optional tools for deeper validation:
 # REQUIRES face_recognition or opencv-python — Not installed by default
@@ -22,8 +22,7 @@ class AuditaAgent(BaseAgent):
 
     def __init__(self) -> None:
         super().__init__("audita", description="Compliance and audit agent")
-        self._platform_log = Path("/logs/audita.log")
-        self._platform_log.parent.mkdir(parents=True, exist_ok=True)
+        self._platform_log = resolve_platform_log("audita")
 
     def _log(self, entry: Dict[str, Any]) -> None:
         try:
