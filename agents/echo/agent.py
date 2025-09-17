@@ -7,6 +7,7 @@ from shutil import copy2
 from typing import Any, Dict, List
 
 from agents.base import BaseAgent
+from agents.common.alog import info
 
 
 class EchoAgent(BaseAgent):
@@ -63,6 +64,7 @@ class EchoAgent(BaseAgent):
         """Execute Echo relay operations."""
         command = payload.get("command")
         args = payload.get("args", {})
+        info("echo.command", {"command": command, "args": list(args.keys())})
         try:
             if command == "send_message":
                 return {"success": True, "output": self.send_message(args.get("message", "")), "error": None}

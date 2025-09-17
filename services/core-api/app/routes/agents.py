@@ -1,10 +1,20 @@
+import json
 import os
 import sys
+import uuid
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any, Dict, List
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
+
+from app.db.base import get_session
+from app.db.models import AgentRecord
+from app.deps import get_redis, require_agent_token
+from app.security.jwt import verify_token
 
 
 # -------- Robust Root Resolver --------
@@ -44,17 +54,29 @@ if str(project_root) not in sys.path:
     sys.path.append(str(project_root))
 
 # -------- Agent Imports --------
+from agents.audita.agent import AuditaAgent  # noqa: E402
 from agents.echo.agent import EchoAgent  # noqa: E402
 from agents.glitch.agent import GlitchAgent  # noqa: E402
+from agents.lyra.agent import LyraAgent  # noqa: E402
 from agents.nova.agent import NovaAgent  # noqa: E402
+from agents.riven.agent import RivenAgent  # noqa: E402
+from agents.velora.agent import VeloraAgent  # noqa: E402
 from core.registry import AgentRegistry  # noqa: E402
 
 # -------- Router & Registry --------
 router = APIRouter(prefix="/agents", tags=["agents"])
 
-_registry = AgentRegistry(token=os.getenv("NOVA_AGENT_TOKEN"))
+_registry = AgentRegistry(
+    token=os.getenv("NOVA_AGENT_TOKEN"),
+    core_api_url=os.getenv("CORE_API_URL"),
+    shared_secret=os.getenv("AGENT_SHARED_TOKEN"),
+)
 _registry.register("glitch", GlitchAgent())
 _registry.register("echo", EchoAgent())
+_registry.register("audita", AuditaAgent())
+_registry.register("lyra", LyraAgent())
+_registry.register("riven", RivenAgent())
+_registry.register("velora", VeloraAgent())
 _nova = NovaAgent(_registry)
 
 _allow = {
@@ -66,11 +88,68 @@ _allow = {
 # -------- Job Payload Schema --------
 class Job(BaseModel):
     command: str
-    args: dict = {}
+    args: Dict[str, Any] = Field(default_factory=dict)
     log: bool = False
 
 
+class AgentRegistration(BaseModel):
+    name: str = Field(..., min_length=2, max_length=64)
+    display_name: str = Field(..., min_length=2, max_length=128)
+    version: str = Field(..., min_length=1, max_length=32)
+    host: str | None = None
+    capabilities: List[str] = Field(default_factory=list)
+    environment: str = Field(default="production")
+    details: Dict[str, Any] = Field(default_factory=dict)
+
+
 # -------- Agent Runner Endpoint --------
+def _extract_identity(request: Request) -> Dict[str, Any] | None:
+    auth = request.headers.get("authorization", "")
+    if auth.lower().startswith("bearer "):
+        token = auth.split(" ", 1)[1].strip()
+        if token:
+            try:
+                claims = verify_token(token)
+                return {
+                    "subject": claims.get("sub"),
+                    "email": claims.get("email"),
+                    "role": claims.get("role"),
+                }
+            except Exception:
+                return None
+    return None
+
+
+async def _online_agents(redis) -> Dict[str, Dict[str, Any]]:
+    if redis is None:
+        return {}
+    agents: Dict[str, Dict[str, Any]] = {}
+    names = await redis.smembers("agents:known")
+    for name in names:
+        raw = await redis.get(f"agent:{name}:state")
+        if raw:
+            try:
+                agents[name] = json.loads(raw)
+            except json.JSONDecodeError:
+                continue
+    return agents
+
+
+def _serialize_record(record: AgentRecord, heartbeat: Dict[str, Any] | None) -> Dict[str, Any]:
+    payload = {
+        "name": record.name,
+        "display_name": record.display_name,
+        "version": record.version,
+        "status": heartbeat.get("status", "online") if heartbeat else record.status,
+        "host": heartbeat.get("host") if heartbeat else record.host,
+        "capabilities": heartbeat.get("capabilities") if heartbeat else (record.capabilities or []),
+        "environment": record.environment,
+        "last_seen": heartbeat.get("last_seen") if heartbeat else (record.last_seen.isoformat() if record.last_seen else None),
+        "details": record.details or {},
+    }
+    return payload
+
+
 @router.post("/{agent}")
 async def run_agent(agent: str, job: Job, request: Request):
     # Token extraction
@@ -97,6 +176,8 @@ async def run_agent(agent: str, job: Job, request: Request):
             status_code=404,
         )
 
+    identity = _extract_identity(request) or {"role": role}
+    request_id = request.headers.get("x-request-id") or uuid.uuid4().hex
     payload = {
         "agent": agent,
         "command": job.command,
@@ -104,6 +185,9 @@ async def run_agent(agent: str, job: Job, request: Request):
         "log": job.log,
         "token": token,
         "role": role,
+        "source": "core-api",
+        "request_id": request_id,
+        "identity": identity,
     }
 
     resp = _nova.run(payload)
@@ -115,4 +199,72 @@ async def run_agent(agent: str, job: Job, request: Request):
         if not resp.get("success"):
             request.app.state.errors_total.inc()
 
+    resp.setdefault("request_id", request_id)
     return resp
+
+
+@router.post("/register")
+async def register_agent(
+    payload: AgentRegistration,
+    session: Session = Depends(get_session),
+    _=Depends(require_agent_token),
+):
+    record = session.get(AgentRecord, payload.name)
+    now = datetime.now(timezone.utc)
+    if record:
+        record.display_name = payload.display_name
+        record.version = payload.version
+        record.status = "online"
+        record.host = payload.host
+        record.capabilities = payload.capabilities
+        record.environment = payload.environment
+        record.last_seen = now
+        record.details = payload.details
+    else:
+        record = AgentRecord(
+            name=payload.name,
+            display_name=payload.display_name,
+            version=payload.version,
+            status="online",
+            host=payload.host,
+            capabilities=payload.capabilities,
+            environment=payload.environment,
+            last_seen=now,
+            details=payload.details,
+        )
+        session.add(record)
+    session.flush()
+    return {"ok": True}
+
+
+@router.get("")
+async def list_agents(
+    session: Session = Depends(get_session),
+    redis = Depends(get_redis),
+    _=Depends(require_agent_token),
+):
+    heartbeats = await _online_agents(redis)
+    records = session.query(AgentRecord).order_by(AgentRecord.name).all()
+    seen = set()
+    agents: List[Dict[str, Any]] = []
+    for record in records:
+        heartbeat = heartbeats.get(record.name)
+        agents.append(_serialize_record(record, heartbeat))
+        seen.add(record.name)
+    for name, heartbeat in heartbeats.items():
+        if name in seen:
+            continue
+        agents.append(
+            {
+                "name": name,
+                "display_name": name.replace("-", " ").title(),
+                "version": heartbeat.get("version"),
+                "status": "online",
+                "host": heartbeat.get("host"),
+                "capabilities": heartbeat.get("capabilities", []),
+                "environment": "unknown",
+                "last_seen": heartbeat.get("last_seen"),
+                "details": {},
+            }
+        )
+    return {"agents": agents}

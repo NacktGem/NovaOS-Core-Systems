@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 from agents.base import BaseAgent
+from agents.common.alog import info
 
 
 class RivenAgent(BaseAgent):
@@ -97,6 +98,7 @@ class RivenAgent(BaseAgent):
         """Dispatch Riven operations."""
         command = payload.get("command")
         args = payload.get("args", {})
+        info("riven.command", {"command": command, "args": list(args.keys())})
         try:
             if command == "track_device":
                 return {"success": True, "output": self.track_device(args.get("device_id"), args.get("location")), "error": None}

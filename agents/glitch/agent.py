@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from agents.base import BaseAgent
+from agents.common.alog import info, warn
 
 
 class GlitchAgent(BaseAgent):
@@ -40,6 +41,20 @@ class GlitchAgent(BaseAgent):
 
         self.logs_dir = Path("/tmp/glitch/logs")
         self.logs_dir.mkdir(parents=True, exist_ok=True)
+        self.mode = os.getenv("GLITCH_MODE", "forensics").lower()
+        self._restricted_commands = {
+            "deploy_honeypot",
+            "deep_scan_file",
+            "scan_memory",
+            "detect_rootkit",
+            "check_integrity",
+        }
+
+    def _enforce_mode(self, command: str) -> None:
+        if command in self._restricted_commands and self.mode != "forensics":
+            raise PermissionError(
+                "destructive command blocked: set GLITCH_MODE=forensics to enable forensic routines"
+            )
 
     def deploy_honeypot(self, name: str, path: str, signature: str) -> Dict[str, Any]:
         """Deploy a honeypot file that triggers alerts on modification."""
@@ -105,14 +120,24 @@ class GlitchAgent(BaseAgent):
             "hash": hashlib.sha256(json.dumps(details, sort_keys=True).encode()).hexdigest()[:16],
             "threat_level": self.assess_threat_level(finding_type, details)
         }
-        
+
         self.findings_cache.append(finding)
-        
+
         # Write to log file
         log_file = self.logs_dir / f"findings_{datetime.now().strftime('%Y-%m-%d')}.jsonl"
         with log_file.open("a") as f:
             f.write(json.dumps(finding) + "\n")
-        
+
+        message = {
+            "type": finding_type,
+            "threat_level": finding["threat_level"],
+            "details": details,
+        }
+        if finding["threat_level"] in {"high", "critical"}:
+            warn("glitch.finding", message)
+        else:
+            info("glitch.finding", message)
+
         # Update threat level if needed
         if finding["threat_level"] in ["high", "critical"]:
             self.threat_level = finding["threat_level"]
@@ -137,13 +162,19 @@ class GlitchAgent(BaseAgent):
         """Execute forensics command with enhanced logging and threat detection."""
         command = payload.get("command")
         args = payload.get("args", {})
-        
+        actor = payload.get("requested_by")
+        self.mode = os.getenv("GLITCH_MODE", self.mode).lower()
+
+        self._enforce_mode(command or "")
+
         # Log command execution
         self.log_finding("command_executed", {
             "command": command,
             "args": args,
-            "timestamp": datetime.now(timezone.utc).isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "actor": actor,
         })
+        info("glitch.command", {"command": command, "actor": actor})
         
         try:
             if command == "hash_file":

@@ -9,6 +9,7 @@ from .messages import Message
 from .events import Event
 from .dmca_reports import DMCAReport
 from .analytics_events import AnalyticsEvent
+from .agents import AgentRecord
 
 __all__ = [
     "User",
@@ -23,4 +24,5 @@ __all__ = [
     "Event",
     "DMCAReport",
     "AnalyticsEvent",
+    "AgentRecord",
 ]

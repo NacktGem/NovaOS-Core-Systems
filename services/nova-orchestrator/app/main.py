@@ -5,11 +5,12 @@ import os
 import socket
 import sys
 import time
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from pydantic import BaseModel
 
 # Ensure project root on sys.path for agents/core/env imports when running in container
@@ -20,6 +21,7 @@ for cand in PROJECT_ROOT_CANDIDATES:
 
 from env.identity import load_identity  # noqa: E402
 from agents.nova.agent import NovaAgent  # noqa: E402
+from agents.common.security import IdentityClaims, authorize_headers, JWTVerificationError  # noqa: E402
 from core.registry import AgentResponse  # noqa: E402
 
 
@@ -80,6 +82,20 @@ AGENT_TOKEN = os.getenv("AGENT_SHARED_TOKEN") or os.getenv("NOVA_AGENT_TOKEN", "
 
 _registry = ProxyRegistry(CORE_API_URL, token=AGENT_TOKEN)
 _nova = NovaAgent(_registry)
+
+_required_roles = {
+    role.strip().lower()
+    for role in os.getenv("NOVA_ORCHESTRATOR_ROLES", "godmode,superadmin").split(",")
+    if role.strip()
+}
+
+
+def require_identity(request: Request) -> IdentityClaims:
+    try:
+        roles = _required_roles or None
+        return authorize_headers(request.headers, required_roles=roles)
+    except JWTVerificationError as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
 
 
 @app.on_event("startup")
@@ -152,7 +168,8 @@ async def status() -> Dict[str, Any]:
 
 
 @app.post("/run")
-async def run(job: Job) -> Dict[str, Any]:
+async def run(job: Job, identity: IdentityClaims = Depends(require_identity)) -> Dict[str, Any]:
+    request_id = uuid.uuid4().hex
     try:
         payload = {
             "agent": job.args.get("agent") or job.args.get("target") or "",
@@ -160,13 +177,21 @@ async def run(job: Job) -> Dict[str, Any]:
             "args": job.args,
             "log": job.log,
             "token": AGENT_TOKEN,
-            "role": os.getenv("NOVA_AGENT_ROLE", "GODMODE"),
+            "role": identity.role.upper(),
+            "source": "nova-orchestrator",
+            "request_id": request_id,
+            "identity": {
+                "subject": identity.subject,
+                "email": identity.email,
+                "role": identity.role,
+            },
         }
         if not payload["agent"]:
             raise HTTPException(status_code=400, detail="missing 'agent' in args")
         result = _nova.run(payload)
+        result.setdefault("request_id", request_id)
         return result
     except HTTPException:
         raise
     except Exception as e:  # noqa: BLE001
-        return {"success": False, "output": None, "error": str(e)}
+        return {"success": False, "output": None, "error": str(e), "request_id": request_id}
