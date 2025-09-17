@@ -25,6 +25,7 @@ class GlitchAgent(BaseAgent):
     """
 
     def __init__(self) -> None:
+        """Prepare Glitch with persistent directories, caches, and honeypots."""
         super().__init__("glitch", description="Elite digital forensics and security agent")
         self.threat_level = "low"  # low, medium, high, critical
         self.active_scans: List[str] = []
@@ -36,9 +37,52 @@ class GlitchAgent(BaseAgent):
         # Initialize data directories
         self.reports_dir = Path("/tmp/glitch/reports") / datetime.now().strftime("%Y-%m-%d")
         self.reports_dir.mkdir(parents=True, exist_ok=True)
-        
+
         self.logs_dir = Path("/tmp/glitch/logs")
         self.logs_dir.mkdir(parents=True, exist_ok=True)
+
+    def deploy_honeypot(self, name: str, path: str, signature: str) -> Dict[str, Any]:
+        """Deploy a honeypot file that triggers alerts on modification."""
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        payload = f"NovaOS Honeypot :: {signature} :: {datetime.now(timezone.utc).isoformat()}\n"
+        target.write_text(payload, encoding="utf-8")
+        metadata = {
+            "name": name,
+            "path": str(target),
+            "signature": signature,
+            "deployed_at": datetime.now(timezone.utc).isoformat(),
+            "checksum": hashlib.sha256(payload.encode("utf-8")).hexdigest(),
+        }
+        self.honeypots[name] = metadata
+        return metadata
+
+    def honeypot_status(self) -> Dict[str, Any]:
+        """Return live metadata for all deployed honeypots."""
+        status = []
+        for meta in self.honeypots.values():
+            path = Path(meta["path"])
+            exists = path.exists()
+            checksum = hashlib.sha256(path.read_text(encoding="utf-8")).hexdigest() if exists else None
+            status.append({
+                "name": meta["name"],
+                "path": meta["path"],
+                "exists": exists,
+                "modified": checksum != meta["checksum"] if exists else True,
+            })
+        return {"honeypots": status}
+
+    def incident_report(self, limit: int = 50) -> Dict[str, Any]:
+        """Summarize recent findings and current threat posture."""
+        recent = list(reversed(self.findings_cache[-limit:]))
+        severities = [finding.get("threat_level", "low") for finding in recent]
+        high = sum(1 for level in severities if level in {"high", "critical"})
+        return {
+            "total_findings": len(recent),
+            "high_severity": high,
+            "threat_level": self.threat_level,
+            "recent": recent,
+        }
     
     def get_threat_level(self) -> str:
         """Get current threat level based on recent findings."""
@@ -125,16 +169,33 @@ class GlitchAgent(BaseAgent):
             
             elif command == "detect_rootkit":
                 return self._detect_rootkit(args)
-            
+
             elif command == "analyze_logs":
                 return self._analyze_logs(args)
-            
+
             elif command == "check_integrity":
                 return self._check_integrity(args)
-            
+
+            elif command == "deploy_honeypot":
+                return {
+                    "success": True,
+                    "output": self.deploy_honeypot(
+                        args.get("name", "honeypot"),
+                        args.get("path", "/tmp/glitch/honeypot.txt"),
+                        args.get("signature", "nova"),
+                    ),
+                    "error": None,
+                }
+
+            elif command == "honeypot_status":
+                return {"success": True, "output": self.honeypot_status(), "error": None}
+
+            elif command == "incident_report":
+                return {"success": True, "output": self.incident_report(int(args.get("limit", 50))), "error": None}
+
             else:
                 raise ValueError(f"unknown command '{command}'")
-        
+
         except Exception as exc:
             self.log_finding("command_error", {
                 "command": command,
