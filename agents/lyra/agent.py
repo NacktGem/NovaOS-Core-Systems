@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Sequence
 
 from agents.base import BaseAgent
+from agents.common.alog import info
 
 
 class LyraAgent(BaseAgent):
@@ -160,6 +161,7 @@ class LyraAgent(BaseAgent):
         """Execute Lyra commands with journaled side effects."""
         command = payload.get("command")
         args = payload.get("args", {})
+        info("lyra.command", {"command": command, "args": list(args.keys())})
         try:
             if command == "generate_lesson":
                 return {"success": True, "output": self.generate_lesson_plan(args.get("topic", ""), args.get("grade", "")), "error": None}

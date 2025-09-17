@@ -9,6 +9,7 @@ from statistics import mean
 from typing import Any, Dict, Iterable, List, Sequence
 
 from agents.base import BaseAgent
+from agents.common.alog import info
 
 
 class VeloraAgent(BaseAgent):
@@ -113,6 +114,7 @@ class VeloraAgent(BaseAgent):
         """Route Velora commands to analytics routines."""
         command = payload.get("command")
         args = payload.get("args", {})
+        info("velora.command", {"command": command, "args": list(args.keys())})
         try:
             if command == "generate_report":
                 return {"success": True, "output": self.generate_report(args.get("data", {})), "error": None}

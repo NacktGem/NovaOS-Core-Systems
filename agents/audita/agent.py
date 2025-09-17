@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Sequence
 
 from agents.base import BaseAgent
+from agents.common.alog import info
 
 
 class AuditaAgent(BaseAgent):
@@ -39,6 +40,7 @@ class AuditaAgent(BaseAgent):
                 writer = csv.DictWriter(fh, fieldnames=list(entries[0].keys()))
                 writer.writeheader()
                 writer.writerows(entries)
+        info("audita.generate_audit", {"rows": len(entries), "path": str(path)})
         return {"path": str(path), "rows": len(entries)}
 
     def tax_report(self, income: Sequence[float], expenses: Sequence[float]) -> Dict[str, float]:
@@ -86,6 +88,7 @@ class AuditaAgent(BaseAgent):
         """Execute Audita compliance routines."""
         command = payload.get("command")
         args = payload.get("args", {})
+        info("audita.command", {"command": command, "args": list(args.keys())})
         try:
             if command == "validate_consent":
                 return {"success": True, "output": self.validate_consent(args.get("files", [])), "error": None}

@@ -16,15 +16,18 @@ from __future__ import annotations
 import os
 import asyncio
 import socket
+import time
+import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from env.identity import load_identity, CONFIG_PATH  # type: ignore
 from agents.riven.agent import RivenAgent  # type: ignore
+from agents.common.security import IdentityClaims, authorize_headers, JWTVerificationError
 
 
 class RunJob(BaseModel):
@@ -46,6 +49,20 @@ CORE_API_URL = os.getenv("CORE_API_URL", "http://core-api:8000")
 AGENT_TOKEN = os.getenv("AGENT_SHARED_TOKEN", "")
 
 _agent = RivenAgent()
+
+_required_roles = {
+    role.strip().lower()
+    for role in os.getenv("RIVEN_REQUIRED_ROLES", "godmode,superadmin,guardian").split(",")
+    if role.strip()
+}
+
+
+def require_identity(request: Request) -> IdentityClaims:
+    try:
+        roles = _required_roles or None
+        return authorize_headers(request.headers, required_roles=roles)
+    except JWTVerificationError as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
 
 
 @app.on_event("startup")
@@ -90,12 +107,23 @@ async def status_page() -> Dict[str, Any]:
 
 
 @app.post("/run")
-async def run(job: RunJob) -> Dict[str, Any]:
+async def run(job: RunJob, identity: IdentityClaims = Depends(require_identity)) -> Dict[str, Any]:
+    request_id = uuid.uuid4().hex
     try:
-        payload = {"command": job.command, "args": job.args}
-        return _agent.run(payload)
+        payload = {
+            "command": job.command,
+            "args": job.args,
+            "requested_by": {
+                "subject": identity.subject,
+                "email": identity.email,
+                "role": identity.role,
+            },
+        }
+        result = _agent.run(payload)
+        result.setdefault("request_id", request_id)
+        return result
     except Exception as e:  # noqa: BLE001
-        return {"success": False, "output": None, "error": str(e)}
+        return {"success": False, "output": None, "error": str(e), "request_id": request_id}
 
 
 async def _heartbeat_loop() -> None:

@@ -16,16 +16,18 @@ import os
 import asyncio
 import socket
 import time
+import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict
 
-from fastapi import FastAPI, Header, HTTPException, status
+from fastapi import Depends, FastAPI, Header, HTTPException, Request, status
 from fastapi.responses import PlainTextResponse, JSONResponse
 from pydantic import BaseModel
 
 from agent_core import configure_logging  # type: ignore
 from env.identity import load_identity, CONFIG_PATH  # type: ignore
 from agents.glitch.agent import GlitchAgent  # type: ignore
+from agents.common.security import IdentityClaims, authorize_headers, JWTVerificationError
 
 
 class RunJob(BaseModel):
@@ -112,12 +114,29 @@ async def status_page() -> Dict[str, Any]:
 
 
 @app.post("/run")
-async def run(job: RunJob) -> Dict[str, Any]:
+async def run(job: RunJob, identity: IdentityClaims = Depends(require_identity)) -> Dict[str, Any]:
+    request_id = uuid.uuid4().hex
     try:
-        payload = {"command": job.command, "args": job.args}
-        return _agent.run(payload)
+        payload = {
+            "command": job.command,
+            "args": job.args,
+            "log": job.log,
+            "requested_by": {
+                "subject": identity.subject,
+                "role": identity.role,
+                "email": identity.email,
+            },
+        }
+        result = _agent.run(payload)
+        if result.get("success"):
+            _metrics["processed"] += 1
+        else:
+            _metrics["errors"] += 1
+        result.setdefault("request_id", request_id)
+        return result
     except Exception as e:  # noqa: BLE001
-        return {"success": False, "output": None, "error": str(e)}
+        _metrics["errors"] += 1
+        return {"success": False, "output": None, "error": str(e), "request_id": request_id}
 
 
 @app.get("/metrics")
@@ -183,3 +202,17 @@ async def _heartbeat_loop() -> None:
             # Log and continue; do not crash the service if core-api is offline
             print(f"heartbeat failed: {e}")
         await asyncio.sleep(ttl // 2)
+_required_roles = {
+    role.strip().lower()
+    for role in os.getenv("GLITCH_REQUIRED_ROLES", "godmode,superadmin").split(",")
+    if role.strip()
+}
+
+
+def require_identity(request: Request) -> IdentityClaims:
+    try:
+        roles = _required_roles or None
+        return authorize_headers(request.headers, required_roles=roles)
+    except JWTVerificationError as exc:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)) from exc
+
