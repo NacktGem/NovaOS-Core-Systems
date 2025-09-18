@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   const body = await req.json();
   const token = process.env.AGENT_SHARED_TOKEN || "";
-  const base = (process.env.CORE_API_URL || "http://core-api:8000").replace(/\/+$/, "");
+  const base = (process.env.CORE_API_URL || process.env.CORE_API_BASE || "http://core-api:8760").replace(/\/+$/, "");
   const url = `${base}/api/v1/agent/command`;
 
   const r = await fetch(url, {

@@ -11,7 +11,8 @@ export async function GET() {
     if (!r.ok) return NextResponse.json({ error: `core-api ${r.status}` }, { status: r.status });
     const data = await r.json();
     return NextResponse.json(data, { status: 200 });
-  } catch (e: any) {
-    return NextResponse.json({ error: e?.message || "proxy error" }, { status: 502 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "proxy error";
+    return NextResponse.json({ error: message }, { status: 502 });
   }
 }

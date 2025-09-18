@@ -10,6 +10,7 @@ from .events import Event
 from .dmca_reports import DMCAReport
 from .analytics_events import AnalyticsEvent
 from .agents import AgentRecord
+from .platform_flags import PlatformFlag
 
 __all__ = [
     "User",
@@ -25,4 +26,5 @@ __all__ = [
     "DMCAReport",
     "AnalyticsEvent",
     "AgentRecord",
+    "PlatformFlag",
 ]

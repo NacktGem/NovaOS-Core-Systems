@@ -1,0 +1,102 @@
+name: Deploy platforms
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/web-shell/**'
+      - 'apps/nova-console/**'
+      - 'apps/gypsy-cove/**'
+      - 'services/core-api/**'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+      - 'do-appspec-*.yaml'
+      - '.github/workflows/deploy-platforms.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    name: Deploy ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        include:
+          - name: web-shell
+            context: .
+            dockerfile: apps/web-shell/Dockerfile
+            image: ghcr.io/nacktgem/novaos-web-shell
+            spec: do-appspec-web-shell.yaml
+            app_id_secret: DO_APP_ID_WEB_SHELL
+            cache_host: app.blackrosecollective.studio
+          - name: nova-console
+            context: .
+            dockerfile: apps/nova-console/Dockerfile
+            image: ghcr.io/nacktgem/novaos-console
+            spec: do-appspec-nova-console.yaml
+            app_id_secret: DO_APP_ID_NOVA_CONSOLE
+            cache_host: novaos.blackrosecollective.studio
+          - name: core-api
+            context: .
+            dockerfile: services/core-api/Dockerfile
+            image: ghcr.io/nacktgem/novaos-core-api
+            spec: do-appspec-core-api.yaml
+            app_id_secret: DO_APP_ID_CORE_API
+            cache_host: api.blackrosecollective.studio
+          - name: gypsy-cove
+            context: .
+            dockerfile: apps/gypsy-cove/Dockerfile
+            image: ghcr.io/nacktgem/novaos-gypsy-cove
+            spec: do-appspec-gypsy-cove.yaml
+            app_id_secret: DO_APP_ID_GYPSY_COVE
+            cache_host: gypsy-cove.xyz
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Build image
+        run: |
+          docker build \
+            -f ${{ matrix.dockerfile }} \
+            -t ${{ matrix.image }}:${{ github.sha }} \
+            -t ${{ matrix.image }}:latest \
+            ${{ matrix.context }}
+
+      - name: Push image
+        run: |
+          docker push ${{ matrix.image }}:${{ github.sha }}
+          docker push ${{ matrix.image }}:latest
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_API_TOKEN }}
+
+      - name: Update DigitalOcean App Platform
+        env:
+          DO_APP_ID: ${{ secrets[matrix.app_id_secret] }}
+        run: |
+          tmp_spec=$(mktemp)
+          sed -e "s/tag: latest/tag: ${{ github.sha }}/" "${{ matrix.spec }}" > "$tmp_spec"
+          doctl apps update "$DO_APP_ID" --spec "$tmp_spec"
+
+  purge-cloudflare:
+    name: Purge Cloudflare caches
+    runs-on: ubuntu-24.04
+    needs: build-and-deploy
+    if: always()
+    steps:
+      - name: Purge cache
+        env:
+          CF_ZONE: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE}/purge_cache" \
+            -H "Authorization: Bearer ${CF_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data '{"hosts":["app.blackrosecollective.studio","novaos.blackrosecollective.studio","api.blackrosecollective.studio","gypsy-cove.xyz"]}'
