@@ -61,7 +61,7 @@ agents/
 - core-api (agents routing)
 - echo-ws (WebSocket relay)
 - gypsy-cove (Frontend app)
-- nova-console (Admin app)
+- novaos (Admin app)
 - web-shell (Terminal app)
 ```
 

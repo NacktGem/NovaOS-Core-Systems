@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict
 
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from pydantic import BaseModel
 
 # Ensure project root on sys.path for agents/core/env imports when running in container
@@ -79,6 +79,7 @@ SERVICE_NAME = "nova-orchestrator"
 GIT_COMMIT = os.getenv("GIT_COMMIT", "unknown")
 CORE_API_URL = os.getenv("CORE_API_URL", "http://core-api:8000")
 AGENT_TOKEN = os.getenv("AGENT_SHARED_TOKEN") or os.getenv("NOVA_AGENT_TOKEN", "")
+INTERNAL_TOKEN = os.getenv("INTERNAL_TOKEN", "")
 
 _registry = ProxyRegistry(CORE_API_URL, token=AGENT_TOKEN)
 _nova = NovaAgent(_registry)
@@ -96,6 +97,14 @@ def require_identity(request: Request) -> IdentityClaims:
         return authorize_headers(request.headers, required_roles=roles)
     except JWTVerificationError as exc:
         raise HTTPException(status_code=401, detail=str(exc)) from exc
+
+
+def enforce_internal_token(request: Request) -> None:
+    if not INTERNAL_TOKEN:
+        return
+    token = request.headers.get("x-internal-token")
+    if token != INTERNAL_TOKEN:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="internal access only")
 
 
 @app.on_event("startup")
@@ -138,12 +147,14 @@ async def _heartbeat_loop() -> None:
 
 
 @app.get("/internal/healthz")
-async def healthz() -> Dict[str, str]:
+async def healthz(request: Request) -> Dict[str, str]:
+    enforce_internal_token(request)
     return {"status": "ok"}
 
 
 @app.get("/internal/readyz")
-async def readyz() -> Dict[str, str]:
+async def readyz(request: Request) -> Dict[str, str]:
+    enforce_internal_token(request)
     return {"status": "ok"}
 
 

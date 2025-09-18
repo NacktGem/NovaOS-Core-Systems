@@ -51,6 +51,7 @@ SERVICE_NAME = "audita"
 GIT_COMMIT = os.getenv("GIT_COMMIT", "unknown")
 CORE_API_URL = os.getenv("CORE_API_URL", "http://core-api:8000")
 AGENT_TOKEN = os.getenv("AGENT_SHARED_TOKEN", "")
+INTERNAL_TOKEN = os.getenv("INTERNAL_TOKEN", "")
 
 _agent = AuditaAgent()
 
@@ -69,6 +70,14 @@ def require_identity(request: Request) -> IdentityClaims:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)) from exc
 
 
+def enforce_internal_token(request: Request) -> None:
+    if not INTERNAL_TOKEN:
+        return
+    token = request.headers.get("x-internal-token")
+    if token != INTERNAL_TOKEN:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="internal access only")
+
+
 @app.on_event("startup")
 async def startup_event() -> None:
     app.state._hb_task = asyncio.create_task(_heartbeat_loop())
@@ -82,12 +91,14 @@ async def shutdown_event() -> None:
 
 
 @app.get("/internal/healthz")
-async def internal_healthz() -> JSONResponse:
+async def internal_healthz(request: Request) -> JSONResponse:
+    enforce_internal_token(request)
     return JSONResponse({"status": "ok"})
 
 
 @app.get("/internal/readyz")
-async def internal_readyz() -> JSONResponse:
+async def internal_readyz(request: Request) -> JSONResponse:
+    enforce_internal_token(request)
     return JSONResponse({"status": "ok"})
 
 

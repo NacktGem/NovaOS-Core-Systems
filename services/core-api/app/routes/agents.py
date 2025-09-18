@@ -6,13 +6,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Cookie, Depends, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.db.base import get_session
-from app.db.models import AgentRecord
+from app.db.models import AgentRecord, User
 from app.deps import get_redis, require_agent_token
 from app.security.jwt import verify_token
 
@@ -150,8 +150,27 @@ def _serialize_record(record: AgentRecord, heartbeat: Dict[str, Any] | None) -> 
     return payload
 
 
+async def _optional_user(
+    access_token: str | None = Cookie(default=None, alias="access_token"),
+    session: Session = Depends(get_session),
+) -> User | None:
+    if not access_token:
+        return None
+    try:
+        data = verify_token(access_token)
+        user_id = uuid.UUID(data["sub"])
+    except Exception:
+        return None
+    return session.get(User, user_id)
+
+
 @router.post("/{agent}")
-async def run_agent(agent: str, job: Job, request: Request):
+async def run_agent(
+    agent: str,
+    job: Job,
+    request: Request,
+    current_user: User | None = Depends(_optional_user),
+):
     # Token extraction
     token = request.headers.get("x-nova-token")
     if not token:
@@ -164,7 +183,15 @@ async def run_agent(agent: str, job: Job, request: Request):
             {"success": False, "output": None, "error": "invalid agent token"}, status_code=401
         )
 
-    role = request.headers.get("x-role", "").upper()
+    header_role = request.headers.get("x-role", "").upper()
+    derived_role = (current_user.role if current_user else "").upper()
+    role = header_role or derived_role
+
+    if not role:
+        return JSONResponse(
+            {"success": False, "output": None, "error": "missing role context"}, status_code=401
+        )
+
     if role not in _allow:
         return JSONResponse(
             {"success": False, "output": None, "error": "forbidden"}, status_code=403
@@ -176,7 +203,15 @@ async def run_agent(agent: str, job: Job, request: Request):
             status_code=404,
         )
 
-    identity = _extract_identity(request) or {"role": role}
+    identity = _extract_identity(request)
+    if identity is None and current_user is not None:
+        identity = {
+            "subject": str(current_user.id),
+            "email": current_user.email,
+            "role": current_user.role,
+        }
+    if identity is None:
+        identity = {"role": role}
     request_id = request.headers.get("x-request-id") or uuid.uuid4().hex
     payload = {
         "agent": agent,

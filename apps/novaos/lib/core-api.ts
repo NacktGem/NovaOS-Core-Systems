@@ -41,9 +41,11 @@ export async function coreApiFetch(
   }
   if (options.includeAgentToken) {
     if (!AGENT_TOKEN) {
-      throw new Error('AGENT_SHARED_TOKEN must be configured for nova-console');
+      throw new Error('AGENT_SHARED_TOKEN must be configured for novaos');
     }
     headers.set('x-agent-token', AGENT_TOKEN);
+    headers.set('x-nova-token', AGENT_TOKEN);
+    headers.set('authorization', `Bearer ${AGENT_TOKEN}`);
   }
   const res = await fetch(`${coreApiBase()}${path}`, {
     ...init,

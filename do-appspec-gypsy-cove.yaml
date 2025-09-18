@@ -24,8 +24,8 @@ services:
         value: wss://echo.blackrosecollective.studio/ws
       - key: SITE_URL
         scope: RUN_AND_BUILD
-        value: https://gypsy-cove.xyz
-      - key: NOVA_CONSOLE_BASE_URL
+        value: https://gypsycove.blackrosecollective.studio
+      - key: NOVAOS_BASE_URL
         scope: RUN_AND_BUILD
         value: https://novaos.blackrosecollective.studio
       - key: BRC_DOMAIN
@@ -33,7 +33,7 @@ services:
         value: blackrosecollective.studio
     routes:
       - path: /
-        domain: gypsy-cove.xyz
+        domain: gypsycove.blackrosecollective.studio
     health_check:
       protocol: HTTP
       path: /

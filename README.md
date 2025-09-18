@@ -28,7 +28,7 @@ Crypto (BTCPay) + optional Stripe. Platform cut: **12%**.
 
 - apps/web-shell (BRC UI)
 - apps/gypsy-cove (Family UI)
-- apps/nova-console (Founder UI)
+- apps/novaos (NovaOS Console)
 - services/core-api (FastAPI)
 - services/audita (Consent/DMCA/Tax)
 - services/echo (WebSockets & push)
@@ -85,6 +85,11 @@ pnpm -r dev
 - URL: http://localhost:3002
 - Login: founder@local / devdev
 - Test: verify GodMode banner, review DMCA inbox, view analytics.
+
+## Secrets
+- `AGENT_SHARED_TOKEN`: shared bearer token for orchestrator calls and agent heartbeats.
+- `INTERNAL_TOKEN`: required header for `/internal/*` endpoints across microservices.
+- `UNLOCK_PASSWORD`: founder-only unlock code for the public web-shell console entrypoint.
 
 ## Echo
 

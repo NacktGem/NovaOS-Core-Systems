@@ -1,9 +1,9 @@
-name: novaos-console
+name: novaos
 services:
-  - name: nova-console
+  - name: novaos
     image:
       registry: ghcr.io
-      repository: nacktgem/novaos-console
+      repository: nacktgem/novaos
       tag: latest
     run_command: node server.js
     http_port: 3001
@@ -25,7 +25,7 @@ services:
       - key: SITE_URL
         scope: RUN_AND_BUILD
         value: https://novaos.blackrosecollective.studio
-      - key: NOVA_CONSOLE_BASE_URL
+      - key: NOVAOS_BASE_URL
         scope: RUN_AND_BUILD
         value: https://novaos.blackrosecollective.studio
       - key: BRC_DOMAIN

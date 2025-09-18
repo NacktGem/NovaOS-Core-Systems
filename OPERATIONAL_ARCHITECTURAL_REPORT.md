@@ -20,7 +20,7 @@
 - **core-api** (`8760`) — FastAPI gateway with agent routing, auth, database
 - **echo-ws** (`8765`) — WebSocket relay service for real-time communication  
 - **gypsy-cove** (`3000`) — Family dashboard frontend (GypsyCove platform)
-- **nova-console** (`3001`) — Founder/admin UI (NovaOS platform)
+- **novaos** (`3001`) — NovaOS console (agents, GodMode, analytics, Glitch, AI orchestration)
 - **web-shell** (`3002`) — Creator platform frontend (Black Rose Collective)
 
 #### **Agent Runtime (Profile: `agents`)**
@@ -38,7 +38,7 @@ All agents follow identical hardened container pattern:
 |-----------|----------------|----------------------|-----------|
 | core-api | ✓ (all routes) | ✓ (gated by RBAC) | ✓ (family-scoped) |
 | echo-ws | ✓ | ✓ | ✓ |
-| nova-console | ✓ (founder-only) | ✗ | ✗ |
+| novaos | ✓ (founder-only) | ✗ | ✗ |
 | web-shell | ✗ | ✓ | ✗ |
 | gypsy-cove | ✗ | ✗ | ✓ |
 | All Agents | ✓ (godmode access) | ✓ (filtered by role) | ✓ (family context) |

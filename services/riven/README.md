@@ -5,11 +5,11 @@ The Riven service provides role-based dashboards for parental, medical, and off-
 Key features
 - Role-restricted dashboards (parental, medical, off-grid)
 - Audit logs and activity reporting
-- Integration surface with Nova Console for permissions
+- Integration surface with NovaOS Console for permissions
 
 Deployment
 - Configure environment from `.env.core.example`.
-- Ensure `nova-console` is available and user roles defined.
+- Ensure `novaos` is available and user roles defined.
 
 Security
 - Use TLS in production and rotate keys regularly.

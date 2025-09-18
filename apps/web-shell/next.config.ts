@@ -36,6 +36,7 @@ const nextConfig: NextConfig = {
     ECHO_WS: process.env.ECHO_WS,
     SITE_URL: process.env.SITE_URL,
     BRC_DOMAIN: process.env.BRC_DOMAIN,
+    NOVAOS_BASE_URL: process.env.NOVAOS_BASE_URL,
   },
 };
 

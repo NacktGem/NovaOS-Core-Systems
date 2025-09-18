@@ -81,13 +81,23 @@ async def shutdown_event() -> None:
             task.cancel()
 
 
+def enforce_internal_token(request: Request) -> None:
+    if not INTERNAL_TOKEN:
+        return
+    token = request.headers.get("x-internal-token")
+    if token != INTERNAL_TOKEN:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="internal access only")
+
+
 @app.get("/internal/healthz")
-async def internal_healthz() -> JSONResponse:
+async def internal_healthz(request: Request) -> JSONResponse:
+    enforce_internal_token(request)
     return JSONResponse({"status": "ok"})
 
 
 @app.get("/internal/readyz")
-async def internal_readyz() -> JSONResponse:
+async def internal_readyz(request: Request) -> JSONResponse:
+    enforce_internal_token(request)
     return JSONResponse({"status": "ok"})
 
 
@@ -215,4 +225,3 @@ def require_identity(request: Request) -> IdentityClaims:
         return authorize_headers(request.headers, required_roles=roles)
     except JWTVerificationError as exc:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)) from exc
-

@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - 'apps/web-shell/**'
-      - 'apps/nova-console/**'
+      - 'apps/novaos/**'
       - 'apps/gypsy-cove/**'
       - 'services/core-api/**'
       - 'packages/**'
@@ -27,13 +27,13 @@ jobs:
             image: ghcr.io/nacktgem/novaos-web-shell
             spec: do-appspec-web-shell.yaml
             app_id_secret: DO_APP_ID_WEB_SHELL
-            cache_host: app.blackrosecollective.studio
-          - name: nova-console
+            cache_host: www.blackrosecollective.studio
+          - name: novaos
             context: .
-            dockerfile: apps/nova-console/Dockerfile
-            image: ghcr.io/nacktgem/novaos-console
-            spec: do-appspec-nova-console.yaml
-            app_id_secret: DO_APP_ID_NOVA_CONSOLE
+            dockerfile: apps/novaos/Dockerfile
+            image: ghcr.io/nacktgem/novaos
+            spec: do-appspec-novaos.yaml
+            app_id_secret: DO_APP_ID_NOVAOS
             cache_host: novaos.blackrosecollective.studio
           - name: core-api
             context: .
@@ -48,7 +48,7 @@ jobs:
             image: ghcr.io/nacktgem/novaos-gypsy-cove
             spec: do-appspec-gypsy-cove.yaml
             app_id_secret: DO_APP_ID_GYPSY_COVE
-            cache_host: gypsy-cove.xyz
+            cache_host: gypsycove.blackrosecollective.studio
     permissions:
       contents: read
       packages: write
@@ -99,4 +99,4 @@ jobs:
           curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE}/purge_cache" \
             -H "Authorization: Bearer ${CF_TOKEN}" \
             -H "Content-Type: application/json" \
-            --data '{"hosts":["app.blackrosecollective.studio","novaos.blackrosecollective.studio","api.blackrosecollective.studio","gypsy-cove.xyz"]}'
+            --data '{"hosts":["www.blackrosecollective.studio","novaos.blackrosecollective.studio","api.blackrosecollective.studio","gypsycove.blackrosecollective.studio"]}'

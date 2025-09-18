@@ -27,6 +27,15 @@ SERVICE_NAME = "echo"
 GIT_COMMIT = os.getenv("GIT_COMMIT", "unknown")
 CORE_API_URL = os.getenv("CORE_API_URL", "http://core-api:8000")
 AGENT_TOKEN = os.getenv("AGENT_SHARED_TOKEN", "")
+INTERNAL_TOKEN = os.getenv("INTERNAL_TOKEN", "")
+
+
+def enforce_internal_token(request: Request) -> None:
+    if not INTERNAL_TOKEN:
+        return
+    token = request.headers.get("x-internal-token")
+    if token != INTERNAL_TOKEN:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="internal access only")
 
 
 @app.on_event("startup")
@@ -42,12 +51,14 @@ async def shutdown_event() -> None:
 
 
 @app.get("/internal/healthz")
-async def internal_healthz():
+async def internal_healthz(request: Request):
+    enforce_internal_token(request)
     return {"status": "ok"}
 
 
 @app.get("/internal/readyz")
-async def internal_readyz():
+async def internal_readyz(request: Request):
+    enforce_internal_token(request)
     return {"status": "ok"}
 
 

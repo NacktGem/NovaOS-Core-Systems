@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import config from "../next.config";
 
-describe("gypsycove env config", () => {
+describe("novaos env config", () => {
   it("exposes required environment bindings", () => {
     const env = (config as { env?: Record<string, unknown> }).env ?? {};
     const requiredKeys = [
@@ -10,7 +10,6 @@ describe("gypsycove env config", () => {
       "NEXT_PUBLIC_ECHO_WS_URL",
       "ECHO_WS",
       "SITE_URL",
-      "BRC_DOMAIN",
       "NOVAOS_BASE_URL",
     ];
 

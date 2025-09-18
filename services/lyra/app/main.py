@@ -8,7 +8,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict
 
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from pydantic import BaseModel
 
 from env.identity import load_identity, CONFIG_PATH
@@ -31,6 +31,7 @@ SERVICE_NAME = "lyra"
 GIT_COMMIT = os.getenv("GIT_COMMIT", "unknown")
 CORE_API_URL = os.getenv("CORE_API_URL", "http://core-api:8000")
 AGENT_TOKEN = os.getenv("AGENT_SHARED_TOKEN", "")
+INTERNAL_TOKEN = os.getenv("INTERNAL_TOKEN", "")
 
 _agent = LyraAgent()
 
@@ -47,6 +48,14 @@ def require_identity(request: Request) -> IdentityClaims:
         return authorize_headers(request.headers, required_roles=roles)
     except JWTVerificationError as exc:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)) from exc
+
+
+def enforce_internal_token(request: Request) -> None:
+    if not INTERNAL_TOKEN:
+        return
+    token = request.headers.get("x-internal-token")
+    if token != INTERNAL_TOKEN:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="internal access only")
 
 
 @app.on_event("startup")
@@ -85,12 +94,14 @@ async def _heartbeat_loop() -> None:
 
 
 @app.get("/internal/healthz")
-async def healthz() -> Dict[str, str]:
+async def healthz(request: Request) -> Dict[str, str]:
+    enforce_internal_token(request)
     return {"status": "ok"}
 
 
 @app.get("/internal/readyz")
-async def readyz() -> Dict[str, str]:
+async def readyz(request: Request) -> Dict[str, str]:
+    enforce_internal_token(request)
     return {"status": "ok"}
 
 

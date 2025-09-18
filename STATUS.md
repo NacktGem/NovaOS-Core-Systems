@@ -18,6 +18,12 @@
   - `NOVA_AGENT_TOKEN=changeme ./scripts/forensics.sh hash ./README.md`
   - `NOVA_AGENT_TOKEN=changeme ./scripts/audit.sh generate_audit`
 
+## TODO — Phase 6 kickoff
+- Package nova-orchestrator as first-class service (image + compose entry).
+- Ship streaming relay + memory buffer for Nova agent console.
+- Harden cross-service RBAC/JWT claims and add automated integration tests.
+- Implement agent Dockerfiles + deployment wiring for Lyra, Velora, Riven.
+
 ## Verify
 ### Phase 4
 - `pnpm -r lint && pnpm -r test`
@@ -32,4 +38,3 @@
 ### SLO targets
 - p95 agent latency < 500ms
 - core-api 5xx rate < 0.1%
-

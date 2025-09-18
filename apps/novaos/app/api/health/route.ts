@@ -11,11 +11,11 @@ type ServiceTarget = {
 
 const HEALTH_PATHS = ['/health', '/healthz', '/internal/healthz'];
 
-function normaliseBase(name: string, base: string | undefined): string | null {
+function normalizeBase(name: string, base: string | undefined): string | null {
   if (!base) return null;
   if (name === 'echo') {
-    const normalised = base.replace(/^ws/i, 'http');
-    return normalised.endsWith('/ws') ? normalised.slice(0, -3) : normalised;
+    const normalized = base.replace(/^ws/i, 'http');
+    return normalized.endsWith('/ws') ? normalized.slice(0, -3) : normalized;
   }
   return base;
 }
@@ -33,7 +33,7 @@ function resolveTargets(): ServiceTarget[] {
 
   return SERVICE_CATALOG.map((service) => ({
     ...service,
-    base: normaliseBase(service.name, baseOverrides[service.name]),
+    base: normalizeBase(service.name, baseOverrides[service.name]),
   }));
 }
 
