@@ -6,17 +6,18 @@ from app.middleware.rate_limit import LoginRateLimit
 from app.middleware.request_id import RequestIDMiddleware
 from app.security.csrf import CSRFMiddleware
 from app.routes import (
+    analytics,
+    agents,
     auth,
-    palettes,
-    payments,
-    rooms,
-    messages,
     consent,
     dmca,
-    analytics,
     internal,
-    agents,
     logs,
+    messages,
+    palettes,
+    payments,
+    platform,
+    rooms,
 )
 from app.api.v1.agent import router as agent_router
 
@@ -89,6 +90,7 @@ app.include_router(analytics.router)
 app.include_router(agents.router)
 app.include_router(agent_router)
 app.include_router(logs.router)
+app.include_router(platform.router)
 
 # --- Sovereign Standard: /version ---
 from datetime import datetime, timezone  # noqa: E402

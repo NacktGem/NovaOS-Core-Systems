@@ -1,0 +1,45 @@
+name: novaos-console
+services:
+  - name: nova-console
+    image:
+      registry: ghcr.io
+      repository: nacktgem/novaos-console
+      tag: latest
+    run_command: node server.js
+    http_port: 3001
+    instance_size_slug: basic-xxs
+    instance_count: 1
+    envs:
+      - key: NODE_ENV
+        scope: RUN_AND_BUILD
+        value: production
+      - key: CORE_API_BASE
+        scope: RUN_AND_BUILD
+        value: https://api.blackrosecollective.studio
+      - key: CORE_API_URL
+        scope: RUN_AND_BUILD
+        value: https://api.blackrosecollective.studio
+      - key: ECHO_WS
+        scope: RUN_AND_BUILD
+        value: wss://echo.blackrosecollective.studio/ws
+      - key: SITE_URL
+        scope: RUN_AND_BUILD
+        value: https://novaos.blackrosecollective.studio
+      - key: NOVA_CONSOLE_BASE_URL
+        scope: RUN_AND_BUILD
+        value: https://novaos.blackrosecollective.studio
+      - key: BRC_DOMAIN
+        scope: RUN_AND_BUILD
+        value: blackrosecollective.studio
+      - key: AGENT_SHARED_TOKEN
+        scope: RUN_AND_BUILD
+        type: SECRET
+        value_from:
+          secret_key: AGENT_SHARED_TOKEN
+    routes:
+      - path: /
+        domain: novaos.blackrosecollective.studio
+    health_check:
+      protocol: HTTP
+      path: /
+      port: 3001
