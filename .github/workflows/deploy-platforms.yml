@@ -49,9 +49,11 @@ jobs:
             spec: do-appspec-gypsy-cove.yaml
             app_id_secret: DO_APP_ID_GYPSY_COVE
             cache_host: gypsycove.blackrosecollective.studio
+
     permissions:
       contents: read
       packages: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -80,9 +82,13 @@ jobs:
       - name: Update DigitalOcean App Platform
         env:
           DO_APP_ID: ${{ secrets[matrix.app_id_secret] }}
+          GITHUB_SHA: ${{ github.sha }}
         run: |
           tmp_spec=$(mktemp)
-          sed -e "s/tag: latest/tag: ${{ github.sha }}/" "${{ matrix.spec }}" > "$tmp_spec"
+          # Replace tag and inject cache buster
+          sed -e "s/tag: latest/tag: ${{ github.sha }}/" \
+              -e "s/\${GITHUB_SHA:-latest}/${{ github.sha }}/" \
+              "${{ matrix.spec }}" > "$tmp_spec"
           doctl apps update "$DO_APP_ID" --spec "$tmp_spec"
 
   purge-cloudflare:

@@ -11,7 +11,7 @@ export DATABASE_URL="sqlite:///$TMP/test.db"
 export AUTH_PEPPER=pepper
 export JWT_PRIVATE_KEY_PATH="$TMP/priv.pem"
 export JWT_PUBLIC_KEY_PATH="$TMP/pub.pem"
-export ECHO_INTERNAL_TOKEN=dev_internal_token
+export INTERNAL_TOKEN=dev_internal_token
 export CORS_ORIGINS=http://test
 export REDIS_URL=redis://test
 pushd services/core-api >/dev/null

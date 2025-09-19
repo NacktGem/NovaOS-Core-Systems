@@ -1,4 +1,4 @@
-name: novaos-gypsy-cove
+name: gypsy-cove
 services:
   - name: gypsy-cove
     image:
@@ -10,6 +10,9 @@ services:
     instance_size_slug: basic-xxs
     instance_count: 1
     envs:
+      - key: CACHE_BUSTER
+        scope: RUN_AND_BUILD
+        value: "${GITHUB_SHA:-latest}"
       - key: NODE_ENV
         scope: RUN_AND_BUILD
         value: production
@@ -31,6 +34,16 @@ services:
       - key: BRC_DOMAIN
         scope: RUN_AND_BUILD
         value: blackrosecollective.studio
+      - key: INTERNAL_TOKEN
+        scope: RUN_AND_BUILD
+        type: SECRET
+        value_from:
+          secret_key: INTERNAL_TOKEN
+      - key: AGENT_SHARED_TOKEN
+        scope: RUN_AND_BUILD
+        type: SECRET
+        value_from:
+          secret_key: AGENT_SHARED_TOKEN
     routes:
       - path: /
         domain: gypsycove.blackrosecollective.studio
