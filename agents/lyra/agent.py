@@ -90,6 +90,11 @@ class LyraAgent(BaseAgent):
             return ""
 
     def run(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute Lyra creative and curriculum actions.
+
+        Commands: caption_image, write_bio, plant_id, create_prompt,
+        evaluate_progress, dose_guide.
+        """
         command = payload.get("command")
         args = payload.get("args", {})
         try:
@@ -162,3 +167,19 @@ class LyraAgent(BaseAgent):
             return self._wrap(command or "", None, f"unknown command '{command}'")
         except Exception as exc:  # noqa: BLE001
             return self._wrap(command or "", None, str(exc))
+
+    def compose_story(self, theme: str, tone: str = "warm") -> Dict[str, Any]:
+        """Generate a short story outline based on a theme and tone."""
+        text = self._llm_generate(f"Write a {tone} short story outline about: {theme}")
+        return self._wrap("compose_story", {"outline": text, "theme": theme, "tone": tone}, None)
+
+    def generate_curriculum(self, topic: str, weeks: int = 4) -> Dict[str, Any]:
+        """Draft a weekly curriculum skeleton for a topic."""
+        weeks = max(1, int(weeks))
+        outline = [f"Week {i+1}: {topic} module {i+1}" for i in range(weeks)]
+        return self._wrap("generate_curriculum", {"topic": topic, "weeks": outline}, None)
+
+    def critique_work(self, text: str, style: str = "supportive") -> Dict[str, Any]:
+        """Offer a brief critique in the selected style."""
+        feedback = self._llm_generate(f"Provide a {style} critique of: {text}")
+        return self._wrap("critique_work", {"feedback": feedback}, None)

@@ -56,6 +56,11 @@ class VeloraAgent(BaseAgent):
         }
 
     def run(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute Velora analytics operations.
+
+        Common commands include generate_report, schedule_post, forecast_revenue,
+        crm_export, ad_generate, analyze_dataset.
+        """
         command = payload.get("command")
         args = payload.get("args", {})
         try:
@@ -147,3 +152,34 @@ class VeloraAgent(BaseAgent):
             return self._wrap(command or "", None, f"unknown command '{command}'")
         except Exception as exc:  # noqa: BLE001
             return self._wrap(command or "", None, str(exc))
+
+    def generate_funnel_report(self, events: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Compute a simple conversion funnel from event data."""
+        stages = ["view", "click", "signup", "purchase"]
+        counts = {s: 0 for s in stages}
+        for e in events:
+            s = str(e.get("stage", "")).lower()
+            if s in counts:
+                counts[s] += 1
+        return self._wrap("generate_funnel_report", {"stages": counts}, None)
+
+    def segment_audience(self, users: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Segment users by rough activity level."""
+        segments = {"low": 0, "medium": 0, "high": 0}
+        for u in users:
+            a = int(u.get("activity", 0))
+            if a >= 80:
+                segments["high"] += 1
+            elif a >= 30:
+                segments["medium"] += 1
+            else:
+                segments["low"] += 1
+        return self._wrap("segment_audience", {"segments": segments}, None)
+
+    def forecast_kpis(self, history: Dict[str, List[float]]) -> Dict[str, Any]:
+        """Naive last-delta forecast per KPI."""
+        out: Dict[str, float] = {}
+        for k, series in history.items():
+            if len(series) >= 2:
+                out[k] = series[-1] + (series[-1] - series[-2])
+        return self._wrap("forecast_kpis", {"forecast": out}, None)

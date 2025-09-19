@@ -50,6 +50,10 @@ class AuditaAgent(BaseAgent):
         }
 
     def run(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute compliance and audit commands.
+
+        Commands: validate_consent, gdpr_scan, generate_audit, tax_report, dmca_notice.
+        """
         command = payload.get("command")
         args = payload.get("args", {})
         try:
@@ -136,3 +140,14 @@ class AuditaAgent(BaseAgent):
             return self._wrap(command or "", None, f"unknown command '{command}'")
         except Exception as exc:  # noqa: BLE001
             return self._wrap(command or "", None, str(exc))
+
+    def verify_consent_document(self, path: str) -> Dict[str, Any]:
+        """Placeholder: quick validation wrapper around validate_consent."""
+        p = Path(path)
+        ok = p.exists() and p.suffix.lower() in {".pdf", ".png", ".jpg", ".jpeg"}
+        return self._wrap("verify_consent_document", {"path": str(p), "ok": ok}, None)
+
+    def audit_tax_compliance(self, income: List[float], expenses: List[float]) -> Dict[str, Any]:
+        """Placeholder: summarized view of taxable amount."""
+        taxable = sum(income) - sum(expenses)
+        return self._wrap("audit_tax_compliance", {"taxable": taxable}, None)

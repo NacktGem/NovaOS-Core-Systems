@@ -34,6 +34,14 @@ class EchoAgent(BaseAgent):
         }
 
     def run(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute Echo commands.
+
+        Supported commands:
+        - send_message: { message, recipient }
+        - send_file: { src, dst }
+        - send_voice: { path }
+        - broadcast: { message, recipients[] }
+        """
         command = payload.get("command")
         args = payload.get("args", {})
         try:
@@ -67,3 +75,18 @@ class EchoAgent(BaseAgent):
             return self._wrap(command or "", None, f"unknown command '{command}'")
         except Exception as exc:  # noqa: BLE001
             return self._wrap(command or "", None, str(exc))
+
+    def schedule_broadcast(self, when_iso: str, message: str, recipients: List[str]) -> Dict[str, Any]:
+        """Placeholder: schedule a broadcast message for later delivery.
+
+        Returns a lightweight acknowledgement structure.
+        """
+        return {
+            "success": True,
+            "output": {
+                "summary": "Broadcast scheduled",
+                "details": {"when": when_iso, "message": message, "recipients": recipients},
+                "logs_path": str(self._platform_log),
+            },
+            "error": None,
+        }

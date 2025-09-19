@@ -37,6 +37,10 @@ class RivenAgent(BaseAgent):
         return R * c
 
     def run(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute Riven survival and parental utilities.
+
+        Commands: track_device, log_symptom, generate_protocol, bugout_map, wipe_device.
+        """
         command = payload.get("command")
         args = payload.get("args", {})
         try:
@@ -108,3 +112,16 @@ class RivenAgent(BaseAgent):
             },
             "error": error,
         }
+
+    def emergency_contact(self, name: str, phone: str) -> Dict[str, Any]:
+        """Store or return an emergency contact card."""
+        entry = {"name": name, "phone": phone}
+        self._append_json("contacts.json", entry)
+        return self._wrap("emergency_contact", entry, None)
+
+    def build_med_pack(self, context: str = "home") -> Dict[str, Any]:
+        """Provide a basic med pack checklist for the context."""
+        base = ["bandages", "antiseptic", "gloves", "analgesic", "gauze", "tape"]
+        if context == "travel":
+            base += ["electrolytes", "antiemetic", "antihistamine"]
+        return self._wrap("build_med_pack", {"context": context, "items": base}, None)
