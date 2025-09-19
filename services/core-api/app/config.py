@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     redis_url: str = "redis://redis:6379/0"
-    agent_shared_token: str
+    agent_shared_token: str = "insecure-test-token"
 
     class Config:
         env_file = ".env"

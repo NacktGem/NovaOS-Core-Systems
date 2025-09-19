@@ -12,7 +12,6 @@ from .auth import get_current_user
 from .rooms import can_join
 from .ws import RoomHub
 from .deps import get_redis
-from agents.echo.agent import EchoAgent  # type: ignore
 from env.identity import load_identity, CONFIG_PATH  # type: ignore
 
 app = FastAPI(title="Echo Relay")
@@ -28,9 +27,15 @@ SERVICE_NAME = "echo"
 GIT_COMMIT = os.getenv("GIT_COMMIT", "unknown")
 CORE_API_URL = os.getenv("CORE_API_URL", "http://core-api:8000")
 AGENT_TOKEN = os.getenv("AGENT_SHARED_TOKEN", "")
-SERVICE_VERSION = IDENTITY.get("version", os.getenv("ECHO_VERSION", "0.0.0"))
+INTERNAL_TOKEN = os.getenv("INTERNAL_TOKEN", "")
 
-_agent = EchoAgent()
+
+def enforce_internal_token(request: Request) -> None:
+    if not INTERNAL_TOKEN:
+        return
+    token = request.headers.get("x-internal-token")
+    if token != INTERNAL_TOKEN:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="internal access only")
 
 
 @app.on_event("startup")
@@ -46,12 +51,14 @@ async def shutdown_event() -> None:
 
 
 @app.get("/internal/healthz")
-async def internal_healthz():
+async def internal_healthz(request: Request):
+    enforce_internal_token(request)
     return {"status": "ok"}
 
 
 @app.get("/internal/readyz")
-async def internal_readyz():
+async def internal_readyz(request: Request):
+    enforce_internal_token(request)
     return {"status": "ok"}
 
 
@@ -76,7 +83,7 @@ async def version() -> Dict[str, Any]:
     return {
         "service": SERVICE_NAME,
         "name": IDENTITY.get("name", "NovaOS"),
-        "version": SERVICE_VERSION,
+        "version": IDENTITY.get("version", os.getenv("ECHO_VERSION", "0.0.0")),
         "commit": GIT_COMMIT,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
@@ -112,18 +119,6 @@ async def ws_endpoint(websocket: WebSocket, room: str = Query(...)):
             await websocket.close(code=1011)
         finally:
             return
-
-
-@app.post("/run")
-async def run(job: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        command = job.get("command")
-        args = job.get("args", {})
-        if not isinstance(args, dict):
-            args = {}
-        return _agent.run({"command": command, "args": args})
-    except Exception as e:  # noqa: BLE001
-        return {"success": False, "output": None, "error": str(e)}
 
 
 async def _heartbeat_loop() -> None:

@@ -1,24 +1,4 @@
 import os
-import time
-import uuid
-from typing import Any, Dict
-
-from fastapi import Cookie, Depends, HTTPException
-from jose import jwt
-from sqlalchemy.orm import Session
-
-from app.db.base import get_session
-from app.db.models import User
-
-# 🔐 Load key paths from environment (set by Docker)
-PRIVATE_KEY_PATH = os.getenv("JWT_PRIVATE_KEY_PATH")
-PUBLIC_KEY_PATH = os.getenv("JWT_PUBLIC_KEY_PATH")
-ALGORITHM = "RS256"
-LIFETIME_SECONDS = int(os.getenv("JWT_LIFETIME", "900"))
-
-# 🚫 Fail fast if env vars are missing
-if not PRIVATE_KEY_PATH or not PUBLIC_KEY_PATH:
-    raise RuntimeError("JWT_PRIVATE_KEY_PATH or JWT_PUBLIC_KEY_PATH is not set in environment.")
 import os
 import time
 import uuid

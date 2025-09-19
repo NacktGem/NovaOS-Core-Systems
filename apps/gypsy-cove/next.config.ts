@@ -34,6 +34,8 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_ECHO_WS_URL: process.env.ECHO_WS,
     ECHO_WS: process.env.ECHO_WS,
     SITE_URL: process.env.SITE_URL,
+    NOVAOS_BASE_URL: process.env.NOVAOS_BASE_URL,
+    BRC_DOMAIN: process.env.BRC_DOMAIN,
     GC_DOMAIN: process.env.GC_DOMAIN,
     ALLOWLIST_MODE: process.env.ALLOWLIST_MODE,
   },

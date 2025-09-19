@@ -70,7 +70,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const expected = process.env.UNLOCK_PASSWORD || "blackrose";
+    const expected = process.env.UNLOCK_PASSWORD;
+    if (!expected) {
+      console.error("unlock endpoint misconfigured: UNLOCK_PASSWORD missing");
+      return NextResponse.json(
+        { ok: false, error: "not_configured" },
+        { status: 503 },
+      );
+    }
     const ok = constantTimeEquals(pass, expected);
 
     if (ok) {

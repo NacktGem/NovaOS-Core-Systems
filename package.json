@@ -9,8 +9,12 @@
     "lint:all": "pnpm -r lint",
     "test:all": "pnpm -r test",
     "test": "vitest run",
-    "dev": "concurrently -n api,echo,web,gc,nova \"pnpm --filter ./services/core-api dev\" \"pnpm --filter ./services/echo dev\" \"pnpm --filter ./apps/web-shell dev\" \"pnpm --filter ./apps/gypsy-cove dev\" \"pnpm --filter ./apps/nova-console dev\"",
+    "dev": "concurrently -n api,echo,web,gc,nova \"pnpm --filter ./services/core-api dev\" \"pnpm --filter ./services/echo dev\" \"pnpm --filter ./apps/web-shell dev\" \"pnpm --filter ./apps/gypsy-cove dev\" \"pnpm --filter ./apps/novaos dev\"",
     "dev:all": "pnpm -r dev",
+    "dev:docker": "docker compose --profile app --profile infra up --build",
+    "dev:mac": "bash scripts/dev.sh",
+    "dev:linux": "bash scripts/dev.sh",
+    "dev:win": "powershell -ExecutionPolicy Bypass -File scripts/dev.ps1",
     "e2e": "bash scripts/e2e.sh"
   },
   "devDependencies": {

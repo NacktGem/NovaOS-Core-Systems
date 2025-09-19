@@ -1,0 +1,53 @@
+name: web-shell
+services:
+  - name: web-shell
+    image:
+      registry: ghcr.io
+      repository: nacktgem/novaos-web-shell
+      tag: latest
+    run_command: node server.js
+    http_port: 3002
+    instance_size_slug: basic-xxs
+    instance_count: 1
+    envs:
+      - key: CACHE_BUSTER
+        scope: RUN_AND_BUILD
+        value: "${GITHUB_SHA:-latest}"
+      - key: NODE_ENV
+        scope: RUN_AND_BUILD
+        value: production
+      - key: CORE_API_BASE
+        scope: RUN_AND_BUILD
+        value: https://api.blackrosecollective.studio
+      - key: CORE_API_URL
+        scope: RUN_AND_BUILD
+        value: https://api.blackrosecollective.studio
+      - key: ECHO_WS
+        scope: RUN_AND_BUILD
+        value: wss://echo.blackrosecollective.studio/ws
+      - key: SITE_URL
+        scope: RUN_AND_BUILD
+        value: https://www.blackrosecollective.studio
+      - key: NOVAOS_BASE_URL
+        scope: RUN_AND_BUILD
+        value: https://novaos.blackrosecollective.studio
+      - key: BRC_DOMAIN
+        scope: RUN_AND_BUILD
+        value: blackrosecollective.studio
+      - key: INTERNAL_TOKEN
+        scope: RUN_AND_BUILD
+        type: SECRET
+        value_from:
+          secret_key: INTERNAL_TOKEN
+      - key: AGENT_SHARED_TOKEN
+        scope: RUN_AND_BUILD
+        type: SECRET
+        value_from:
+          secret_key: AGENT_SHARED_TOKEN
+    routes:
+      - path: /
+        domain: www.blackrosecollective.studio
+    health_check:
+      protocol: HTTP
+      path: /
+      port: 3002

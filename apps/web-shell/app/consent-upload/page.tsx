@@ -1,89 +1,44 @@
-"use client"
-import { useEffect, useMemo, useState } from 'react'
+import ConsentUploadShell from "./consent-upload-shell";
+import { CoreApiError, coreApiJson } from "@/lib/core-api";
 
-export default function ConsentUpload() {
-    const [govId, setGovId] = useState('gov_id.jpg')
-    const [releasePdf, setReleasePdf] = useState('release.pdf')
-    const [selfie, setSelfie] = useState('selfie.jpg')
-    const [timestamp, setTimestamp] = useState('')
-    const [busy, setBusy] = useState(false)
-    const [result, setResult] = useState<unknown>(null)
+type ConsentRecord = {
+  id: string;
+  partner_name: string;
+  content_ids: string[];
+  signed_at: string | null;
+  meta: Record<string, unknown> | null;
+};
 
-    useEffect(() => {
-        setTimestamp(new Date().toISOString())
-    }, [])
+async function fetchConsents(): Promise<ConsentRecord[]> {
+  return coreApiJson<ConsentRecord[]>("/consent/");
+}
 
-    const payload = useMemo(() => ({
-        command: 'validate_consent',
-        args: {
-            files: [govId, releasePdf, selfie],
-            timestamp,
-        },
-        log: true,
-    }), [govId, releasePdf, selfie, timestamp])
-
-    async function submit() {
-        setBusy(true)
-        setResult(null)
-        try {
-            const r = await fetch('/api/agents/audita', {
-                method: 'POST',
-                headers: { 'content-type': 'application/json' },
-                body: JSON.stringify(payload),
-            })
-            const j = await r.json().catch(() => ({}))
-            setResult(j)
-        } catch (e) {
-            setResult({ error: (e as Error).message })
-        } finally {
-            setBusy(false)
-        }
-    }
-
-    return (
-        <div className="p-6 bg-black text-rose-200 min-h-screen space-y-6">
-            <header>
-                <h1 className="text-3xl font-bold">Consent Upload</h1>
-                <p className="text-rose-300 text-sm">Mock upload — files are not sent; Audita validates filenames + timestamp.</p>
-            </header>
-
-            <section className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-3 border border-rose-600/30 rounded p-4">
-                    <div>
-                        <label className="block text-sm mb-1">Government ID image</label>
-                        <input value={govId} onChange={e => setGovId(e.target.value)} className="w-full border px-2 py-1 bg-black" placeholder="gov_id.jpg" />
-                    </div>
-                    <div>
-                        <label className="block text-sm mb-1">Model release PDF</label>
-                        <input value={releasePdf} onChange={e => setReleasePdf(e.target.value)} className="w-full border px-2 py-1 bg-black" placeholder="release.pdf" />
-                    </div>
-                    <div>
-                        <label className="block text-sm mb-1">Selfie with date visible</label>
-                        <input value={selfie} onChange={e => setSelfie(e.target.value)} className="w-full border px-2 py-1 bg-black" placeholder="selfie.jpg" />
-                    </div>
-                    <div>
-                        <label className="block text-sm mb-1">Timestamp (ISO)</label>
-                        <input value={timestamp} onChange={e => setTimestamp(e.target.value)} className="w-full border px-2 py-1 bg-black" placeholder="2025-09-14T22:00:00Z" />
-                    </div>
-                    <div>
-                        <button onClick={submit} disabled={busy} className="bg-rose-700 px-4 py-2 rounded disabled:opacity-50">{busy ? 'Submitting…' : 'Submit'}</button>
-                    </div>
-                </div>
-
-                <div className="space-y-3 border border-rose-600/30 rounded p-4">
-                    <h2 className="font-semibold">Result</h2>
-                    <pre className="whitespace-pre-wrap text-xs text-green-400">{result ? JSON.stringify(result, null, 2) : 'Submit to see result'}</pre>
-                    {(() => {
-                        if (typeof result === 'object' && result !== null && 'logs_path' in result) {
-                            const lp = (result as Record<string, unknown>).logs_path
-                            if (typeof lp === 'string' && lp.length > 0) {
-                                return <a href={lp} target="_blank" rel="noreferrer" className="underline">Open logs</a>
-                            }
-                        }
-                        return null
-                    })()}
-                </div>
-            </section>
+export default async function ConsentUploadPage() {
+  try {
+    const consents = await fetchConsents();
+    return <ConsentUploadShell initialConsents={consents} />;
+  } catch (error) {
+    if (error instanceof CoreApiError && error.status === 401) {
+      return (
+        <div className="flex min-h-screen items-center justify-center bg-[#050109] px-6 py-12 text-[#F5E5ED]">
+          <div className="max-w-md text-center">
+            <h1 className="text-2xl font-semibold text-[#A33A5B]">Founders or verified creators only</h1>
+            <p className="mt-3 text-sm text-[#B78A9B]">
+              Sign in with your Black Rose Collective credentials to upload signed consents. Unauthorized attempts are honeytrapped by Glitch.
+            </p>
+          </div>
         </div>
-    )
+      );
+    }
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#050109] px-6 py-12 text-[#F5E5ED]">
+        <div className="max-w-md text-center">
+          <h1 className="text-2xl font-semibold text-[#A33A5B]">Consent system offline</h1>
+          <p className="mt-3 text-sm text-[#B78A9B]">
+            {error instanceof Error ? error.message : "Unable to reach Audita intake. Retry or alert Ty immediately."}
+          </p>
+        </div>
+      </div>
+    );
+  }
 }

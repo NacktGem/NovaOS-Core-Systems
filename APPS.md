@@ -1,6 +1,6 @@
 # Apps
 
-## Web-Shell (Black Rose Collective)
+## Web-Shell (Black Rose Collective — https://www.blackrosecollective.studio)
 Routes:
 - `/login`
 - `/explore`
@@ -11,14 +11,14 @@ Routes:
 - `/legal/dmca`
 Roles: guest, verified user, creator, sovereign.
 
-## Gypsy-Cove (Family)
+## Gypsy-Cove (Family — https://gypsycove.blackrosecollective.studio)
 Routes:
 - `/`
 - `/chat`
 - `/consent-upload`
 Roles: family member, founder.
 
-## Nova-Console (Founder/Admin)
+## NovaOS Console (Founder/Admin — https://novaos.blackrosecollective.studio)
 Routes:
 - `/`
 - `/rooms`

@@ -1,7 +1,21 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
+import config from "../next.config";
 
-describe("gypsy-cove env", () => {
-  it("has placeholders", () => {
-    expect(1).toBe(1);
+describe("gypsycove env config", () => {
+  it("exposes required environment bindings", () => {
+    const env = (config as { env?: Record<string, unknown> }).env ?? {};
+    const requiredKeys = [
+      "CORE_API_BASE",
+      "NEXT_PUBLIC_CORE_API_URL",
+      "NEXT_PUBLIC_ECHO_WS_URL",
+      "ECHO_WS",
+      "SITE_URL",
+      "BRC_DOMAIN",
+      "NOVAOS_BASE_URL",
+    ];
+
+    for (const key of requiredKeys) {
+      expect(env[key]).toBeDefined();
+    }
   });
 });

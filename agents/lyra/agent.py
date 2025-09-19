@@ -1,29 +1,26 @@
 """Lyra agent: educational and creative assistant."""
-
 from __future__ import annotations
 
 import json
 import random
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Sequence
 
-from agents.base import BaseAgent, resolve_platform_log
-
-# Optional external tools:
-# REQUIRES pytesseract — Not installed by default (OCR)
-#   apt-get update && apt-get install -y tesseract-ocr && pip install pytesseract pillow
-# REQUIRES OpenAI-compatible LLM client — If env config provides model endpoint
-#   pip install openai
+from agents.base import BaseAgent
+from agents.common.alog import info
 
 
 class LyraAgent(BaseAgent):
+    """Curates curriculum, creative prompts, and herbal guidance for NovaOS."""
+
     def __init__(self) -> None:
+        """Initialize Lyra with deterministic storage paths."""
         super().__init__("lyra", description="Creative tutor and herbalist")
         self._log_dir = Path("logs/lyra")
         self._log_dir.mkdir(parents=True, exist_ok=True)
-        self._platform_log = resolve_platform_log("lyra")
 
     def _append_json(self, filename: str, entry: Dict[str, Any]) -> None:
+        """Persist structured journal entries to JSON with human-readable formatting."""
         file_path = self._log_dir / filename
         data: List[Dict[str, Any]] = []
         if file_path.exists():
@@ -31,155 +28,158 @@ class LyraAgent(BaseAgent):
         data.append(entry)
         file_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    def _log(self, entry: Dict[str, Any]) -> None:
-        try:
-            with self._platform_log.open("a", encoding="utf-8") as fh:
-                fh.write(json.dumps(entry, ensure_ascii=False) + "\n")
-        except Exception:
-            pass
-
-    def _wrap(
-        self, command: str, details: Dict[str, Any] | None, error: str | None
-    ) -> Dict[str, Any]:
-        success = error is None
-        summary = f"Lyra completed '{command}'" if success else f"Lyra failed '{command}': {error}"
-        self._log({"command": command, "success": success, "error": error})
-        return {
-            "success": success,
-            "output": {
-                "summary": summary,
-                "details": details or {},
-                "logs_path": str(self._platform_log),
+    def generate_lesson_plan(self, topic: str, grade: str) -> Dict[str, Any]:
+        """Create a standards-aligned lesson plan with objectives and assessments."""
+        scaffolds: Dict[str, Sequence[str]] = {
+            "introduction": ["story hook", "guided discussion", "sensory warm-up"],
+            "practice": ["paired exploration", "hands-on lab", "guided journaling"],
+            "assessment": ["reflection prompt", "exit ticket", "demo recording"],
+        }
+        lesson = {
+            "topic": topic,
+            "grade": grade or "multi-age",
+            "objectives": [
+                f"Learners articulate key principles of {topic} in their own voice",
+                f"Learners demonstrate mastery of {topic} through a creative artifact",
+            ],
+            "sequence": {
+                "introduction": list(scaffolds["introduction"]),
+                "practice": list(scaffolds["practice"]),
+                "assessment": list(scaffolds["assessment"]),
             },
-            "error": error,
+            "materials": ["journal", "audio recorder", "open-source references"],
+        }
+        return lesson
+
+    def evaluate_progress(self, student: str | None, score: float | None) -> Dict[str, Any]:
+        """Log learner progress snapshots while computing momentum."""
+        entry = {"student": student, "score": score}
+        self._append_json("progress.json", entry)
+        return {
+            "student": student,
+            "score": score,
+            "momentum": "rising" if (score or 0) >= 85 else "steady" if (score or 0) >= 70 else "intervene",
         }
 
-    def _llm_generate(self, prompt: str) -> str:
-        # Try OpenAI-compatible client if available; otherwise simple stylistic transform
-        try:
-            import os
-            import openai  # type: ignore
+    def _select_prompt(self, prompt_type: str) -> str:
+        """Choose a prompt from curated writing, art, and voice collections."""
+        prompts: Dict[str, Sequence[str]] = {
+            "writing": [
+                "Write a letter to your future self.",
+                "Describe a day on Mars.",
+                "Chronicle the moment you reclaimed your creative power.",
+            ],
+            "art": [
+                "Sketch a plant that doesn't exist.",
+                "Draw the feeling of wind.",
+                "Illustrate the sound of resilience.",
+            ],
+            "voice": [
+                "Compose a chant that grounds your community.",
+                "Record a sonic tour of your safe space.",
+            ],
+        }
+        collection = prompts.get(prompt_type, prompts["writing"])
+        return random.choice(list(collection))
 
-            key = os.getenv("OPENAI_API_KEY") or os.getenv("LM_API_KEY")
-            base = os.getenv("OPENAI_BASE_URL") or os.getenv("LM_BASE_URL")
-            if key and base:
-                openai.api_key = key
-                openai.base_url = base
-            # New API (openai>=1) compatibility
-            client = getattr(openai, "OpenAI", None)
-            if client:
-                client = client()
-                resp = client.chat.completions.create(
-                    model=os.getenv("OPENAI_MODEL", "gpt-3.5-turbo"),
-                    messages=[{"role": "user", "content": prompt}],
-                    temperature=0.8,
-                )
-                return resp.choices[0].message.content or ""
-        except Exception:
-            pass
-        # Fallback
-        return f"[creative] {prompt.strip()} — crafted with warmth and clarity."
+    def create_prompt(self, prompt_type: str) -> Dict[str, Any]:
+        """Deliver a curated creative brief for the requested modality."""
+        prompt = self._select_prompt(prompt_type)
+        return {
+            "type": prompt_type,
+            "prompt": prompt,
+            "ritual": "light incense and set a 12-minute timer to maintain flow",
+        }
 
-    def _ocr_image(self, image_path: Path) -> str:
-        try:
-            from PIL import Image  # type: ignore
-            import pytesseract  # type: ignore
+    def log_herb_entry(self, name: str, details: Dict[str, Any]) -> Dict[str, Any]:
+        """Maintain a sovereign herbal apothecary journal."""
+        entry = {"name": name, "details": details}
+        self._append_json("herb_journal.json", entry)
+        return entry
 
-            return pytesseract.image_to_string(Image.open(str(image_path)))
-        except Exception:
-            return ""
+    def calculate_dose(self, herb: str, weight_kg: float) -> Dict[str, Any]:
+        """Compute safe dosage using Nova's botanicals matrix."""
+        guides = {
+            "ginger": {"mg_per_kg": 10, "notes": "anti-inflammatory, warm"},
+            "mint": {"mg_per_kg": 5, "notes": "cooling, digestion"},
+            "chamomile": {"mg_per_kg": 8, "notes": "calming, sleep support"},
+            "holy_basil": {"mg_per_kg": 6, "notes": "adaptogenic, breath"},
+        }
+        if herb not in guides:
+            raise ValueError(f"no dosage guide for {herb}")
+        guide = guides[herb]
+        dose = guide["mg_per_kg"] * weight_kg
+        return {"dose_mg": dose, "notes": guide["notes"]}
+
+    def generate_curriculum_path(self, theme: str, weeks: int = 4) -> Dict[str, Any]:
+        """Construct a multi-week curriculum with escalating depth."""
+        phases = [
+            "Awakening", "Exploration", "Mastery", "Transmission", "Legacy",
+        ]
+        schedule = []
+        for week in range(weeks):
+            phase = phases[min(week, len(phases) - 1)]
+            schedule.append(
+                {
+                    "week": week + 1,
+                    "phase": phase,
+                    "focus": f"{theme} — {phase.lower()}",
+                    "deliverable": "zine" if phase == "Legacy" else "artifact",
+                }
+            )
+        return {"theme": theme, "weeks": weeks, "schedule": schedule}
+
+    def recommend_herbal_protocol(self, concern: str) -> Dict[str, Any]:
+        """Offer a resilient herbal protocol anchored in safety."""
+        protocols = {
+            "stress": {
+                "morning": "holy basil tea", "evening": "chamomile infusion", "practice": "4-7-8 breath",
+            },
+            "immune": {
+                "morning": "ginger tonic", "midday": "elderberry syrup", "practice": "sun salutation",
+            },
+            "focus": {
+                "morning": "mint steam", "afternoon": "lion's mane tincture", "practice": "90-minute deep work",
+            },
+        }
+        if concern not in protocols:
+            raise ValueError("protocol unavailable")
+        regimen = protocols[concern]
+        self._append_json("protocols.json", {"concern": concern, "regimen": regimen})
+        return {"concern": concern, "protocol": regimen}
+
+    def compose_story_arc(self, protagonist: str) -> Dict[str, Any]:
+        """Draft a three-beat narrative arc for creators who work with Lyra."""
+        beats = [
+            f"{protagonist} receives an encrypted glyph inviting them to Black Rose.",
+            f"{protagonist} decodes ancestral lore through improvisational movement.",
+            f"{protagonist} broadcasts a sovereign frequency that heals their collective.",
+        ]
+        return {"protagonist": protagonist, "beats": beats}
 
     def run(self, payload: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute Lyra creative and curriculum actions.
-
-        Commands: caption_image, write_bio, plant_id, create_prompt,
-        evaluate_progress, dose_guide.
-        """
+        """Execute Lyra commands with journaled side effects."""
         command = payload.get("command")
         args = payload.get("args", {})
+        info("lyra.command", {"command": command, "args": list(args.keys())})
         try:
-            if command == "caption_image":
-                img = Path(args.get("path", ""))
-                if not img.is_file():
-                    return self._wrap(command, None, f"image not found: {img}")
-                ocr_text = self._ocr_image(img)
-                prompt = (
-                    f"Write a concise, evocative caption for an image. Extracted text: {ocr_text!r}"
-                )
-                caption = self._llm_generate(prompt)
-                details = {"path": str(img.resolve()), "caption": caption, "ocr_text": ocr_text}
-                return self._wrap(command, details, None)
-
-            if command == "write_bio":
-                name = args.get("name", "Anonymous")
-                style = args.get("style", "friendly")
-                prompt = f"Write a short {style} bio for {name}. Keep it under 80 words."
-                text = self._llm_generate(prompt)
-                return self._wrap(command, {"bio": text, "style": style}, None)
-
-            if command == "plant_id":
-                img = Path(args.get("path", ""))
-                if not img.is_file():
-                    return self._wrap(command, None, f"image not found: {img}")
-                # Minimal heuristic: use OCR and filename tokens as clues
-                ocr_text = self._ocr_image(img)
-                tokens = (img.stem + " " + ocr_text).lower()
-                guess = "unknown"
-                for plant in ["mint", "basil", "rosemary", "lavender", "dandelion", "oak", "pine"]:
-                    if plant in tokens:
-                        guess = plant
-                        break
-                return self._wrap(
-                    command, {"path": str(img), "guess": guess, "evidence": ocr_text[:200]}, None
-                )
-
-            if command == "create_prompt":
-                ptype = args.get("type", "writing")
-                prompts = {
-                    "writing": [
-                        "Write a letter to your future self.",
-                        "Describe a day on Mars.",
-                    ],
-                    "art": [
-                        "Sketch a plant that doesn't exist.",
-                        "Draw the feeling of wind.",
-                    ],
-                }
-                prompt = random.choice(prompts.get(ptype, prompts["writing"]))
-                return self._wrap(command, {"prompt": prompt, "type": ptype}, None)
-
+            if command == "generate_lesson":
+                return {"success": True, "output": self.generate_lesson_plan(args.get("topic", ""), args.get("grade", "")), "error": None}
             if command == "evaluate_progress":
-                entry = {"student": args.get("student"), "score": args.get("score")}
-                self._append_json("progress.json", entry)
-                return self._wrap(command, entry, None)
-
+                result = self.evaluate_progress(args.get("student"), args.get("score"))
+                return {"success": True, "output": result, "error": None}
+            if command == "create_prompt":
+                return {"success": True, "output": self.create_prompt(args.get("type", "writing")), "error": None}
+            if command == "herb_log":
+                return {"success": True, "output": self.log_herb_entry(args.get("name"), args.get("details", {})), "error": None}
             if command == "dose_guide":
-                guides = {"ginger": 10, "mint": 5, "chamomile": 8}  # mg per kg
-                herb = args.get("herb")
-                weight = float(args.get("weight_kg", 0))
-                if herb not in guides:
-                    return self._wrap(command, None, f"no dosage guide for {herb}")
-                dose = guides[herb] * weight
-                return self._wrap(
-                    command, {"dose_mg": dose, "herb": herb, "weight_kg": weight}, None
-                )
-
-            return self._wrap(command or "", None, f"unknown command '{command}'")
+                return {"success": True, "output": self.calculate_dose(args.get("herb", ""), float(args.get("weight_kg", 0))), "error": None}
+            if command == "curriculum_path":
+                return {"success": True, "output": self.generate_curriculum_path(args.get("theme", ""), int(args.get("weeks", 4))), "error": None}
+            if command == "herbal_protocol":
+                return {"success": True, "output": self.recommend_herbal_protocol(args.get("concern", "")), "error": None}
+            if command == "story_arc":
+                return {"success": True, "output": self.compose_story_arc(args.get("protagonist", "Creator")), "error": None}
+            raise ValueError(f"unknown command '{command}'")
         except Exception as exc:  # noqa: BLE001
-            return self._wrap(command or "", None, str(exc))
-
-    def compose_story(self, theme: str, tone: str = "warm") -> Dict[str, Any]:
-        """Generate a short story outline based on a theme and tone."""
-        text = self._llm_generate(f"Write a {tone} short story outline about: {theme}")
-        return self._wrap("compose_story", {"outline": text, "theme": theme, "tone": tone}, None)
-
-    def generate_curriculum(self, topic: str, weeks: int = 4) -> Dict[str, Any]:
-        """Draft a weekly curriculum skeleton for a topic."""
-        weeks = max(1, int(weeks))
-        outline = [f"Week {i+1}: {topic} module {i+1}" for i in range(weeks)]
-        return self._wrap("generate_curriculum", {"topic": topic, "weeks": outline}, None)
-
-    def critique_work(self, text: str, style: str = "supportive") -> Dict[str, Any]:
-        """Offer a brief critique in the selected style."""
-        feedback = self._llm_generate(f"Provide a {style} critique of: {text}")
-        return self._wrap("critique_work", {"feedback": feedback}, None)
+            return {"success": False, "output": None, "error": str(exc)}

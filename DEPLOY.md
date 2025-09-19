@@ -17,7 +17,7 @@
 - Core API: http://localhost:8760
 - Echo WS: ws://localhost:8765/ws
 - Gypsy Cove UI: http://localhost:3000
-- Nova Console: http://localhost:3001
+- NovaOS Console: http://localhost:3001
 - Web Shell: http://localhost:3002
 
 ## Health

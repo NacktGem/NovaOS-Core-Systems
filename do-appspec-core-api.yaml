@@ -1,20 +1,37 @@
 name: novaos-core-api
 services:
   - name: core-api
-    image: ghcr.io/OWNER/NovaOS-Core-Systems/novaos-core-api:latest # replace OWNER or use DO registry
+    image:
+      registry: ghcr.io
+      repository: nacktgem/novaos-core-api
+      tag: latest
     run_command: uvicorn app.main:app --host 0.0.0.0 --port 8760
     envs:
+      - key: CACHE_BUSTER
+        scope: RUN_AND_BUILD
+        value: "${GITHUB_SHA:-latest}"
       - key: JWT_PRIVATE_KEY_PATH
         scope: RUN_AND_BUILD
       - key: JWT_PUBLIC_KEY_PATH
         scope: RUN_AND_BUILD
       - key: JWT_LIFETIME
         scope: RUN_AND_BUILD
+      - key: INTERNAL_TOKEN
+        scope: RUN_AND_BUILD
+        type: SECRET
+        value_from:
+          secret_key: INTERNAL_TOKEN
+      - key: AGENT_SHARED_TOKEN
+        scope: RUN_AND_BUILD
+        type: SECRET
+        value_from:
+          secret_key: AGENT_SHARED_TOKEN
     instance_size_slug: basic-xxs
     instance_count: 1
     http_port: 8760
     routes:
       - path: /
+        domain: api.blackrosecollective.studio
     health_check:
       protocol: HTTP
       path: /health
@@ -22,6 +39,8 @@ services:
     secrets:
       - key: JWT_PRIVATE_KEY
       - key: JWT_PUBLIC_KEY
+      - key: INTERNAL_TOKEN
+      - key: AGENT_SHARED_TOKEN
     dockerfile_path: ./services/core-api/Dockerfile
 
 # ci: trigger core-api-deploy workflow

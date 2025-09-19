@@ -1,5 +1,4 @@
 """Riven agent: parental and survival support."""
-
 from __future__ import annotations
 
 import json
@@ -8,17 +7,21 @@ import shutil
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-from agents.base import BaseAgent, resolve_platform_log
+from agents.base import BaseAgent
+from agents.common.alog import info
 
 
 class RivenAgent(BaseAgent):
+    """Safeguards families, health, and off-grid readiness."""
+
     def __init__(self) -> None:
+        """Establish logging directory for survival telemetry."""
         super().__init__("riven", description="Parental and survival agent")
         self._log_dir = Path("logs/riven")
         self._log_dir.mkdir(parents=True, exist_ok=True)
-        self._platform_log = resolve_platform_log("riven")
 
     def _append_json(self, filename: str, entry: Dict[str, Any]) -> None:
+        """Append structured entries to Riven's journal files."""
         path = self._log_dir / filename
         data: List[Dict[str, Any]] = []
         if path.exists():
@@ -27,6 +30,7 @@ class RivenAgent(BaseAgent):
         path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
     def _haversine(self, start: Tuple[float, float], end: Tuple[float, float]) -> float:
+        """Calculate great-circle distance between coordinates in meters."""
         R = 6371_000
         lat1, lon1 = map(math.radians, start)
         lat2, lon2 = map(math.radians, end)
@@ -36,92 +40,87 @@ class RivenAgent(BaseAgent):
         c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
         return R * c
 
-    def run(self, payload: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute Riven survival and parental utilities.
+    def track_device(self, device_id: str, location: Dict[str, Any]) -> Dict[str, Any]:
+        """Record device location updates for guardians."""
+        entry = {"device_id": device_id, "location": location}
+        self._append_json("device_track.json", entry)
+        return entry
 
-        Commands: track_device, log_symptom, generate_protocol, bugout_map, wipe_device.
-        """
+    def log_symptom(self, user: str, symptom: str) -> Dict[str, str]:
+        """Track symptoms for on-call medics."""
+        entry = {"user": user, "symptom": symptom}
+        self._append_json("symptoms.json", entry)
+        return entry
+
+    def generate_protocol(self, title: str, steps: List[str]) -> Dict[str, Any]:
+        """Produce survival or care protocol steps."""
+        ordered = [f"Step {idx + 1}: {step}" for idx, step in enumerate(steps)]
+        return {"title": title, "steps": ordered}
+
+    def bugout_map(self, start: Tuple[float, float], end: Tuple[float, float]) -> Dict[str, Any]:
+        """Return escape path and distance."""
+        distance = self._haversine(start, end)
+        return {"distance_m": distance, "path": [start, end]}
+
+    def wipe_device(self, path: str) -> Dict[str, str]:
+        """Securely remove a directory or file on-demand."""
+        target = Path(path)
+        if not target.exists():
+            raise FileNotFoundError(f"path not found: {target}")
+        if target.is_dir():
+            shutil.rmtree(target)
+        else:
+            target.unlink()
+        return {"deleted": str(target)}
+
+    def calculate_supply_run(self, days: int, people: int) -> Dict[str, Any]:
+        """Estimate required supplies for off-grid survival."""
+        water_per_day = 4  # liters per person
+        calories_per_day = 2200
+        water_total = water_per_day * days * people
+        calories_total = calories_per_day * days * people
+        return {
+            "water_liters": water_total,
+            "calories": calories_total,
+            "recommended_items": ["water purification", "solar charger", "field medical kit"],
+        }
+
+    def medical_summary(self, entries: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Synthesize symptom logs into a quick triage summary."""
+        summary: Dict[str, List[str]] = {}
+        for entry in entries:
+            user = entry.get("user", "unknown")
+            summary.setdefault(user, []).append(entry.get("symptom", ""))
+        alerts = [user for user, symptoms in summary.items() if len(symptoms) >= 3]
+        return {"patients": summary, "escalate": alerts}
+
+    def run(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Dispatch Riven operations."""
         command = payload.get("command")
         args = payload.get("args", {})
+        info("riven.command", {"command": command, "args": list(args.keys())})
         try:
             if command == "track_device":
-                entry = {"device_id": args.get("device_id"), "location": args.get("location")}
-                self._append_json("device_track.json", entry)
-                return self._wrap(command, entry, None)
-
+                return {"success": True, "output": self.track_device(args.get("device_id"), args.get("location")), "error": None}
             if command == "log_symptom":
-                entry = {"user": args.get("user"), "symptom": args.get("symptom")}
-                self._append_json("symptoms.json", entry)
-                # Simple alerting rules
-                symptom = (entry.get("symptom") or "").lower()
-                alert = "green"
-                if any(k in symptom for k in ["chest pain", "faint", "severe", "bleeding"]):
-                    alert = "red"
-                elif any(k in symptom for k in ["fever", "vomit", "dizzy"]):
-                    alert = "yellow"
-                entry["alert_level"] = alert
-                return self._wrap(command, entry, None)
-
+                return {"success": True, "output": self.log_symptom(args.get("user"), args.get("symptom")), "error": None}
             if command == "generate_protocol":
-                title = args.get("title", "")
-                steps = [f"Step {i+1}: {s}" for i, s in enumerate(args.get("steps", []))]
-                protocol = {"title": title, "steps": steps}
-                return self._wrap(command, protocol, None)
-
+                return {"success": True, "output": self.generate_protocol(args.get("title", ""), list(args.get("steps", []))), "error": None}
             if command == "bugout_map":
                 start = tuple(args.get("start", (0.0, 0.0)))
                 end = tuple(args.get("end", (0.0, 0.0)))
-                distance = self._haversine(start, end)
-                path = [start, end]
-                return self._wrap(command, {"distance_m": distance, "path": path}, None)
-
+                return {"success": True, "output": self.bugout_map(start, end), "error": None}
             if command == "wipe_device":
-                target = Path(args.get("path", ""))
-                if not target.exists():
-                    return self._wrap(command, None, f"path not found: {target}")
-                if target.is_dir():
-                    shutil.rmtree(target)
-                else:
-                    target.unlink()
-                return self._wrap(command, {"deleted": str(target)}, None)
-
-            return self._wrap(command or "", None, f"unknown command '{command}'")
+                return {"success": True, "output": self.wipe_device(args.get("path", "")), "error": None}
+            if command == "supply_run":
+                return {
+                    "success": True,
+                    "output": self.calculate_supply_run(int(args.get("days", 3)), int(args.get("people", 1))),
+                    "error": None,
+                }
+            if command == "medical_summary":
+                return {"success": True, "output": self.medical_summary(list(args.get("entries", []))), "error": None}
+            raise ValueError(f"unknown command '{command}'")
         except Exception as exc:  # noqa: BLE001
-            return self._wrap(command or "", None, str(exc))
+            return {"success": False, "output": None, "error": str(exc)}
 
-    def _wrap(
-        self, command: str, details: Dict[str, Any] | None, error: str | None
-    ) -> Dict[str, Any]:
-        success = error is None
-        summary = (
-            f"Riven completed '{command}'" if success else f"Riven failed '{command}': {error}"
-        )
-        try:
-            with self._platform_log.open("a", encoding="utf-8") as fh:
-                fh.write(
-                    json.dumps({"command": command, "success": success, "error": error}) + "\n"
-                )
-        except Exception:
-            pass
-        return {
-            "success": success,
-            "output": {
-                "summary": summary,
-                "details": details or {},
-                "logs_path": str(self._platform_log),
-            },
-            "error": error,
-        }
-
-    def emergency_contact(self, name: str, phone: str) -> Dict[str, Any]:
-        """Store or return an emergency contact card."""
-        entry = {"name": name, "phone": phone}
-        self._append_json("contacts.json", entry)
-        return self._wrap("emergency_contact", entry, None)
-
-    def build_med_pack(self, context: str = "home") -> Dict[str, Any]:
-        """Provide a basic med pack checklist for the context."""
-        base = ["bandages", "antiseptic", "gloves", "analgesic", "gauze", "tape"]
-        if context == "travel":
-            base += ["electrolytes", "antiemetic", "antihistamine"]
-        return self._wrap("build_med_pack", {"context": context, "items": base}, None)

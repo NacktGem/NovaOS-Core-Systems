@@ -1,9 +1,27 @@
 SHELL := /bin/bash
 
-.PHONY: dev stop logs db-shell ps up down backup verify-backups migrate seed
+# Platform detection
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+    PLATFORM := mac
+else ifeq ($(OS),Windows_NT)
+    PLATFORM := windows
+else
+    PLATFORM := linux
+endif
+
+.PHONY: dev dev-mac dev-win stop logs db-shell ps up down backup verify-backups migrate seed
 
 dev:
 	docker compose --profile app --profile infra up --build
+
+dev-mac:
+	@echo "🍎 Starting NovaOS development on macOS..."
+	docker compose --profile app --profile infra up --build
+
+dev-win:
+	@echo "🪟 Starting NovaOS development on Windows..."
+	powershell -ExecutionPolicy Bypass -File scripts/dev.ps1
 
 stop:
 	docker compose down

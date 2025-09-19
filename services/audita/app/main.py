@@ -18,18 +18,20 @@ import asyncio
 import socket
 import hashlib
 import shutil
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict
 
 import psycopg  # type: ignore
 from psycopg.rows import dict_row  # type: ignore
-from fastapi import FastAPI, UploadFile, Form, HTTPException
+from fastapi import Depends, FastAPI, UploadFile, Form, HTTPException, Request, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from env.identity import load_identity, CONFIG_PATH  # type: ignore
 from agents.audita.agent import AuditaAgent  # type: ignore
+from agents.common.security import IdentityClaims, authorize_headers, JWTVerificationError
 
 
 class RunJob(BaseModel):
@@ -49,9 +51,31 @@ SERVICE_NAME = "audita"
 GIT_COMMIT = os.getenv("GIT_COMMIT", "unknown")
 CORE_API_URL = os.getenv("CORE_API_URL", "http://core-api:8000")
 AGENT_TOKEN = os.getenv("AGENT_SHARED_TOKEN", "")
-SERVICE_VERSION = IDENTITY.get("version", os.getenv("AUDITA_VERSION", "0.0.0"))
+INTERNAL_TOKEN = os.getenv("INTERNAL_TOKEN", "")
 
 _agent = AuditaAgent()
+
+_required_roles = {
+    role.strip().lower()
+    for role in os.getenv("AUDITA_REQUIRED_ROLES", "godmode,superadmin").split(",")
+    if role.strip()
+}
+
+
+def require_identity(request: Request) -> IdentityClaims:
+    try:
+        roles = _required_roles or None
+        return authorize_headers(request.headers, required_roles=roles)
+    except JWTVerificationError as exc:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)) from exc
+
+
+def enforce_internal_token(request: Request) -> None:
+    if not INTERNAL_TOKEN:
+        return
+    token = request.headers.get("x-internal-token")
+    if token != INTERNAL_TOKEN:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="internal access only")
 
 
 @app.on_event("startup")
@@ -67,12 +91,14 @@ async def shutdown_event() -> None:
 
 
 @app.get("/internal/healthz")
-async def internal_healthz() -> JSONResponse:
+async def internal_healthz(request: Request) -> JSONResponse:
+    enforce_internal_token(request)
     return JSONResponse({"status": "ok"})
 
 
 @app.get("/internal/readyz")
-async def internal_readyz() -> JSONResponse:
+async def internal_readyz(request: Request) -> JSONResponse:
+    enforce_internal_token(request)
     return JSONResponse({"status": "ok"})
 
 
@@ -81,7 +107,7 @@ async def version() -> Dict[str, Any]:
     return {
         "service": SERVICE_NAME,
         "name": IDENTITY.get("name", "NovaOS"),
-        "version": SERVICE_VERSION,
+        "version": IDENTITY.get("version", os.getenv("AUDITA_VERSION", "0.0.0")),
         "commit": GIT_COMMIT,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
@@ -95,12 +121,23 @@ async def status_page() -> Dict[str, Any]:
 
 
 @app.post("/run")
-async def run(job: RunJob) -> Dict[str, Any]:
+async def run(job: RunJob, identity: IdentityClaims = Depends(require_identity)) -> Dict[str, Any]:
+    request_id = uuid.uuid4().hex
     try:
-        payload = {"command": job.command, "args": job.args}
-        return _agent.run(payload)
+        payload = {
+            "command": job.command,
+            "args": job.args,
+            "requested_by": {
+                "subject": identity.subject,
+                "email": identity.email,
+                "role": identity.role,
+            },
+        }
+        result = _agent.run(payload)
+        result.setdefault("request_id", request_id)
+        return result
     except Exception as e:  # noqa: BLE001
-        return {"success": False, "output": None, "error": str(e)}
+        return {"success": False, "output": None, "error": str(e), "request_id": request_id}
 
 
 async def _heartbeat_loop() -> None:

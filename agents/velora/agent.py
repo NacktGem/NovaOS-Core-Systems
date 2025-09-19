@@ -1,185 +1,145 @@
 """Velora agent: analytics and business automation."""
-
 from __future__ import annotations
 
 import csv
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from statistics import mean
+from typing import Any, Dict, Iterable, List, Sequence
 
-from agents.base import BaseAgent, resolve_platform_log
-
-# Optional analytics tools:
-# REQUIRES pandas — Not installed by default
-#   pip install pandas
+from agents.base import BaseAgent
+from agents.common.alog import info
 
 
 class VeloraAgent(BaseAgent):
+    """Transforms Nova's business telemetry into action."""
+
     def __init__(self) -> None:
+        """Prepare storage for scheduled campaigns and exports."""
         super().__init__("velora", description="Business analytics agent")
         self._log_dir = Path("logs/velora")
         self._log_dir.mkdir(parents=True, exist_ok=True)
-        self._platform_log = resolve_platform_log("velora")
 
-    def _log(self, entry: Dict[str, Any]) -> None:
-        try:
-            self._platform_log.write_text(
-                (
-                    self._platform_log.read_text(encoding="utf-8")
-                    if self._platform_log.exists()
-                    else ""
-                )
-                + json.dumps(entry)
-                + "\n",
-                encoding="utf-8",
-            )
-        except Exception:
-            pass
-
-    def _wrap(
-        self, command: str, details: Dict[str, Any] | None, error: str | None
-    ) -> Dict[str, Any]:
-        success = error is None
-        summary = (
-            f"Velora completed '{command}'" if success else f"Velora failed '{command}': {error}"
-        )
-        self._log({"command": command, "success": success, "error": error})
+    def generate_report(self, metrics: Dict[str, float]) -> Dict[str, Any]:
+        """Summarize numeric metrics with total, average, and ranking."""
+        total = sum(metrics.values())
+        ranking = sorted(metrics.items(), key=lambda item: item[1], reverse=True)
         return {
-            "success": success,
-            "output": {
-                "summary": summary,
-                "details": details or {},
-                "logs_path": str(self._platform_log),
-            },
-            "error": error,
+            "total": total,
+            "average": total / len(metrics) if metrics else 0.0,
+            "metrics": metrics,
+            "leaders": ranking[:3],
         }
 
-    def run(self, payload: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute Velora analytics operations.
+    def schedule_post(self, content: str, when: str) -> Dict[str, Any]:
+        """Persist scheduled campaign posts with ISO timestamps."""
+        when_dt = datetime.fromisoformat(when)
+        schedule_file = self._log_dir / "schedule.json"
+        entries: List[Dict[str, Any]] = []
+        if schedule_file.exists():
+            entries = json.loads(schedule_file.read_text(encoding="utf-8"))
+        entry = {"content": content, "when": when_dt.isoformat()}
+        entries.append(entry)
+        schedule_file.write_text(json.dumps(entries, ensure_ascii=False, indent=2), encoding="utf-8")
+        return entry
 
-        Common commands include generate_report, schedule_post, forecast_revenue,
-        crm_export, ad_generate, analyze_dataset.
-        """
+    def forecast_revenue(self, history: Sequence[float]) -> Dict[str, float]:
+        """Project next-period revenue using simple momentum and average growth."""
+        if len(history) < 2:
+            raise ValueError("history requires at least two points")
+        momentum = history[-1] - history[-2]
+        avg_growth = mean(
+            history[i + 1] - history[i] for i in range(len(history) - 1)
+        )
+        forecast = history[-1] + (momentum + avg_growth) / 2
+        return {"forecast": forecast, "momentum": momentum, "avg_growth": avg_growth}
+
+    def export_crm(self, clients: Iterable[Dict[str, Any]]) -> Dict[str, Any]:
+        """Export CRM roster to CSV for sovereign records."""
+        path = self._log_dir / "crm.csv"
+        with path.open("w", newline="", encoding="utf-8") as fh:
+            writer = csv.DictWriter(fh, fieldnames=["name", "email", "tier"])
+            writer.writeheader()
+            for client in clients:
+                writer.writerow(
+                    {
+                        "name": client.get("name"),
+                        "email": client.get("email"),
+                        "tier": client.get("tier", "standard"),
+                    }
+                )
+        return {"exported": str(path)}
+
+    def generate_ad_copy(self, product: str, audience: str) -> Dict[str, str]:
+        """Produce conversion-optimized copy for paid placements."""
+        copy = (
+            f"{audience.title()}, experience {product} — crafted for those who refuse compromise."
+        )
+        return {"ad": copy, "cta": "Book a private walkthrough"}
+
+    def segment_customers(self, clients: Iterable[Dict[str, Any]]) -> Dict[str, Any]:
+        """Cluster customers by spend bands for tailored nurture sequences."""
+        segments = {"sovereign": [], "growth": [], "drift": []}
+        for client in clients:
+            spend = float(client.get("lifetime_value", 0))
+            if spend >= 5000:
+                segments["sovereign"].append(client)
+            elif spend >= 1000:
+                segments["growth"].append(client)
+            else:
+                segments["drift"].append(client)
+        return {"segments": {k: len(v) for k, v in segments.items()}, "details": segments}
+
+    def calculate_ltv(self, monthly_spend: float, retention_months: int, margin: float = 0.6) -> Dict[str, float]:
+        """Compute lifetime value using deterministic gross margin."""
+        ltv = monthly_spend * retention_months * margin
+        return {"ltv": ltv, "margin": margin}
+
+    def funnel_health(self, stages: Dict[str, int]) -> Dict[str, Any]:
+        """Evaluate funnel conversion rates and flag drop-off points."""
+        ordered = ["impressions", "visits", "leads", "customers"]
+        conversions: Dict[str, float] = {}
+        alerts: List[str] = []
+        for i in range(len(ordered) - 1):
+            start, end = ordered[i], ordered[i + 1]
+            start_count, end_count = stages.get(start, 0), stages.get(end, 0)
+            rate = (end_count / start_count) if start_count else 0.0
+            conversions[f"{start}_to_{end}"] = rate
+            if start_count and rate < 0.05:
+                alerts.append(f"Severe drop between {start} and {end}")
+        return {"conversions": conversions, "alerts": alerts}
+
+    def run(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Route Velora commands to analytics routines."""
         command = payload.get("command")
         args = payload.get("args", {})
+        info("velora.command", {"command": command, "args": list(args.keys())})
         try:
             if command == "generate_report":
-                data: Dict[str, float] = args.get("data", {})
-                total = sum(data.values())
-                avg = total / len(data) if data else 0
-                details = {"total": total, "average": avg, "metrics": data}
-                return self._wrap(command, details, None)
-
+                return {"success": True, "output": self.generate_report(args.get("data", {})), "error": None}
             if command == "schedule_post":
-                content = args.get("content", "")
-                when = datetime.fromisoformat(args.get("when"))
-                schedule_file = self._log_dir / "schedule.json"
-                entries: List[Dict[str, Any]] = []
-                if schedule_file.exists():
-                    entries = json.loads(schedule_file.read_text(encoding="utf-8"))
-                entry = {"content": content, "when": when.isoformat()}
-                entries.append(entry)
-                schedule_file.write_text(
-                    json.dumps(entries, ensure_ascii=False, indent=2), encoding="utf-8"
-                )
-                return self._wrap(command, entry, None)
-
+                return {"success": True, "output": self.schedule_post(args.get("content", ""), args.get("when")), "error": None}
             if command == "forecast_revenue":
-                history: List[float] = args.get("history", [])
-                if len(history) < 2:
-                    raise ValueError("history requires at least two points")
-                growth = history[-1] - history[-2]
-                forecast = history[-1] + growth
-                return self._wrap(command, {"forecast": forecast}, None)
-
+                return {"success": True, "output": self.forecast_revenue(args.get("history", [])), "error": None}
             if command == "crm_export":
-                clients: List[Dict[str, Any]] = args.get("clients", [])
-                path = self._log_dir / "crm.csv"
-                with path.open("w", newline="", encoding="utf-8") as fh:
-                    writer = csv.DictWriter(fh, fieldnames=["name", "email"])
-                    writer.writeheader()
-                    for c in clients:
-                        writer.writerow({"name": c.get("name"), "email": c.get("email")})
-                return self._wrap(command, {"exported": str(path)}, None)
-
+                return {"success": True, "output": self.export_crm(args.get("clients", [])), "error": None}
             if command == "ad_generate":
-                product = args.get("product", "")
-                audience = args.get("audience", "")
-                copy = f"Attention {audience}! Experience the power of {product}."
-                return self._wrap(command, {"ad": copy}, None)
-
-            if command == "analyze_dataset":
-                # Accept CSV or JSON file
-                path = Path(args.get("path", ""))
-                if not path.is_file():
-                    return self._wrap(command, None, f"dataset not found: {path}")
-                # Try pandas for richer analysis
-                df = None
-                try:
-                    import pandas as pd  # type: ignore
-
-                    if path.suffix.lower() == ".csv":
-                        df = pd.read_csv(path)
-                    else:
-                        df = pd.read_json(path)
-                    summary = {
-                        "rows": int(df.shape[0]),
-                        "cols": int(df.shape[1]),
-                        "columns": list(map(str, df.columns)),
-                    }
-                    numeric = df.select_dtypes(include=["number"]).describe().to_dict()
-                    details = {"summary": summary, "numeric_stats": numeric}
-                    return self._wrap(command, details, None)
-                except Exception:
-                    # Lightweight fallback without pandas
-                    try:
-                        if path.suffix.lower() == ".csv":
-                            with path.open("r", encoding="utf-8") as fh:
-                                reader = csv.DictReader(fh)
-                                rows = list(reader)
-                                cols = reader.fieldnames or []
-                        else:
-                            rows = json.loads(path.read_text(encoding="utf-8"))
-                            if isinstance(rows, dict):
-                                rows = [rows]
-                            cols = list(rows[0].keys()) if rows else []
-                        details = {"rows": len(rows), "columns": cols[:50]}
-                        return self._wrap(command, details, None)
-                    except Exception as e:
-                        return self._wrap(command, None, str(e))
-
-            return self._wrap(command or "", None, f"unknown command '{command}'")
+                return {"success": True, "output": self.generate_ad_copy(args.get("product", ""), args.get("audience", "")), "error": None}
+            if command == "segment_customers":
+                return {"success": True, "output": self.segment_customers(args.get("clients", [])), "error": None}
+            if command == "calculate_ltv":
+                return {
+                    "success": True,
+                    "output": self.calculate_ltv(
+                        float(args.get("monthly_spend", 0.0)),
+                        int(args.get("retention_months", 1)),
+                        float(args.get("margin", 0.6)),
+                    ),
+                    "error": None,
+                }
+            if command == "funnel_health":
+                return {"success": True, "output": self.funnel_health(args.get("stages", {})), "error": None}
+            raise ValueError(f"unknown command '{command}'")
         except Exception as exc:  # noqa: BLE001
-            return self._wrap(command or "", None, str(exc))
-
-    def generate_funnel_report(self, events: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Compute a simple conversion funnel from event data."""
-        stages = ["view", "click", "signup", "purchase"]
-        counts = {s: 0 for s in stages}
-        for e in events:
-            s = str(e.get("stage", "")).lower()
-            if s in counts:
-                counts[s] += 1
-        return self._wrap("generate_funnel_report", {"stages": counts}, None)
-
-    def segment_audience(self, users: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Segment users by rough activity level."""
-        segments = {"low": 0, "medium": 0, "high": 0}
-        for u in users:
-            a = int(u.get("activity", 0))
-            if a >= 80:
-                segments["high"] += 1
-            elif a >= 30:
-                segments["medium"] += 1
-            else:
-                segments["low"] += 1
-        return self._wrap("segment_audience", {"segments": segments}, None)
-
-    def forecast_kpis(self, history: Dict[str, List[float]]) -> Dict[str, Any]:
-        """Naive last-delta forecast per KPI."""
-        out: Dict[str, float] = {}
-        for k, series in history.items():
-            if len(series) >= 2:
-                out[k] = series[-1] + (series[-1] - series[-2])
-        return self._wrap("forecast_kpis", {"forecast": out}, None)
+            return {"success": False, "output": None, "error": str(exc)}
