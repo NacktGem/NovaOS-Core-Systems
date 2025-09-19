@@ -37,10 +37,10 @@ ps:
 	docker compose ps
 
 up:
-	docker compose --profile prod up -d --build
+	docker compose --profile app --profile infra up -d --build
 
 down:
-	docker compose --profile prod down
+	docker compose --profile app --profile infra down
 
 backup:
 	./scripts/backup.sh
