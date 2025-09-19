@@ -341,6 +341,79 @@ jobs:
           docker stop nova-velora-test || true
           docker rm nova-velora-test || true
 
+  nova-orchestrator-smoke-test:
+    name: nova-orchestrator-smoke-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Check required files
+        id: gate
+        shell: bash
+        run: |
+          missing=0
+          for f in env/config.json secrets/dev_jwt_private.pem secrets/dev_jwt_public.pem; do
+            if [ ! -f "$f" ]; then
+              echo "Missing $f"
+              missing=1
+            fi
+          done
+          if [ "$missing" -eq 0 ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build nova-orchestrator image (prod)
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker build -f services/nova-orchestrator/Dockerfile -t nova-orchestrator-prod:ci .
+
+      - name: Run container
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker run -d --name nova-orchestrator-test -p 9400:8000 \
+            -v ${{ github.workspace }}/env/config.json:/app/env/config.json:ro \
+            -v ${{ github.workspace }}/secrets/dev_jwt_private.pem:/run/secrets/dev_jwt_private:ro \
+            -v ${{ github.workspace }}/secrets/dev_jwt_public.pem:/run/secrets/dev_jwt_public:ro \
+            -e JWT_PRIVATE_KEY_PATH=/run/secrets/dev_jwt_private \
+            -e JWT_PUBLIC_KEY_PATH=/run/secrets/dev_jwt_public \
+            -e AGENT_SHARED_TOKEN=devtoken \
+            -e HOST=0.0.0.0 \
+            -e PORT=8000 \
+            -e APP_MODULE=app.main:app \
+            nova-orchestrator-prod:ci
+
+      - name: Wait for service to be ready
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          for i in {1..20}; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9400/internal/healthz || true)
+            if [ "$code" = "200" ]; then
+              echo "Service healthy"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Service failed to become healthy"
+          docker logs nova-orchestrator-test || true
+          exit 1
+
+      - name: Assert identity log present
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          docker logs nova-orchestrator-test | grep "\[NovaOS\] identity loaded from /app/env/config.json"
+
+      - name: Stop and remove container
+        if: always()
+        run: |
+          docker stop nova-orchestrator-test || true
+          docker rm nova-orchestrator-test || true
+
   riven-smoke-test:
     name: riven-smoke-test
     runs-on: ubuntu-latest

@@ -1,117 +1,153 @@
 """Audita agent: compliance and legal checks."""
+
 from __future__ import annotations
 
 import csv
 import re
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Sequence
+from typing import Any, Dict, List
 
-from agents.base import BaseAgent
-from agents.common.alog import info
+from agents.base import BaseAgent, resolve_platform_log
+
+# Optional tools for deeper validation:
+# REQUIRES face_recognition or opencv-python — Not installed by default
+#   pip install face_recognition  # requires dlib system deps
+#   or: pip install opencv-python
+# REQUIRES PyPDF2 — Not installed by default
+#   pip install PyPDF2
 
 
 class AuditaAgent(BaseAgent):
-    """Performs compliance scans, consent validation, and legal exports."""
+    """Performs compliance scans and audit exports."""
 
     def __init__(self) -> None:
-        """Initialize sovereign compliance log paths."""
         super().__init__("audita", description="Compliance and audit agent")
-        self._log_dir = Path("logs/legal")
-        self._log_dir.mkdir(parents=True, exist_ok=True)
+        self._platform_log = resolve_platform_log("audita")
 
-    def validate_consent(self, files: Sequence[str]) -> Dict[str, Any]:
-        """Verify presence of required consent artifacts."""
-        paths = [Path(p) for p in files]
-        missing = [str(p) for p in paths if not p.exists()]
-        return {"valid": not missing, "missing": missing}
+    def _log(self, entry: Dict[str, Any]) -> None:
+        try:
+            with self._platform_log.open("a", encoding="utf-8") as fh:
+                fh.write(str(entry) + "\n")
+        except Exception:
+            pass
 
-    def gdpr_scan(self, data: str) -> Dict[str, Any]:
-        """Detect personal data signals such as emails for GDPR triage."""
-        pattern = r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+"
-        emails = re.findall(pattern, data or "")
-        return {"emails": emails, "violations": bool(emails)}
-
-    def generate_audit(self, entries: Iterable[Dict[str, Any]]) -> Dict[str, Any]:
-        """Persist audit trail entries to CSV for export."""
-        entries = list(entries)
-        path = self._log_dir / "audit.csv"
-        if entries:
-            with path.open("w", newline="", encoding="utf-8") as fh:
-                writer = csv.DictWriter(fh, fieldnames=list(entries[0].keys()))
-                writer.writeheader()
-                writer.writerows(entries)
-        info("audita.generate_audit", {"rows": len(entries), "path": str(path)})
-        return {"path": str(path), "rows": len(entries)}
-
-    def tax_report(self, income: Sequence[float], expenses: Sequence[float]) -> Dict[str, float]:
-        """Compute taxable income with transparent subtotals."""
-        total_income = sum(income)
-        total_expenses = sum(expenses)
-        taxable = total_income - total_expenses
-        return {"income": total_income, "expenses": total_expenses, "taxable": taxable}
-
-    def dmca_notice(self, claimant: str, work: str, url: str) -> Dict[str, str]:
-        """Draft a DMCA takedown notice body."""
-        notice = (
-            f"DMCA Notice\nClaimant: {claimant}\nWork: {work}\nURL: {url}\n"
-            "Please remove the infringing material."
+    def _wrap(
+        self, command: str, details: Dict[str, Any] | None, error: str | None
+    ) -> Dict[str, Any]:
+        success = error is None
+        summary = (
+            f"Audita completed '{command}'" if success else f"Audita failed '{command}': {error}"
         )
-        return {"notice": notice}
-
-    def review_contract_terms(self, text: str) -> Dict[str, Any]:
-        """Flag risky clauses (perpetual license, unilateral termination, NDA gaps)."""
-        flags = []
-        lowered = text.lower()
-        if "perpetual" in lowered and "license" in lowered:
-            flags.append("perpetual_license")
-        if "terminate" in lowered and "sole discretion" in lowered:
-            flags.append("unilateral_termination")
-        if "non-disclosure" not in lowered and "confidential" in lowered:
-            flags.append("missing_nda_language")
-        return {"flags": flags, "risk": "high" if "perpetual_license" in flags else "medium" if flags else "low"}
-
-    def assess_policy_alignment(self, policy: str) -> Dict[str, Any]:
-        """Evaluate policy text against Nova's Sovereign Standard pillars."""
-        pillars = {
-            "consent": ["consent", "opt-in", "revocable"],
-            "privacy": ["encryption", "retention", "anonymized"],
-            "safety": ["moderation", "reporting", "escalation"],
+        self._log({"command": command, "success": success, "error": error})
+        return {
+            "success": success,
+            "output": {
+                "summary": summary,
+                "details": details or {},
+                "logs_path": str(self._platform_log),
+            },
+            "error": error,
         }
-        matches: Dict[str, int] = {}
-        text = policy.lower()
-        for pillar, keywords in pillars.items():
-            matches[pillar] = sum(1 for keyword in keywords if keyword in text)
-        coverage = sum(1 for count in matches.values() if count)
-        return {"matches": matches, "coverage_score": coverage / len(pillars)}
 
     def run(self, payload: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute Audita compliance routines."""
+        """Execute compliance and audit commands.
+
+        Commands: validate_consent, gdpr_scan, generate_audit, tax_report, dmca_notice.
+        """
         command = payload.get("command")
         args = payload.get("args", {})
-        info("audita.command", {"command": command, "args": list(args.keys())})
         try:
             if command == "validate_consent":
-                return {"success": True, "output": self.validate_consent(args.get("files", [])), "error": None}
+                files = [Path(p) for p in args.get("files", [])]
+                missing = [str(p) for p in files if not p.exists()]
+                details: Dict[str, Any] = {"missing": missing}
+                # Timestamp check
+                ts = args.get("timestamp")
+                if ts:
+                    import datetime as _dt
+
+                    try:
+                        _ = _dt.datetime.fromisoformat(str(ts))
+                        details["timestamp_valid"] = True
+                    except Exception:
+                        details["timestamp_valid"] = False
+                # PDF completeness check if PyPDF2 present
+                pdfs = [p for p in files if p.suffix.lower() == ".pdf" and p.exists()]
+                if pdfs:
+                    try:
+                        import PyPDF2  # type: ignore
+
+                        forms = []
+                        for pdf in pdfs:
+                            with pdf.open("rb") as fh:
+                                reader = PyPDF2.PdfReader(fh)
+                                form = reader.metadata is not None
+                                forms.append(
+                                    {
+                                        "file": str(pdf),
+                                        "has_metadata": form,
+                                        "pages": len(reader.pages),
+                                    }
+                                )
+                        details["pdf_checks"] = forms
+                    except Exception:
+                        details["pdf_checks"] = "PyPDF2 not available"
+                details["valid"] = not missing and bool(details.get("timestamp_valid", True))
+                return self._wrap(command, details, None)
+
             if command == "gdpr_scan":
-                return {"success": True, "output": self.gdpr_scan(args.get("data", "")), "error": None}
+                data = args.get("data", "")
+                emails = re.findall(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+", data)
+                return self._wrap(command, {"emails": emails, "violations": bool(emails)}, None)
+
             if command == "generate_audit":
-                return {"success": True, "output": self.generate_audit(args.get("entries", [])), "error": None}
+                entries: List[Dict[str, Any]] = args.get("entries", [])
+                log_dir = Path("logs/legal")
+                log_dir.mkdir(parents=True, exist_ok=True)
+                path = log_dir / "audit.csv"
+                if entries:
+                    with path.open("w", newline="", encoding="utf-8") as fh:
+                        writer = csv.DictWriter(fh, fieldnames=entries[0].keys())
+                        writer.writeheader()
+                        writer.writerows(entries)
+                return self._wrap(command, {"path": str(path)}, None)
+
             if command == "tax_report":
-                return {
-                    "success": True,
-                    "output": self.tax_report(args.get("income", []), args.get("expenses", [])),
-                    "error": None,
-                }
+                income = sum(args.get("income", []))
+                expenses = sum(args.get("expenses", []))
+                taxable = income - expenses
+                return self._wrap(
+                    command, {"income": income, "expenses": expenses, "taxable": taxable}, None
+                )
+
             if command == "dmca_notice":
-                return {
-                    "success": True,
-                    "output": self.dmca_notice(args.get("claimant", ""), args.get("work", ""), args.get("infringing_url", "")),
-                    "error": None,
-                }
-            if command == "review_contract":
-                return {"success": True, "output": self.review_contract_terms(args.get("text", "")), "error": None}
-            if command == "policy_alignment":
-                return {"success": True, "output": self.assess_policy_alignment(args.get("text", "")), "error": None}
-            raise ValueError(f"unknown command '{command}'")
+                claimant = args.get("claimant", "")
+                work = args.get("work", "")
+                url = args.get("infringing_url", "")
+                # Simple required fields validation
+                errors: List[str] = []
+                for field, val in [("claimant", claimant), ("work", work), ("infringing_url", url)]:
+                    if not val:
+                        errors.append(f"missing {field}")
+                if errors:
+                    return self._wrap(command, None, "; ".join(errors))
+                notice = (
+                    f"DMCA Notice\nClaimant: {claimant}\nWork: {work}\nURL: {url}\n"
+                    "Please remove the infringing material."
+                )
+                return self._wrap(command, {"notice": notice}, None)
+
+            return self._wrap(command or "", None, f"unknown command '{command}'")
         except Exception as exc:  # noqa: BLE001
-            return {"success": False, "output": None, "error": str(exc)}
+            return self._wrap(command or "", None, str(exc))
+
+    def verify_consent_document(self, path: str) -> Dict[str, Any]:
+        """Placeholder: quick validation wrapper around validate_consent."""
+        p = Path(path)
+        ok = p.exists() and p.suffix.lower() in {".pdf", ".png", ".jpg", ".jpeg"}
+        return self._wrap("verify_consent_document", {"path": str(p), "ok": ok}, None)
+
+    def audit_tax_compliance(self, income: List[float], expenses: List[float]) -> Dict[str, Any]:
+        """Placeholder: summarized view of taxable amount."""
+        taxable = sum(income) - sum(expenses)
+        return self._wrap("audit_tax_compliance", {"taxable": taxable}, None)

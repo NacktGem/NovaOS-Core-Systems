@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "e2e": "tsx __e2e__/agent.spec.ts"
+    "e2e": "tsx __e2e__/agent.spec.ts",
+    "e2e:smoke": "tsx __e2e__/smoke.spec.ts"
   },
   "dependencies": {
     "react": "19.1.0",
@@ -24,6 +25,7 @@
     "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
-    "@eslint/eslintrc": "^3"
+    "@eslint/eslintrc": "^3",
+    "tsx": "^4"
   }
 }

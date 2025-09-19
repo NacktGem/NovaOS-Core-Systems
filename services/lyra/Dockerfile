@@ -6,9 +6,11 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
+  curl \
+  gcc \
+  tesseract-ocr \
+  libtesseract-dev \
+  && rm -rf /var/lib/apt/lists/*
 
 COPY core /app/core
 COPY env /app/env
@@ -17,12 +19,15 @@ COPY services/agent-core /app/agent_core
 COPY services/lyra /app/services/lyra
 
 RUN pip install --no-cache-dir \
-    fastapi==0.116.1 \
-    "uvicorn[standard]==0.35.0" \
-    pydantic==2.11.7 \
-    httpx==0.28.1 \
-    redis==5.0.1 \
-    orjson==3.10.3
+  fastapi==0.116.1 \
+  "uvicorn[standard]==0.35.0" \
+  pydantic==2.11.7 \
+  httpx==0.28.1 \
+  redis==5.0.1 \
+  orjson==3.10.3 \
+  pillow==10.4.0 \
+  pytesseract==0.3.13 \
+  openai==1.43.0
 
 RUN chmod -R a+rX /app/env || true
 
