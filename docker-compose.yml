@@ -155,27 +155,6 @@ services:
       - nova_net
     profiles: ['app']
 
-  web-shell:
-    build:
-      context: .
-      dockerfile: apps/web-shell/Dockerfile
-    container_name: nova-web-shell
-    env_file: [.env]
-    environment:
-      NODE_ENV: production
-      PORT: 3002
-      CORE_API_URL: ${CORE_API_URL:-http://core-api:8000}
-      NOVAOS_BASE_URL: ${NOVAOS_BASE_URL:-http://novaos:3001}
-    ports:
-      - '3002:3002'
-    depends_on:
-      core-api:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - nova_net
-    profiles: ['app']
-
   # -------------------- AGENTS --------------------
   agent-nova:
     build:

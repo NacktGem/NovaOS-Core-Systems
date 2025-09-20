@@ -9,6 +9,7 @@ from app.routes import (
     analytics,
     agents,
     auth,
+    compliance,
     consent,
     dmca,
     internal,
@@ -18,6 +19,7 @@ from app.routes import (
     payments,
     platform,
     rooms,
+    stripe_integration,
 )
 from app.api.v1.agent import router as agent_router
 
@@ -80,6 +82,8 @@ app.add_middleware(CSRFMiddleware)
 app.include_router(auth.router)
 app.include_router(palettes.router)
 app.include_router(payments.router)
+app.include_router(stripe_integration.router)
+app.include_router(compliance.router)
 app.include_router(rooms.router)
 app.include_router(messages.router)
 app.include_router(consent.router)

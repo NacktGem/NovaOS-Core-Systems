@@ -28,6 +28,7 @@ dependencies = [
   "starlette-context==0.3.6",                  # Middleware for request-level context (like req.id)
   "httpx==0.28.1",                             # Async HTTP client (used by agents)
   "prometheus-client==0.15.0",                # Prometheus metrics for /metrics endpoint
+  "stripe==11.1.0",                           # Stripe payment processing
   "pydantic-settings==2.10.1",
 ]
 
