@@ -32,6 +32,8 @@ import AnalyticsFeed from './analytics-feed';
 import ConsentLedger from './consent-ledger';
 import FlagPanel from './flag-panel';
 import GodVault from './god-vault';
+import GodModeCreatorProductivity from './god-creator-productivity';
+import AuditControlPanel from './audit-control-panel';
 import CompliancePanel from './compliance-panel';
 import SystemAnalytics from './system-analytics';
 import RolePermissionPanel from './role-permission-panel';
@@ -155,6 +157,8 @@ export default async function GodModeDashboard() {
               </header>
               <HealthPanel />
               <GodVault />
+              <GodModeCreatorProductivity />
+              <AuditControlPanel />
               <SystemAnalytics />
               <CompliancePanel />
               <RolePermissionPanel />

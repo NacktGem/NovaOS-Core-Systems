@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "generated_at": "2025-09-19T22:56:26.774424",
+    "audit_suite_version": "1.0.0",
+    "total_findings": 20
+  },
+  "findings": [
+    {
+      "id": "black_rose_collective_missing_strict_transport_security",
+      "title": "Missing Strict-Transport-Security Header",
+      "description": "The Strict-Transport-Security security header is not present",
+      "category": 

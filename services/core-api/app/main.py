@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.middleware.rate_limit import LoginRateLimit
 from app.middleware.request_id import RequestIDMiddleware
+from app.middleware.audit import AuditMiddleware
 from app.security.csrf import CSRFMiddleware
 from app.routes import (
     analytics,
@@ -20,6 +21,7 @@ from app.routes import (
     platform,
     rooms,
     stripe_integration,
+    system_audit,
 )
 from app.api.v1.agent import router as agent_router
 
@@ -75,6 +77,17 @@ app.add_middleware(
 )
 
 redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+
+# Add audit middleware first (before other middleware for comprehensive logging)
+try:
+    import redis.asyncio as redis
+
+    redis_client = redis.from_url(redis_url)
+    app.add_middleware(AuditMiddleware, redis_client=redis_client)
+except ImportError:
+    # Redis not available, use database-only audit middleware
+    app.add_middleware(AuditMiddleware, redis_client=None)
+
 app.add_middleware(LoginRateLimit, redis_url=redis_url)
 app.add_middleware(RequestIDMiddleware)
 app.add_middleware(CSRFMiddleware)
@@ -95,6 +108,7 @@ app.include_router(agents.router)
 app.include_router(agent_router)
 app.include_router(logs.router)
 app.include_router(platform.router)
+app.include_router(system_audit.router)
 
 # --- Sovereign Standard: /version ---
 from datetime import datetime, timezone  # noqa: E402

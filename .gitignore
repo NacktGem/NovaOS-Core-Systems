@@ -120,3 +120,15 @@ ai_models/
 *.onnx
 *.tar.gz
 *.zip
+
+# Security - Never commit these files
+.env.staging
+secrets/
+keys/*.pem
+keys/*.key
+temp_tokens.txt
+local_security_audit_report.json
+*_backup/
+# Generated security files
+nginx-security-headers.conf
+security_hardening_backup/

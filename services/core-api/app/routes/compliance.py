@@ -18,8 +18,9 @@ from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy.orm import Session
 
 # Import your database and auth dependencies
-# from app.database import get_db
-# from app.auth import get_current_user
+from app.db.base import get_session
+from app.security.jwt import get_current_user
+from app.db.models import User
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/compliance", tags=["compliance"])
@@ -308,7 +309,10 @@ async def get_dmca_status(dmca_id: str):
 
 # Legal Compliance Dashboard
 @router.get("/dashboard/summary")
-async def get_compliance_dashboard():
+async def get_compliance_dashboard(
+    user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
     """
     Get compliance dashboard summary for administrators.
 
@@ -318,6 +322,11 @@ async def get_compliance_dashboard():
     - DMCA requests
     - Compliance alerts
     """
+    # Restrict to admin+ roles only
+    if user.role not in ["godmode", "superadmin", "admin"]:
+        raise HTTPException(
+            status_code=403, detail="Admin access required for compliance dashboard"
+        )
     return {
         "age_verification": {
             "total_verified": 1250,

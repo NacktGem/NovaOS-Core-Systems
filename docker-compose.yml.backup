@@ -63,13 +63,14 @@ services:
       JWT_PRIVATE_KEY_PATH: ${JWT_PRIVATE_KEY_PATH:-/run/secrets/dev_jwt_private.pem}
       JWT_PUBLIC_KEY_PATH: ${JWT_PUBLIC_KEY_PATH:-/run/secrets/dev_jwt_public.pem}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
+      ECHO_INTERNAL_TOKEN: ${ECHO_INTERNAL_TOKEN}
     secrets:
       - dev_jwt_private
       - dev_jwt_public
     volumes:
       - ./logs:/app/logs
     ports:
-      - '8760:8760'
+      - '9760:8000'
     depends_on:
       db:
         condition: service_healthy
@@ -79,7 +80,7 @@ services:
     networks:
       - nova_net
     healthcheck:
-      test: ['CMD-SHELL', 'curl -f http://localhost:8760/internal/healthz || exit 1']
+      test: ['CMD-SHELL', 'curl -f http://localhost:8000/internal/healthz || exit 1']
       interval: 5s
       timeout: 3s
       retries: 12
@@ -92,12 +93,13 @@ services:
     container_name: nova-echo
     env_file: [.env]
     environment:
-      CORE_API_URL: ${CORE_API_URL:-http://core-api:8760}
+      CORE_API_URL: ${CORE_API_URL:-http://core-api:8000}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      JWT_PUBLIC_KEY_PATH: ${JWT_PUBLIC_KEY_PATH}
     volumes:
       - ./logs:/app/logs
     ports:
-      - '8765:8765'
+      - '9765:8000'
     depends_on:
       core-api:
         condition: service_healthy
@@ -107,7 +109,7 @@ services:
     networks:
       - nova_net
     healthcheck:
-      test: ['CMD-SHELL', 'curl -f http://localhost:8765/health || exit 1']
+      test: ['CMD-SHELL', 'curl -f http://localhost:8000/healthz || exit 1']
       interval: 5s
       timeout: 3s
       retries: 8
@@ -121,7 +123,7 @@ services:
     env_file: [.env]
     environment:
       NODE_ENV: production
-      CORE_API_URL: ${CORE_API_URL:-http://core-api:8760}
+      CORE_API_URL: ${CORE_API_URL:-http://core-api:8000}
       NOVAOS_BASE_URL: ${NOVAOS_BASE_URL:-http://novaos:3001}
     ports:
       - '3000:3000'
@@ -141,7 +143,7 @@ services:
     env_file: [.env]
     environment:
       NODE_ENV: production
-      CORE_API_URL: ${CORE_API_URL:-http://core-api:8760}
+      CORE_API_URL: ${CORE_API_URL:-http://core-api:8000}
       NOVAOS_BASE_URL: ${NOVAOS_BASE_URL:-http://localhost:3001}
     ports:
       - '3001:3001'
@@ -153,32 +155,11 @@ services:
       - nova_net
     profiles: ['app']
 
-  web-shell:
-    build:
-      context: .
-      dockerfile: apps/web-shell/Dockerfile
-    container_name: nova-web-shell
-    env_file: [.env]
-    environment:
-      NODE_ENV: production
-      PORT: 3002
-      CORE_API_URL: ${CORE_API_URL:-http://core-api:8760}
-      NOVAOS_BASE_URL: ${NOVAOS_BASE_URL:-http://novaos:3001}
-    ports:
-      - '3002:3002'
-    depends_on:
-      core-api:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - nova_net
-    profiles: ['app']
-
   # -------------------- AGENTS --------------------
   agent-nova:
     build:
       context: .
-      dockerfile: build/dockerfiles/agent.nova.Dockerfile
+      dockerfile: agents/nova/Dockerfile
     image: ghcr.io/nacktgem/novaos-agent-nova:latest
     restart: unless-stopped
     profiles: ['agents']
@@ -208,7 +189,7 @@ services:
   agent-lyra:
     build:
       context: .
-      dockerfile: build/dockerfiles/agent.lyra.Dockerfile
+      dockerfile: agents/lyra/Dockerfile
     image: ghcr.io/nacktgem/novaos-agent-lyra:latest
     restart: unless-stopped
     profiles: ['agents']
@@ -238,7 +219,7 @@ services:
   agent-velora:
     build:
       context: .
-      dockerfile: build/dockerfiles/agent.velora.Dockerfile
+      dockerfile: agents/velora/Dockerfile
     image: ghcr.io/nacktgem/novaos-agent-velora:latest
     restart: unless-stopped
     profiles: ['agents']
@@ -268,7 +249,7 @@ services:
   agent-glitch:
     build:
       context: .
-      dockerfile: build/dockerfiles/agent.glitch.Dockerfile
+      dockerfile: agents/glitch/Dockerfile
     image: ghcr.io/nacktgem/novaos-agent-glitch:latest
     restart: unless-stopped
     profiles: ['agents']
@@ -298,7 +279,7 @@ services:
   agent-echo:
     build:
       context: .
-      dockerfile: build/dockerfiles/agent.echo.Dockerfile
+      dockerfile: agents/echo/Dockerfile
     image: ghcr.io/nacktgem/novaos-agent-echo:latest
     restart: unless-stopped
     profiles: ['agents']
@@ -354,7 +335,7 @@ services:
   agent-riven:
     build:
       context: .
-      dockerfile: build/dockerfiles/agent.riven.Dockerfile
+      dockerfile: agents/riven/Dockerfile
     image: ghcr.io/nacktgem/novaos-agent-riven:latest
     restart: unless-stopped
     profiles: ['agents']
@@ -384,7 +365,7 @@ services:
   agent-audita:
     build:
       context: .
-      dockerfile: build/dockerfiles/agent.audita.Dockerfile
+      dockerfile: agents/audita/Dockerfile
     image: ghcr.io/nacktgem/novaos-agent-audita:latest
     restart: unless-stopped
     profiles: ['agents']
