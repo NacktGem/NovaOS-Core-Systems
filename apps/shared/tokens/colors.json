@@ -1,0 +1,678 @@
+{
+  "css_hex_0": {
+    "value": "#ffffff",
+    "sources": [
+      ".venv/lib/python3.12/site-packages/mypy/xml/mypy-html.css",
+      "apps/gypsy-cove/app/globals.css",
+      "apps/novaos/app/globals.css",
+      "apps/web-shell/app/globals.css"
+    ],
+    "tags": [
+      "hex"
+    ]
+  },
+  "css_hex_1": {
+    "value": "#171717",
+    "sources": [
+      ".venv/lib/python3.12/site-packages/mypy/xml/mypy-html.css",
+      "apps/gypsy-cove/app/globals.css",
+      "apps/novaos/app/globals.css",
+      "apps/web-shell/app/globals.css"
+    ],
+    "tags": [
+      "hex"
+    ]
+  },
+  "css_hex_2": {
+    "value": "#0a0a0a",
+    "sources": [
+      ".venv/lib/python3.12/site-packages/mypy/xml/mypy-html.css",
+      "apps/gypsy-cove/app/globals.css",
+      "apps/novaos/app/globals.css",
+      "apps/web-shell/app/globals.css"
+    ],
+    "tags": [
+      "hex"
+    ]
+  },
+  "css_hex_3": {
+    "value": "#ededed",
+    "sources": [
+      ".venv/lib/python3.12/site-packages/mypy/xml/mypy-html.css",
+      "apps/gypsy-cove/app/globals.css",
+      "apps/novaos/app/globals.css",
+      "apps/web-shell/app/globals.css"
+    ],
+    "tags": [
+      "hex"
+    ]
+  },
+  "css_hex_4": {
+    "value": "#999",
+    "sources": [
+      ".venv/lib/python3.12/site-packages/mypy/xml/mypy-html.css"
+    ],
+    "tags": [
+      "hex"
+    ]
+  },
+  "css_hex_5": {
+    "value": "#000",
+    "sources": [
+      ".venv/lib/python3.12/site-packages/mypy/xml/mypy-html.css"
+    ],
+    "tags": [
+      "hex"
+    ]
+  },
+  "background": {
+    "value": "#0a0a0a",
+    "sources": [
+      "apps/gypsy-cove/app/globals.css",
+      "apps/novaos/app/globals.css",
+      "apps/novaos/app/not-found.tsx",
+      "apps/web-shell/app/globals.css"
+    ],
+    "tags": [
+      "css-var",
+      "js-prop"
+    ]
+  },
+  "foreground": {
+    "value": "#ededed",
+    "sources": [
+      "apps/gypsy-cove/app/globals.css",
+      "apps/novaos/app/globals.css",
+      "apps/web-shell/app/globals.css"
+    ],
+    "tags": [
+      "css-var"
+    ]
+  },
+  "color": {
+    "value": "#A33A5B",
+    "sources": [
+      "apps/novaos/app/not-found.tsx",
+      "apps/novaos/components/health-panel.tsx"
+    ],
+    "tags": [
+      "js-prop"
+    ]
+  },
+  "rosemauve": {
+    "value": "#A33A5B",
+    "sources": [
+      "apps/novaos/components/health-panel.tsx"
+    ],
+    "tags": [
+      "js-prop"
+    ]
+  },
+  "deeprosewood": {
+    "value": "#89333F",
+    "sources": [
+      "apps/novaos/components/health-panel.tsx"
+    ],
+    "tags": [
+      "js-prop"
+    ]
+  },
+  "bloodbrown": {
+    "value": "#431D21",
+    "sources": [
+      "apps/novaos/components/health-panel.tsx"
+    ],
+    "tags": [
+      "js-prop"
+    ]
+  },
+  "trueblack": {
+    "value": "#000003",
+    "sources": [
+      "apps/novaos/components/health-panel.tsx"
+    ],
+    "tags": [
+      "js-prop"
+    ]
+  },
+  "midnightnavy": {
+    "value": "#19212A",
+    "sources": [
+      "apps/novaos/components/health-panel.tsx"
+    ],
+    "tags": [
+      "js-prop"
+    ]
+  },
+  "deepteal": {
+    "value": "#013E43",
+    "sources": [
+      "apps/novaos/components/health-panel.tsx"
+    ],
+    "tags": [
+      "js-prop"
+    ]
+  },
+  "emerald": {
+    "value": "#0CE7A1",
+    "sources": [
+      "apps/novaos/components/health-panel.tsx"
+    ],
+    "tags": [
+      "js-prop"
+    ]
+  },
+  "signal": {
+    "value": "#E66F5C",
+    "sources": [
+      "apps/novaos/components/health-panel.tsx"
+    ],
+    "tags": [
+      "js-prop"
+    ]
+  },
+  "admin_alert": {
+    "value": "#f59e0b",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "admin_control": {
+    "value": "#06b6d4",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "admin_danger": {
+    "value": "#ef4444",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "phantom_accent": {
+    "value": "#8b5cf6",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "phantom_glow": {
+    "value": "#a78bfa",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "phantom_shadow": {
+    "value": "#6d28d9",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "status_info_main": {
+    "value": "#3b82f6",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "status_info_light": {
+    "value": "#dbeafe",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "status_info_dark": {
+    "value": "#1d4ed8",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "status_danger_main": {
+    "value": "#ef4444",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "status_danger_light": {
+    "value": "#fee2e2",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "status_danger_dark": {
+    "value": "#dc2626",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "status_warning_main": {
+    "value": "#f59e0b",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "status_warning_light": {
+    "value": "#fef3c7",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "status_warning_dark": {
+    "value": "#d97706",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "status_success_main": {
+    "value": "#10b981",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "status_success_light": {
+    "value": "#d1fae5",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "status_success_dark": {
+    "value": "#047857",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "studios_ciphercore_cyberblue": {
+    "value": "#06b6d4",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "studios_ciphercore_neon": {
+    "value": "#10b981",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "studios_ciphercore_slate": {
+    "value": "#334155",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "studios_ciphercore_emerald": {
+    "value": "#0CE7A1",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "studios_expression_orchid": {
+    "value": "#c084fc",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "studios_expression_violet": {
+    "value": "#8b5cf6",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "studios_expression_ivory": {
+    "value": "#fffbeb",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "studios_inksteel_iron": {
+    "value": "#6b7280",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "studios_inksteel_steel": {
+    "value": "#4b5563",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "studios_inksteel_graphite": {
+    "value": "#374151",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "studios_inksteel_silver": {
+    "value": "#d1d5db",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "studios_inksteel_neutral": {
+    "value": "#999",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "studios_lightboxstudio_platinum": {
+    "value": "#e5e7eb",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "studios_lightboxstudio_pearl": {
+    "value": "#f9fafb",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "studios_lightboxstudio_studiolight": {
+    "value": "#ffffff",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "studios_scarletstudio_crimson": {
+    "value": "#dc2626",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "studios_scarletstudio_wine": {
+    "value": "#7f1d1d",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "studios_scarletstudio_blush": {
+    "value": "#fecaca",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "studios_scarletstudio_signal": {
+    "value": "#E66F5C",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "novaos_bluelight": {
+    "value": "#f0f4ff",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "novaos_bluedark": {
+    "value": "#1d4ed8",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "novaos_lavender": {
+    "value": "#e4e4ff",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "novaos_coral": {
+    "value": "#ff7875",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "novaos_peach": {
+    "value": "#ffb3a0",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "novaos_p1": {
+    "value": "#2B2537",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "novaos_p2": {
+    "value": "#5A4B7A",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "blackrose_trueblack": {
+    "value": "#000003",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "blackrose_midnightnavy": {
+    "value": "#19212A",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "blackrose_deepteal": {
+    "value": "#013E43",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "blackrose_bloodbrown": {
+    "value": "#431D21",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "blackrose_rosemauve": {
+    "value": "#A33A5B",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "blackrose_deeprosewood": {
+    "value": "#89333F",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "blackrose_bg": {
+    "value": "#0A0A0C",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "blackrose_fg": {
+    "value": "#F3F0FA",
+    "sources": [
+      "apps/shared/tailwind.config.js"
+    ],
+    "tags": [
+      "tw-colors"
+    ]
+  },
+  "bg": {
+    "value": "#0A0A0C",
+    "sources": [
+      "packages/shared/src/index.ts"
+    ],
+    "tags": [
+      "js-prop"
+    ]
+  },
+  "fg": {
+    "value": "#F3F0FA",
+    "sources": [
+      "packages/shared/src/index.ts"
+    ],
+    "tags": [
+      "js-prop"
+    ]
+  },
+  "p1": {
+    "value": "#2B2537",
+    "sources": [
+      "packages/shared/src/index.ts"
+    ],
+    "tags": [
+      "js-prop"
+    ]
+  },
+  "p2": {
+    "value": "#5A4B7A",
+    "sources": [
+      "packages/shared/src/index.ts"
+    ],
+    "tags": [
+      "js-prop"
+    ]
+  }
+}

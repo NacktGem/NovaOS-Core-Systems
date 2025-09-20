@@ -1,39 +1,30 @@
-# -------- Base builder image --------
-FROM node:22 AS base
+# Next.js 15 production Dockerfile for Gypsy-Cove
+FROM node:22-alpine
+
 WORKDIR /app
-RUN corepack enable
 
-# -------- Dependencies stage --------
-FROM base AS deps
-COPY pnpm-workspace.yaml package.json pnpm-lock.yaml* ./
-COPY packages packages
-# Install all workspace deps (no dev pruning yet)
-RUN pnpm -v && pnpm -w install --frozen-lockfile --prod=false
+# Install pnpm
+RUN corepack enable pnpm
 
-# -------- Build stage --------
-FROM deps AS builder
-COPY apps apps
-RUN pnpm --filter gypsy-cove install --prod=false \
-  && pnpm --filter gypsy-cove build
+# Copy package files first for better caching
+COPY package.json pnpm-lock.yaml* ./
+COPY pnpm-workspace.yaml ./
 
-# -------- Production deps stage --------
-FROM base AS prod-deps
-COPY pnpm-workspace.yaml package.json pnpm-lock.yaml* ./
-COPY packages packages
-RUN pnpm -w install --frozen-lockfile --prod --ignore-scripts
+# Copy packages directory (shared dependencies)
+COPY packages ./packages
 
-# -------- Runtime stage --------
-FROM node:22-slim AS runner
-WORKDIR /app
-ENV NODE_ENV=production
+# Copy the Gypsy-Cove app
+COPY apps/gypsy-cove ./apps/gypsy-cove
 
-# Copy production node_modules first (better layer caching)
-COPY --from=prod-deps /app/node_modules ./node_modules
-COPY --from=prod-deps /app/packages ./packages
+# Install dependencies
+RUN pnpm install
 
-# Copy built app
-COPY --from=builder /app/apps/gypsy-cove/.next/standalone ./
-COPY --from=builder /app/apps/gypsy-cove/.next/static ./.next/static
+# Build the application
+WORKDIR /app/apps/gypsy-cove
+RUN pnpm build
 
+# Expose port
 EXPOSE 3000
-CMD ["node", "server.js"]
+
+# Start Next.js in production mode
+CMD ["pnpm", "start", "-p", "3000"]

@@ -1,5 +1,6 @@
 import AdminShell from "./admin-shell";
 import { CoreApiError, coreApiJson } from "@/lib/core-api";
+import { ChatWidget } from "../../../shared/components/chat";
 
 type FlagsResponse = {
   flags: Record<string, {
@@ -10,13 +11,37 @@ type FlagsResponse = {
 };
 
 async function fetchFlags(): Promise<FlagsResponse> {
-  return coreApiJson<FlagsResponse>("/platform/flags");
+  const response = await coreApiJson<FlagsResponse>("/flags", {});
+  return response;
+}
+
+async function loadChatRooms() {
+  return [
+    { id: "admin_room", name: "Admin Operations", description: "Administrative chat and coordination", private: true },
+    { id: "system_alerts", name: "System Alerts", description: "Critical system notifications and responses", private: true },
+  ];
 }
 
 export default async function AdminPage() {
+  const chatRooms = await loadChatRooms();
+
   try {
     const data = await fetchFlags();
-    return <AdminShell initialFlags={data.flags} />;
+    return (
+      <div className="flex min-h-screen">
+        <div className="flex-1">
+          <AdminShell initialFlags={data.flags} />
+        </div>
+        <div className="w-96 border-l border-[#2A1721]">
+          <ChatWidget
+            variant="blackRose"
+            rooms={chatRooms}
+            initialRoomId="admin_room"
+            initialMessages={[]}
+          />
+        </div>
+      </div>
+    );
   } catch (error) {
     if (error instanceof CoreApiError && error.status === 401) {
       return (

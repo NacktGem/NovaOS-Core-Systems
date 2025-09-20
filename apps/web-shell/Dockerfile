@@ -1,40 +1,59 @@
-# -------- Base builder image --------
-FROM node:22 AS base
-WORKDIR /app
-RUN corepack enable
+# Next.js 15 production Dockerfile for Web-Shell# Next.js 15 production Dockerfile for Web-Shell
 
-# -------- Dependencies stage --------
-FROM base AS deps
-COPY pnpm-workspace.yaml package.json pnpm-lock.yaml* ./
-COPY packages packages
-# Install all workspace deps (no dev pruning yet)
-RUN pnpm -v && pnpm -w install --frozen-lockfile --prod=false
+FROM node:22-alpineFROM node:22-alpine
 
-# -------- Build stage --------
-FROM deps AS builder
-COPY apps apps
-RUN pnpm --filter web-shell install --prod=false \
- && pnpm --filter web-shell build
 
-# -------- Production deps stage --------
-FROM base AS prod-deps
-COPY pnpm-workspace.yaml package.json pnpm-lock.yaml* ./
-COPY packages packages
-RUN pnpm -w install --frozen-lockfile --prod --ignore-scripts
 
-# -------- Runtime stage --------
-FROM node:22-slim AS runner
-WORKDIR /app
-ENV NODE_ENV=production
+WORKDIR /appWORKDIR /app
 
-# Copy production node_modules first (better layer caching)
-COPY --from=prod-deps /app/node_modules ./node_modules
-COPY --from=prod-deps /app/packages ./packages
 
-# Copy built app
-COPY --from=builder /app/apps/web-shell/.next/standalone ./
-COPY --from=builder /app/apps/web-shell/public ./public
-COPY --from=builder /app/apps/web-shell/.next/static ./.next/static
 
-EXPOSE 3002
-CMD ["node", "server.js"]
+# Install pnpm# Install pnpm
+
+RUN corepack enable pnpmRUN corepack enable pnpm
+
+
+
+# Copy package files first for better caching# Copy package files first for better caching
+
+COPY package.json pnpm-lock.yaml* ./COPY package.json pnpm-lock.yaml* ./
+
+COPY pnpm-workspace.yaml ./COPY pnpm-workspace.yaml ./
+
+
+
+# Copy packages directory (shared dependencies)# Copy packages directory (shared dependencies)
+
+COPY packages ./packagesCOPY packages ./packages
+
+
+
+# Copy the Web-Shell app# Copy the Web-Shell app
+
+COPY apps/web-shell ./apps/web-shellCOPY apps/web-shell ./apps/web-shell
+
+
+
+# Install dependencies# Install dependencies
+
+RUN pnpm installRUN pnpm install
+
+
+
+# Build the application# Build the application
+
+WORKDIR /app/apps/web-shellWORKDIR /app/apps/web-shell
+
+RUN pnpm buildRUN pnpm build
+
+
+
+# Expose port# Expose port
+
+EXPOSE 3002EXPOSE 3002
+
+
+
+# Start Next.js in production mode# Start Next.js in production mode
+
+CMD ["pnpm", "start", "-p", "3002"]CMD ["pnpm", "start", "-p", "3002"]

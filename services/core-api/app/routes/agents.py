@@ -2,11 +2,11 @@ import json
 import os
 import sys
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Any, Dict, List
 
-from fastapi import APIRouter, Cookie, Depends, Request
+from fastapi import APIRouter, Cookie, Depends, Request, HTTPException, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 from app.db.base import get_session
 from app.db.models import AgentRecord, User
 from app.deps import get_redis, require_agent_token
-from app.security.jwt import verify_token
+from app.security.jwt import verify_token, get_current_user
 
 
 # -------- Robust Root Resolver --------
@@ -92,14 +92,43 @@ class Job(BaseModel):
     log: bool = False
 
 
-class AgentRegistration(BaseModel):
-    name: str = Field(..., min_length=2, max_length=64)
-    display_name: str = Field(..., min_length=2, max_length=128)
-    version: str = Field(..., min_length=1, max_length=32)
+class AgentPayload(BaseModel):
+    name: str
+    display_name: str
+    version: str | None = None
     host: str | None = None
-    capabilities: List[str] = Field(default_factory=list)
-    environment: str = Field(default="production")
+    capabilities: list[str] = Field(default_factory=list)
+    environment: str | None = None
     details: Dict[str, Any] = Field(default_factory=dict)
+
+
+class LeakGuardSession(BaseModel):
+    id: str
+    user_id: str | None
+    agent_id: str
+    session_start: str
+    flagged_at: str
+    flagged_reason: str  # "consent_violation", "unauthorized_access", "data_leak", etc.
+    risk_level: str  # "low", "medium", "high", "critical"
+    enforcement_status: str  # "active", "blackout", "revoked", "honeypot"
+    content_preview: str | None
+    enforced_by: str | None
+    enforced_at: str | None
+
+
+class LeakGuardEnforcementRequest(BaseModel):
+    session_id: str
+    action: str  # "blackout", "revoke", "honeypot", "restore"
+    reason: str | None = None
+
+
+class LeakGuardAgentStatus(BaseModel):
+    agent_id: str
+    agent_name: str
+    enforcement_mode: str  # "monitor", "enforce", "disabled"
+    flagged_sessions: int
+    active_enforcements: int
+    last_activity: str | None
 
 
 # -------- Agent Runner Endpoint --------
@@ -144,7 +173,11 @@ def _serialize_record(record: AgentRecord, heartbeat: Dict[str, Any] | None) -> 
         "host": heartbeat.get("host") if heartbeat else record.host,
         "capabilities": heartbeat.get("capabilities") if heartbeat else (record.capabilities or []),
         "environment": record.environment,
-        "last_seen": heartbeat.get("last_seen") if heartbeat else (record.last_seen.isoformat() if record.last_seen else None),
+        "last_seen": (
+            heartbeat.get("last_seen")
+            if heartbeat
+            else (record.last_seen.isoformat() if record.last_seen else None)
+        ),
         "details": record.details or {},
     }
     return payload
@@ -240,7 +273,7 @@ async def run_agent(
 
 @router.post("/register")
 async def register_agent(
-    payload: AgentRegistration,
+    payload: AgentPayload,
     session: Session = Depends(get_session),
     _=Depends(require_agent_token),
 ):
@@ -275,7 +308,7 @@ async def register_agent(
 @router.get("")
 async def list_agents(
     session: Session = Depends(get_session),
-    redis = Depends(get_redis),
+    redis=Depends(get_redis),
     _=Depends(require_agent_token),
 ):
     heartbeats = await _online_agents(redis)
@@ -303,3 +336,143 @@ async def list_agents(
             }
         )
     return {"agents": agents}
+
+
+# LeakGuard Enforcement Endpoints
+@router.get("/leakguard/sessions", response_model=List[LeakGuardSession])
+def get_flagged_sessions(
+    status: str | None = None,  # Filter by enforcement status
+    risk_level: str | None = None,  # Filter by risk level
+    limit: int = 25,
+    user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    """Get LeakGuard flagged sessions for enforcement dashboard"""
+    if user.role not in ["godmode", "jules", "admin"]:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+
+    # Mock data - replace with actual database queries to LeakGuard flagged sessions table
+    flagged_sessions = [
+        LeakGuardSession(
+            id="lg_session_001",
+            user_id="user_123",
+            agent_id="agent_velora",
+            session_start=(datetime.utcnow() - timedelta(hours=3)).isoformat(),
+            flagged_at=(datetime.utcnow() - timedelta(hours=2)).isoformat(),
+            flagged_reason="consent_violation",
+            risk_level="high",
+            enforcement_status="active",
+            content_preview="User attempted to access restricted content without proper consent...",
+            enforced_by=None,
+            enforced_at=None,
+        ),
+        LeakGuardSession(
+            id="lg_session_002",
+            user_id="user_456",
+            agent_id="agent_lyra",
+            session_start=(datetime.utcnow() - timedelta(hours=6)).isoformat(),
+            flagged_at=(datetime.utcnow() - timedelta(hours=4)).isoformat(),
+            flagged_reason="data_leak",
+            risk_level="critical",
+            enforcement_status="blackout",
+            content_preview="Potential unauthorized data transmission detected...",
+            enforced_by="jules",
+            enforced_at=(datetime.utcnow() - timedelta(hours=1)).isoformat(),
+        ),
+        LeakGuardSession(
+            id="lg_session_003",
+            user_id=None,  # Anonymous session
+            agent_id="agent_riven",
+            session_start=(datetime.utcnow() - timedelta(hours=1)).isoformat(),
+            flagged_at=(datetime.utcnow() - timedelta(minutes=30)).isoformat(),
+            flagged_reason="unauthorized_access",
+            risk_level="medium",
+            enforcement_status="honeypot",
+            content_preview="Suspicious access pattern detected from unknown source...",
+            enforced_by="godmode_auto",
+            enforced_at=(datetime.utcnow() - timedelta(minutes=25)).isoformat(),
+        ),
+    ]
+
+    # Apply filters
+    if status:
+        flagged_sessions = [s for s in flagged_sessions if s.enforcement_status == status]
+    if risk_level:
+        flagged_sessions = [s for s in flagged_sessions if s.risk_level == risk_level]
+
+    return flagged_sessions[:limit]
+
+
+@router.post("/leakguard/enforce")
+def enforce_leakguard_action(
+    enforcement_request: LeakGuardEnforcementRequest,
+    user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    """Enforce LeakGuard action on flagged session"""
+    if user.role not in ["godmode", "jules", "admin"]:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+
+    valid_actions = ["blackout", "revoke", "honeypot", "restore"]
+    if enforcement_request.action not in valid_actions:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid enforcement action"
+        )
+
+    # Mock implementation - replace with actual enforcement logic
+    return {
+        "success": True,
+        "session_id": enforcement_request.session_id,
+        "action": enforcement_request.action,
+        "enforced_by": user.username,
+        "enforced_at": datetime.utcnow().isoformat(),
+        "reason": enforcement_request.reason,
+    }
+
+
+@router.get("/leakguard/status", response_model=List[LeakGuardAgentStatus])
+def get_leakguard_agent_status(
+    user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    """Get LeakGuard enforcement status for all agents"""
+    if user.role not in ["godmode", "jules", "admin"]:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+
+    # Mock data - replace with actual agent status queries
+    agent_statuses = [
+        LeakGuardAgentStatus(
+            agent_id="agent_velora",
+            agent_name="Velora",
+            enforcement_mode="enforce",
+            flagged_sessions=5,
+            active_enforcements=2,
+            last_activity=(datetime.utcnow() - timedelta(minutes=15)).isoformat(),
+        ),
+        LeakGuardAgentStatus(
+            agent_id="agent_lyra",
+            agent_name="Lyra",
+            enforcement_mode="monitor",
+            flagged_sessions=2,
+            active_enforcements=0,
+            last_activity=(datetime.utcnow() - timedelta(hours=1)).isoformat(),
+        ),
+        LeakGuardAgentStatus(
+            agent_id="agent_riven",
+            agent_name="Riven",
+            enforcement_mode="enforce",
+            flagged_sessions=3,
+            active_enforcements=1,
+            last_activity=(datetime.utcnow() - timedelta(minutes=5)).isoformat(),
+        ),
+        LeakGuardAgentStatus(
+            agent_id="agent_nova",
+            agent_name="Nova",
+            enforcement_mode="disabled",
+            flagged_sessions=0,
+            active_enforcements=0,
+            last_activity=None,
+        ),
+    ]
+
+    return agent_statuses
