@@ -18,7 +18,7 @@ const COLOR = {
   signal: '#E66F5C',
 };
 
-export default function HealthPanel(): JSX.Element {
+export default function HealthPanel(): React.JSX.Element {
   const [status, setStatus] = useState<ServiceState[]>(() =>
     SERVICE_CATALOG.map((service) => ({
       ...service,
@@ -131,7 +131,7 @@ function StatusPill({
 }: {
   online: boolean;
   latency: number | null;
-}): JSX.Element {
+}): React.JSX.Element {
   return (
     <div
       className="flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
@@ -162,7 +162,7 @@ function MetricBadge({
   label: string;
   value: number;
   tone: 'good' | 'neutral';
-}): JSX.Element {
+}): React.JSX.Element {
   const palette = tone === 'good'
     ? { bg: 'rgba(12,231,161,0.15)', border: 'rgba(12,231,161,0.45)', color: '#0CE7A1' }
     : { bg: 'rgba(163,58,91,0.15)', border: 'rgba(163,58,91,0.35)', color: '#A33A5B' };
@@ -178,7 +178,7 @@ function MetricBadge({
   );
 }
 
-function InfoRow({ k, v }: { k: string; v: string }): JSX.Element {
+function InfoRow({ k, v }: { k: string; v: string }): React.JSX.Element {
   return (
     <div className="flex items-center justify-between gap-3">
       <span className="text-xs uppercase tracking-wide text-[#6faab1]">{k}</span>

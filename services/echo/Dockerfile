@@ -22,7 +22,8 @@ RUN pip install --no-cache-dir \
     pydantic==2.11.7 \
     httpx==0.28.1 \
     redis==5.0.1 \
-    orjson==3.10.3
+    orjson==3.10.3 \
+    "PyJWT>=2.9,<3"
 
 RUN chmod -R a+rX /app/env || true
 

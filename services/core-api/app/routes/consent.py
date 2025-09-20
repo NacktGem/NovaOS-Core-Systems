@@ -72,3 +72,27 @@ def list_consents(
         }
         for consent in consents
     ]
+
+
+@router.get("/all")
+def list_all_consents(
+    user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    """Get all consent records for GodMode dashboard"""
+    if user.role != "godmode":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+
+    consents = session.query(Consent).order_by(Consent.signed_at.desc()).limit(50).all()
+    return [
+        {
+            "id": str(consent.id),
+            "user_id": str(consent.user_id),
+            "partner_name": consent.partner_name,
+            "content_ids": consent.content_ids,
+            "signed_at": consent.signed_at,
+            "meta": consent.meta,
+            "created_at": consent.created_at,
+        }
+        for consent in consents
+    ]
