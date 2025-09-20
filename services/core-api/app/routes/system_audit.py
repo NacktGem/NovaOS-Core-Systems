@@ -18,9 +18,9 @@ from pydantic import BaseModel, Field
 from sqlalchemy import desc, and_, func
 from sqlalchemy.orm import Session
 
-from app.db.database import get_session
+from app.db.base import get_session
 from app.db.models.audit import AuditLog, SystemConfig
-from app.db.models import User
+from app.db.models.users import User
 from app.security.jwt import get_current_user
 
 

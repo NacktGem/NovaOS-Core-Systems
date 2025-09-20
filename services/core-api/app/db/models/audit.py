@@ -2,7 +2,7 @@
 
 from datetime import datetime, timezone
 from sqlalchemy import Column, String, DateTime, Text, JSON, Index
-from app.db.database import Base
+from app.db.base import Base
 
 
 class AuditLog(Base):

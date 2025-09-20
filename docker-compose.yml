@@ -22,7 +22,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-nova_core}
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - '127.0.0.1:5432:5432'
+      - '5432:5432'
     volumes:
       - pg_data:/var/lib/postgresql/data
     networks:
@@ -40,7 +40,7 @@ services:
     restart: unless-stopped
     command: ['redis-server', '--appendonly', 'yes']
     ports:
-      - '127.0.0.1:6379:6379'
+      - '6379:6379'
     networks:
       - nova_net
     healthcheck:

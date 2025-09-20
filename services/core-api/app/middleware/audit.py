@@ -16,7 +16,7 @@ from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from sqlalchemy.orm import Session
 
-from app.db.database import get_session
+from app.db.base import get_session
 from app.db.models.audit import AuditLog, SystemConfig
 from app.security.jwt import verify_token
 
