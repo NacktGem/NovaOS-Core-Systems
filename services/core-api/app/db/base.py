@@ -4,7 +4,7 @@ import os
 from typing import Generator
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import DeclarativeBase, sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, Session, declarative_base
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./core.db")
 
@@ -12,8 +12,7 @@ engine = create_engine(DATABASE_URL, future=True)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, expire_on_commit=False)
 
 
-class Base(DeclarativeBase):
-    pass
+Base = declarative_base()
 
 
 def get_session() -> Generator[Session, None, None]:

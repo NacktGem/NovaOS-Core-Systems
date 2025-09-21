@@ -21,7 +21,7 @@ from typing import Dict, Any
 class AuditSystemTester:
     """Test suite for audit logging system."""
 
-    def __init__(self, base_url: str = "http://localhost:8000"):
+    def __init__(self, base_url: str = "http://localhost:9760"):
         self.base_url = base_url
         self.session = requests.Session()
         self.founder_token = None

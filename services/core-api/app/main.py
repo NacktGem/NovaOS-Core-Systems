@@ -20,7 +20,7 @@ from app.routes import (
     payments,
     platform,
     rooms,
-    stripe_integration,
+    # stripe_integration,  # Temporarily disabled - missing stripe dependency
     system_audit,
 )
 from app.api.v1.agent import router as agent_router
@@ -95,7 +95,7 @@ app.add_middleware(CSRFMiddleware)
 app.include_router(auth.router)
 app.include_router(palettes.router)
 app.include_router(payments.router)
-app.include_router(stripe_integration.router)
+# app.include_router(stripe_integration.router)  # Temporarily disabled - missing stripe dependency
 app.include_router(compliance.router)
 app.include_router(rooms.router)
 app.include_router(messages.router)
@@ -109,6 +109,71 @@ app.include_router(agent_router)
 app.include_router(logs.router)
 app.include_router(platform.router)
 app.include_router(system_audit.router)
+
+# --- Agent Run Endpoint ---
+from pydantic import BaseModel
+from typing import Dict, Any
+
+
+class RunAgentRequest(BaseModel):
+    agent: str
+    command: str
+    args: Dict[str, Any] = {}
+    log: bool = False
+
+
+@app.post("/run")
+async def run_agent_orchestrator(request: RunAgentRequest):
+    """
+    Orchestrator endpoint for running agents.
+    This acts as a bridge between the frontend and the actual agents.
+    """
+    try:
+        # Create a registry instance for agents that need it
+        from core.registry import AgentRegistry
+
+        registry = AgentRegistry()
+
+        # Import agent modules dynamically
+        if request.agent == "nova":
+            from agents.nova.agent import NovaAgent
+
+            agent_instance = NovaAgent(registry)
+        elif request.agent == "echo":
+            from agents.echo.agent import EchoAgent
+
+            agent_instance = EchoAgent()
+        elif request.agent == "glitch":
+            from agents.glitch.agent import GlitchAgent
+
+            agent_instance = GlitchAgent()
+        elif request.agent == "lyra":
+            from agents.lyra.agent import LyraAgent
+
+            agent_instance = LyraAgent()
+        elif request.agent == "velora":
+            from agents.velora.agent import VeloraAgent
+
+            agent_instance = VeloraAgent()
+        elif request.agent == "audita":
+            from agents.audita.agent import AuditaAgent
+
+            agent_instance = AuditaAgent()
+        elif request.agent == "riven":
+            from agents.riven.agent import RivenAgent
+
+            agent_instance = RivenAgent()
+        else:
+            return {"success": False, "output": None, "error": f"Unknown agent: {request.agent}"}
+
+        # Run the agent with the provided command and args
+        result = agent_instance.run({"command": request.command, "args": request.args})
+
+        return result
+
+    except Exception as e:
+        return {"success": False, "output": None, "error": str(e)}
+
 
 # --- Sovereign Standard: /version ---
 from datetime import datetime, timezone  # noqa: E402

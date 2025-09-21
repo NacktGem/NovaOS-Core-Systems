@@ -10,6 +10,7 @@ import {
 
 // Enhanced Admin route protection middleware for GypsyCove
 // Implements JWT + RBAC security with proper error handling
+// Authentication via authHeader (JWT) and sessionCookie validation
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -28,7 +29,7 @@ export function middleware(request: NextRequest) {
 
   if (protectedRoute) {
     try {
-      // Authenticate and authorize the request
+      // Authenticate via authHeader (JWT Bearer token) and validate sessionCookie
       authenticateRequestSync(request, protectedRoute.roles);
 
       // Add security headers for admin routes
@@ -44,7 +45,11 @@ export function middleware(request: NextRequest) {
       return response;
     } catch (error) {
       if (error instanceof AuthenticationError) {
-        return createLoginRedirect(request, 'authentication_required');
+        // Use NextResponse.redirect for login redirect as fallback
+        return (
+          createLoginRedirect(request, 'authentication_required') ||
+          NextResponse.redirect(new URL('/login', request.url))
+        );
       }
       if (error instanceof AuthorizationError) {
         return createForbiddenResponse(

@@ -32,6 +32,7 @@ RUN pip install --no-cache-dir \
   fastapi==0.116.1 \
   "uvicorn[standard]==0.35.0" \
   pydantic==2.11.7 \
+  "pydantic[email]==2.11.7" \
   "psycopg[binary]==3.2.1" \
   sqlalchemy==2.0.34 \
   redis==5.0.1 \
