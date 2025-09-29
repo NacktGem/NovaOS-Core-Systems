@@ -15,47 +15,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Mock user balance check - replace with database query
-    const userBalance = 125.5; // This would come from database
-    const itemPrice = 34.99; // This would come from database
+    // Get authorization token from headers
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader) {
+      return NextResponse.json({ error: 'Authorization required' }, { status: 401 });
+    }
 
-    if (userBalance < itemPrice) {
+    // Forward to core-api
+    const response = await fetch(`${process.env.CORE_API_URL}/api/vault/purchase`, {
+      method: 'POST',
+      headers: {
+        Authorization: authHeader,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        content_id: itemId,
+        payment_method: 'balance',
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
       return NextResponse.json(
-        { error: 'Insufficient balance' },
-        { status: 402 } // Payment Required
+        { error: errorData.detail || 'Failed to purchase content' },
+        { status: response.status }
       );
     }
 
-    // Calculate platform fee (12%)
-    const platformFee = itemPrice * 0.12;
-    const creatorEarnings = itemPrice * 0.88;
-
-    // In production, you would:
-    // 1. Start database transaction
-    // 2. Deduct from user balance
-    // 3. Add to creator pending earnings
-    // 4. Record platform fee
-    // 5. Mark content as unlocked for user
-    // 6. Create transaction record
-    // 7. Commit transaction
-
-    // Mock successful unlock
-    const transaction = {
-      id: `txn_${Date.now()}`,
-      userId,
-      itemId,
-      amount: itemPrice,
-      platformFee,
-      creatorEarnings,
-      timestamp: new Date().toISOString(),
-      status: 'completed',
-    };
+    const purchaseData = await response.json();
 
     return NextResponse.json({
       success: true,
-      transaction,
-      newBalance: userBalance - itemPrice,
-      message: 'Content unlocked successfully',
+      transaction: purchaseData.purchase,
+      content: purchaseData.content,
+      message: purchaseData.message || 'Content unlocked successfully',
     });
   } catch (error) {
     console.error('Unlock error:', error);

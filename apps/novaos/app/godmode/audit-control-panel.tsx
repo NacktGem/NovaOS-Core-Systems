@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect, useCallback } from 'react';
 import {
     Shield, ShieldCheck, ShieldOff, Users, Activity,
@@ -398,7 +400,7 @@ const AuditControlPanel: React.FC<AuditControlPanelProps> = ({ className = "" })
                                         onClick={() => purgeLogs(days)}
                                         disabled={updating}
                                         className={`
-                      w-full px-3 py-1 rounded text-xs bg-red-600/20 text-red-400 
+                      w-full px-3 py-1 rounded text-xs bg-red-600/20 text-red-400
                       hover:bg-red-600/30 border border-red-600/50 transition-colors
                       ${updating ? 'opacity-50 cursor-not-allowed' : ''}
                     `}

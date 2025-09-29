@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Frame, Card, Toggle } from "../../shared/ui";
+// import { Frame, Card, Toggle } from '../../shared/ui';
 
 export default function GypsyCoveStudio() {
     const [autoRefresh, setAutoRefresh] = useState(true);

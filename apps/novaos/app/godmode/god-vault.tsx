@@ -263,7 +263,7 @@ export default function GodVault({ className = "" }: GodVaultProps) {
 
     const handleProfileAccess = useCallback(async (userId: string, reason?: string) => {
         try {
-            const profileData = await coreApiJson(`/payments/blackrose/users/${userId}/profile?reason=${encodeURIComponent(reason || 'GodMode profile access')}`);
+            const profileData = await coreApiJson(`/payments/blackrose/users/${userId}/profile?reason=${encodeURIComponent(reason || 'GodMode profile access')}`) as { profile_url: string; vault_url: string };
 
             // In a real implementation, this would redirect to the profile
             // For now, we'll just show an alert with the profile URL

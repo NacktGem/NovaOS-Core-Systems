@@ -1,5 +1,5 @@
 'use client'
-import { ChatWidget } from '../../../shared/components/chat'
+// import { ChatWidget } from '../../shared/components/chat'
 
 export default function WsTest() {
   // Load rooms client-side for this test page

@@ -272,6 +272,12 @@ class GlitchAgent(BaseAgent):
             elif command == "breach_detection":
                 return self._breach_detection(args)
 
+            elif command == "advanced_forensics":
+                from .advanced_forensics import AdvancedForensics
+
+                forensics = AdvancedForensics()
+                return forensics.run_forensics_operation(args.get("operation"), args)
+
             else:
                 raise ValueError(f"unknown command '{command}'")
 

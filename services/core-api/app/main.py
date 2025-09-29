@@ -17,11 +17,15 @@ from app.routes import (
     logs,
     messages,
     palettes,
+    password_reset,
     payments,
     platform,
+    profile,
     rooms,
     # stripe_integration,  # Temporarily disabled - missing stripe dependency
     system_audit,
+    uploads,
+    vault,
 )
 from app.api.v1.agent import router as agent_router
 
@@ -94,6 +98,10 @@ app.add_middleware(CSRFMiddleware)
 
 app.include_router(auth.router)
 app.include_router(palettes.router)
+app.include_router(password_reset.router, prefix="/auth", tags=["password-reset"])
+app.include_router(uploads.router, prefix="/api", tags=["uploads"])
+app.include_router(profile.router, prefix="/api", tags=["profile"])
+app.include_router(vault.router, prefix="/api", tags=["vault"])
 app.include_router(payments.router)
 # app.include_router(stripe_integration.router)  # Temporarily disabled - missing stripe dependency
 app.include_router(compliance.router)

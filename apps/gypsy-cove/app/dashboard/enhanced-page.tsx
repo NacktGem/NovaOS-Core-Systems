@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { ChatWidget } from '../../../shared/components/chat';
+// import { ChatWidget } from '../../shared/components/chat';
 import EducationCenter from '../components/EducationCenter';
 
 // Simple icon components for GypsyCove
@@ -220,8 +220,8 @@ export default function EnhancedGypsyCoveDashboard() {
                         <button
                             onClick={() => setIsParentalMode(!isParentalMode)}
                             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${isParentalMode
-                                    ? 'bg-indigo-500 text-white'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                ? 'bg-indigo-500 text-white'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                 }`}
                         >
                             {isParentalMode ? 'Parent Mode' : 'Family Mode'}
@@ -249,8 +249,8 @@ export default function EnhancedGypsyCoveDashboard() {
                                 key={tab.key}
                                 onClick={() => setActiveTab(tab.key as 'learning' | 'family' | 'safety' | 'activities' | 'education')}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all ${activeTab === tab.key
-                                        ? 'bg-indigo-500 text-white shadow-lg'
-                                        : 'text-gray-600 hover:bg-white/70'
+                                    ? 'bg-indigo-500 text-white shadow-lg'
+                                    : 'text-gray-600 hover:bg-white/70'
                                     }`}
                             >
                                 <tab.icon className="w-4 h-4" />

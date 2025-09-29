@@ -3,33 +3,109 @@ import { NextRequest, NextResponse } from 'next/server';
 // This would typically connect to your core-api and Velora agent
 async function getCreatorAnalytics(creatorId: string) {
   try {
-    // In production, this would call the Velora agent for revenue analytics
+    // Get authorization token from headers
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader) {
+      return NextResponse.json({ error: 'Authorization required' }, { status: 401 });
+    }
+
+    // Try to get real analytics from Velora agent
     const response = await fetch(`${process.env.CORE_API_URL}/agents/velora`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.AGENT_TOKEN}`,
-        'X-Role': 'CREATOR',
+        Authorization: authHeader,
       },
       body: JSON.stringify({
         command: 'creator_analytics',
         args: {
-          creator_id: creatorId,
-          timeframe: '30d',
-          include_predictions: true,
+          user_id: searchParams.get('userId'),
+          timeframe: searchParams.get('timeframe') || '30d',
           include_optimization: true,
         },
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`Analytics API error: ${response.status}`);
+      console.error(`Analytics API error: ${response.status}`);
+      // Fall back to vault-based analytics
+      return await getVaultAnalytics(authHeader, searchParams.get('userId'));
     }
 
-    return await response.json();
+    const analyticsData = await response.json();
+
+    if (analyticsData.success) {
+      return NextResponse.json(analyticsData);
+    } else {
+      // Fall back to vault-based analytics
+      return await getVaultAnalytics(authHeader, searchParams.get('userId'));
+    }
   } catch (error) {
     console.error('Error fetching creator analytics:', error);
-    // Return mock data for development
+    // Fall back to vault-based analytics
+    const userId = searchParams.get('userId');
+    if (userId) {
+      const authHeader = request.headers.get('Authorization');
+      return await getVaultAnalytics(authHeader, userId);
+    }
+    return getMockAnalytics();
+  }
+}
+
+async function getVaultAnalytics(authHeader: string | null, userId: string | null) {
+  try {
+    if (!authHeader || !userId) {
+      return getMockAnalytics();
+    }
+
+    // Get vault analytics from core-api
+    const response = await fetch(`${process.env.CORE_API_URL}/api/vault/${userId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: authHeader,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      return getMockAnalytics();
+    }
+
+    const vaultData = await response.json();
+
+    // Transform vault data into analytics format
+    const analytics = {
+      success: true,
+      output: {
+        earnings: {
+          total: vaultData.totalEarned || 0,
+          monthly: vaultData.totalEarned * 0.3 || 0,
+          weekly: vaultData.totalEarned * 0.08 || 0,
+          daily: vaultData.totalEarned * 0.012 || 0,
+          pending_payout: vaultData.pendingPayout || 0,
+        },
+        performance: {
+          subscribers: vaultData.subscribers || 0,
+          conversion_rate: vaultData.conversionRate || 0,
+          engagement_rate: vaultData.engagementRate || 0,
+          total_content:
+            vaultData.totalContent ||
+            vaultData.unlockedItems?.length + vaultData.lockedItems?.length ||
+            0,
+        },
+        content: {
+          total_items: vaultData.unlockedItems?.length + vaultData.lockedItems?.length || 0,
+          unlocked_items: vaultData.unlockedItems?.length || 0,
+          locked_items: vaultData.lockedItems?.length || 0,
+          popular_items: vaultData.lockedItems?.slice(0, 3) || [],
+        },
+        transactions: vaultData.recentTransactions || [],
+      },
+    };
+
+    return NextResponse.json(analytics);
+  } catch (error) {
+    console.error('Error getting vault analytics:', error);
     return getMockAnalytics();
   }
 }

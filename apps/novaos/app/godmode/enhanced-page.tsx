@@ -32,6 +32,7 @@ import AuditControlPanel from './audit-control-panel';
 import CompliancePanel from './compliance-panel';
 import SystemAnalytics from './system-analytics';
 import RolePermissionPanel from './role-permission-panel';
+import GypsyCoveManagementPanel from './gypsy-cove-panel';
 import { CoreApiError, coreApiJson } from '@/lib/core-api';
 
 type Profile = {
@@ -184,6 +185,12 @@ export default async function EnhancedGodModeDashboard() {
 
                             {/* Traditional panels */}
                             <FlagPanel initialFlags={flags.flags} />
+
+                            {/* Gypsy Cove Management Panel */}
+                            <section>
+                                <GypsyCoveManagementPanel />
+                            </section>
+
                             <section className="grid gap-8 md:grid-cols-2">
                                 <AnalyticsFeed initialEvents={analytics} />
                                 <ConsentLedger initialConsents={consents.slice(0, 12)} />

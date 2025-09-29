@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect, useCallback } from 'react';
 import {
     Calendar, FileText, Package, DollarSign,
@@ -432,16 +434,16 @@ const GodModeCreatorProductivity: React.FC<GodModeCreatorProductivityProps> = ({
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id as 'overview' | 'scheduled' | 'drafts' | 'bundles')}
                                 className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex items-center space-x-2 ${activeTab === tab.id
-                                        ? 'border-blackRose-roseMauve text-blackRose-roseMauve'
-                                        : 'border-transparent text-blackRose-roseMauve/60 hover:text-blackRose-roseMauve hover:border-blackRose-roseMauve/30'
+                                    ? 'border-blackRose-roseMauve text-blackRose-roseMauve'
+                                    : 'border-transparent text-blackRose-roseMauve/60 hover:text-blackRose-roseMauve hover:border-blackRose-roseMauve/30'
                                     }`}
                             >
                                 <Icon className="h-4 w-4" />
                                 <span>{tab.name}</span>
                                 {tab.count !== undefined && (
                                     <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === tab.id
-                                            ? 'bg-blackRose-roseMauve text-blackRose-trueBlack'
-                                            : 'bg-blackRose-roseMauve/20 text-blackRose-roseMauve'
+                                        ? 'bg-blackRose-roseMauve text-blackRose-trueBlack'
+                                        : 'bg-blackRose-roseMauve/20 text-blackRose-roseMauve'
                                         }`}>
                                         {tab.count}
                                     </span>

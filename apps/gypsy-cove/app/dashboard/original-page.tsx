@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { ChatWidget } from '../../../shared/components/chat'
+// import { ChatWidget } from '../../shared/components/chat'
 
 const agents = ['nova', 'echo', 'glitch', 'lyra', 'velora', 'audita', 'riven'] as const
 

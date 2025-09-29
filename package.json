@@ -2,8 +2,17 @@
   "name": "novaos-core-systems",
   "private": true,
   "packageManager": "pnpm@10.14.0",
-  "workspaces": ["apps/*","services/*","packages/*","agents/*","modules/*"],
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*",
+    "agents/*",
+    "modules/*"
+  ],
   "scripts": {
+    "assets:generate": "node tools/asset-generator/generate.mjs",
+    "assets:recolor": "node tools/asset-generator/recolor.mjs",
+    "assets:tint": "node tools/asset-generator/tint_from_reference.mjs",
     "preinstall": "npx -y only-allow pnpm",
     "build:all": "pnpm -r run build",
     "lint:all": "pnpm -r lint",
@@ -24,10 +33,19 @@
     "critters": "^0.0.25",
     "eslint": "^9.13.0",
     "prettier": "^3.3.3",
+    "puppeteer": "^23.4.1",
+    "sharp": "^0.33.4",
+    "tsx": "^4.19.0",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.10.0",
-    "vitest": "^2.0.5",
-    "puppeteer": "^23.4.1",
-    "tsx": "^4.19.0"
+    "vitest": "^2.0.5"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "^1.2.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.544.0",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss": "^4.1.12"
   }
 }

@@ -69,7 +69,7 @@ class PermissionTest:
 class RBACTester:
     """Comprehensive RBAC testing system"""
 
-    def __init__(self, base_url: str = "http://localhost:8000"):
+    def __init__(self, base_url: str = "http://localhost:9760"):
         self.base_url = base_url
         self.session: Optional[aiohttp.ClientSession] = None
         self.test_results: Dict[str, List[Dict]] = {}

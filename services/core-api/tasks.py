@@ -7,6 +7,9 @@ from sqlalchemy import text
 
 from app.db.base import engine, SessionLocal
 from app.db import models
+from app.models.password_reset import PasswordReset
+from app.models.file_upload import FileUpload
+from app.models.vault import VaultContent, VaultPurchase, UserBalance
 from app.security.passwords import hash_password
 
 
@@ -15,6 +18,14 @@ def db_init(c):
     if engine.dialect.name == "postgresql":
         with engine.begin() as conn, open("scripts/db_init.sql") as f:
             conn.execute(text(f.read()))
+
+    # Create additional tables
+    PasswordReset.metadata.create_all(engine)
+    FileUpload.metadata.create_all(engine)
+    VaultContent.metadata.create_all(engine)
+    VaultPurchase.metadata.create_all(engine)
+    UserBalance.metadata.create_all(engine)
+
     c.run("alembic upgrade head")
 
 
@@ -98,7 +109,9 @@ def db_seed(c):
                     .first()
                 ):
                     session.add(
-                        models.RoomMember(room_id=room_objs[room_name].id, user_id=user_map[email].id)
+                        models.RoomMember(
+                            room_id=room_objs[room_name].id, user_id=user_map[email].id
+                        )
                     )
         palettes = [
             (

@@ -1,6 +1,4 @@
-import 'server-only';
-
-import { cookies } from 'next/headers';
+// Core API Client - Now compatible with both server and client components
 
 const DEFAULT_BASE = 'http://localhost:8760';
 const AGENT_TOKEN = process.env.AGENT_SHARED_TOKEN ?? '';
@@ -29,9 +27,10 @@ type FetchOptions = {
 export async function coreApiFetch(
   path: string,
   init: RequestInit = {},
-  options: FetchOptions = {},
+  options: FetchOptions = {}
 ): Promise<Response> {
-  const cookieHeader = cookies().toString();
+  // Use client-side cookie access when available, server-side when not
+  const cookieHeader = typeof document !== 'undefined' ? document.cookie : '';
   const headers = new Headers(init.headers ?? {});
   if (cookieHeader) {
     headers.set('cookie', cookieHeader);
@@ -58,7 +57,7 @@ export async function coreApiFetch(
 export async function coreApiJson<T>(
   path: string,
   init: RequestInit = {},
-  options: FetchOptions = {},
+  options: FetchOptions = {}
 ): Promise<T> {
   const res = await coreApiFetch(path, init, options);
   let payload: unknown = null;

@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
           }
 
           function pump(): Promise<void> {
-            return reader
+            return reader!
               .read()
               .then(({ done, value }) => {
                 if (done) {
