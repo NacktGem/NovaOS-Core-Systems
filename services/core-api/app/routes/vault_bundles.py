@@ -173,10 +173,27 @@ async def create_bundle(
     # This would integrate with your actual content system
     # For now, we'll assume validation passes
 
-    # TODO: Calculate individual_total from actual content prices
-    # This would sum up the individual prices of all content items
-    # For demo purposes, we'll use a mock calculation
-    individual_total = len(request.content_ids) * 25.0  # Mock: $25 per item
+    # Calculate individual_total from actual content prices
+    from app.models.vault import VaultContent
+
+    # Look up actual content prices from database
+    vault_items = session.query(VaultContent).filter(
+        VaultContent.id.in_(request.content_ids),
+        VaultContent.creator_id == current_user.id,  # Ensure creator owns content
+        VaultContent.is_active == True
+    ).all()
+
+    # Verify all content exists and belongs to creator
+    found_content_ids = {item.id for item in vault_items}
+    if len(found_content_ids) != len(request.content_ids):
+        missing_ids = set(request.content_ids) - found_content_ids
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Content not found or access denied: {missing_ids}"
+        )
+
+    # Sum up the individual prices of all content items
+    individual_total = sum(float(item.price) for item in vault_items)
 
     # Validate bundle price provides savings
     if request.bundle_price >= individual_total:

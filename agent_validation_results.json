@@ -1,0 +1,310 @@
+{
+  "glitch": [
+    {
+      "command": "hash_file",
+      "args": {
+        "path": "README.md"
+      },
+      "result": {
+        "success": true,
+        "output": {
+          "path": "D:\\NovaOS-Core-Systems\\README.md",
+          "size": 3464,
+          "sha256": "e59281370d63d588b61db75a87388854749356377297d574d2b43bbc33de147a",
+          "md5": "c42e65dfee1675a15085932a5344c376",
+          "sha1": "9882d15c1772d28e79d105dd47eb7078de8b6865",
+          "entropy": 5.363244496335889,
+          "created": 1758242035.523131,
+          "modified": 1758242035.523131,
+          "accessed": 1759116463.3291528,
+          "suspicious_indicators": [],
+          "file_type": "unknown"
+        },
+        "error": null,
+        "job_id": "1f4c0a63af1b4cf78f6e96e92cb1325f"
+      }
+    },
+    {
+      "command": "sandbox_check",
+      "args": {},
+      "result": {
+        "success": true,
+        "output": {
+          "virtualized": false,
+          "sandbox_score": 0,
+          "indicators": {
+            "cgroup": "",
+            "container_env": false,
+            "vm_cpu": false,
+            "vm_dmi": false,
+            "analysis_tools": []
+          },
+          "confidence": "low"
+        },
+        "error": null,
+        "job_id": "cd21860fb4c14481b18974f583d0bf23"
+      }
+    }
+  ],
+  "lyra": [
+    {
+      "command": "create_prompt",
+      "args": {
+        "type": "writing"
+      },
+      "result": {
+        "success": true,
+        "output": {
+          "type": "writing",
+          "prompt": "Chronicle the moment you reclaimed your creative power.",
+          "ritual": "light incense and set a 12-minute timer to maintain flow"
+        },
+        "error": null,
+        "job_id": "acc3afb409154332b895851b4bb1fc8f"
+      }
+    },
+    {
+      "command": "generate_lesson",
+      "args": {
+        "topic": "Python",
+        "grade": "5th"
+      },
+      "result": {
+        "success": true,
+        "output": {
+          "topic": "Python",
+          "grade": "5th",
+          "objectives": [
+            "Learners articulate key principles of Python in their own voice",
+            "Learners demonstrate mastery of Python through a creative artifact"
+          ],
+          "sequence": {
+            "introduction": [
+              "story hook",
+              "guided discussion",
+              "sensory warm-up"
+            ],
+            "practice": [
+              "paired exploration",
+              "hands-on lab",
+              "guided journaling"
+            ],
+            "assessment": [
+              "reflection prompt",
+              "exit ticket",
+              "demo recording"
+            ]
+          },
+          "materials": [
+            "journal",
+            "audio recorder",
+            "open-source references"
+          ]
+        },
+        "error": null,
+        "job_id": "1aeb6d94a154476b87ea5cdbc6e0fca3"
+      }
+    }
+  ],
+  "velora": [
+    {
+      "command": "generate_report",
+      "args": {
+        "data": {
+          "users": 100,
+          "revenue": 5000
+        }
+      },
+      "result": {
+        "success": true,
+        "output": {
+          "total": 5100,
+          "average": 2550.0,
+          "metrics": {
+            "users": 100,
+            "revenue": 5000
+          },
+          "leaders": [
+            [
+              "revenue",
+              5000
+            ],
+            [
+              "users",
+              100
+            ]
+          ]
+        },
+        "error": null,
+        "job_id": "49537ac0421f4829b005c11b4b24ee87"
+      }
+    },
+    {
+      "command": "ad_generate",
+      "args": {
+        "product": "NovaOS",
+        "audience": "developers"
+      },
+      "result": {
+        "success": true,
+        "output": {
+          "ad": "Developers, experience NovaOS — crafted for those who refuse compromise.",
+          "cta": "Book a private walkthrough"
+        },
+        "error": null,
+        "job_id": "b9b68b602fc3474fa7e97638a1add367"
+      }
+    }
+  ],
+  "audita": [
+    {
+      "command": "gdpr_scan",
+      "args": {
+        "data": "Contact user@example.com for support"
+      },
+      "result": {
+        "success": true,
+        "output": {
+          "summary": "Audita completed 'gdpr_scan'",
+          "details": {
+            "emails": [
+              "user@example.com"
+            ],
+            "violations": true
+          },
+          "logs_path": "\\logs\\audita.log"
+        },
+        "error": null,
+        "job_id": "035e5d6bfa3a4a66b40e15694ec49219"
+      }
+    },
+    {
+      "command": "tax_report",
+      "args": {
+        "income": [
+          1000,
+          2000
+        ],
+        "expenses": [
+          500,
+          300
+        ]
+      },
+      "result": {
+        "success": true,
+        "output": {
+          "summary": "Audita completed 'tax_report'",
+          "details": {
+            "income": 3000,
+            "expenses": 800,
+            "taxable": 2200
+          },
+          "logs_path": "\\logs\\audita.log"
+        },
+        "error": null,
+        "job_id": "d71d324e873b439687e479c49b2b78fe"
+      }
+    }
+  ],
+  "echo": [
+    {
+      "command": "send_message",
+      "args": {
+        "message": "Test message"
+      },
+      "result": {
+        "success": true,
+        "output": {
+          "summary": "Echo completed 'send_message'",
+          "details": {
+            "message": "Test message",
+            "checksum": "c0719e9a8d5d838d"
+          }
+        },
+        "error": null,
+        "job_id": "05f7e5bf07864a2a9898956916c1faf2"
+      }
+    },
+    {
+      "command": "broadcast",
+      "args": {
+        "message": "System ready",
+        "recipients": [
+          "admin"
+        ]
+      },
+      "result": {
+        "success": true,
+        "output": {
+          "summary": "Echo completed 'broadcast'",
+          "details": {
+            "message": "System ready",
+            "recipients": [
+              {
+                "recipient": "admin",
+                "status": "delivered"
+              }
+            ]
+          }
+        },
+        "error": null,
+        "job_id": "5bb270e7753c4a69a58b36b6d6fd84ad"
+      }
+    }
+  ],
+  "riven": [
+    {
+      "command": "generate_protocol",
+      "args": {
+        "title": "Emergency",
+        "steps": [
+          "Assess",
+          "Act"
+        ]
+      },
+      "result": {
+        "success": true,
+        "output": {
+          "title": "Emergency",
+          "steps": [
+            "Step 1: Assess",
+            "Step 2: Act"
+          ]
+        },
+        "error": null,
+        "job_id": "7254868d2808466285db0bbb042cfd8f"
+      }
+    },
+    {
+      "command": "bugout_map",
+      "args": {
+        "start": [
+          40.7128,
+          -74.006
+        ],
+        "end": [
+          41.8781,
+          -87.6298
+        ]
+      },
+      "result": {
+        "success": true,
+        "output": {
+          "distance_m": 1144291.2739463474,
+          "path": [
+            [
+              40.7128,
+              -74.006
+            ],
+            [
+              41.8781,
+              -87.6298
+            ]
+          ]
+        },
+        "error": null,
+        "job_id": "ccce08d41d114c568aab19a54fcf3fa3"
+      }
+    }
+  ]
+}

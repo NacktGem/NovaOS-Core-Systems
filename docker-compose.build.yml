@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  ui-builder:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=production
+    command: |
+      sh -c "
+        apk add --no-cache git &&
+        corepack enable pnpm &&
+        pnpm install --frozen-lockfile &&
+        pnpm build
+      "
+  
+  python-deps:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: |
+      sh -c "
+        pip install --target ./python-libs --no-user -r requirements-dev.txt &&
+        python setup_python_deps.py
+      "

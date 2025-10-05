@@ -10,6 +10,7 @@ from . import (
     payments,
     platform,
     rooms,
+    stripe_payments,
 )
 
 __all__ = [
@@ -24,4 +25,5 @@ __all__ = [
     "payments",
     "platform",
     "rooms",
+    "stripe_payments",
 ]

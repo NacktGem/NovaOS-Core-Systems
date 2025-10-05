@@ -22,6 +22,7 @@ from app.routes import (
     platform,
     profile,
     rooms,
+    stripe_payments,
     # stripe_integration,  # Temporarily disabled - missing stripe dependency
     system_audit,
     uploads,
@@ -98,6 +99,7 @@ app.add_middleware(CSRFMiddleware)
 
 app.include_router(auth.router)
 app.include_router(palettes.router)
+app.include_router(stripe_payments.router)
 app.include_router(password_reset.router, prefix="/auth", tags=["password-reset"])
 app.include_router(uploads.router, prefix="/api", tags=["uploads"])
 app.include_router(profile.router, prefix="/api", tags=["profile"])

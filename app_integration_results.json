@@ -1,0 +1,32 @@
+{
+  "timestamp": 1759126183.9256363,
+  "summary": {
+    "fully_working": 0,
+    "partially_working": 0,
+    "not_working": 3,
+    "overall_success": false
+  },
+  "apps": {
+    "black_rose": {
+      "config_valid": true,
+      "health_check": false,
+      "core_api_integration": false,
+      "restart_attempted": true,
+      "final_status": "not_working"
+    },
+    "novaos_console": {
+      "config_valid": true,
+      "health_check": false,
+      "core_api_integration": false,
+      "restart_attempted": true,
+      "final_status": "not_working"
+    },
+    "gypsy_cove": {
+      "config_valid": true,
+      "health_check": false,
+      "core_api_integration": false,
+      "restart_attempted": true,
+      "final_status": "not_working"
+    }
+  }
+}

@@ -4,6 +4,7 @@ RUN corepack enable pnpm
 COPY package.json pnpm-lock.yaml ./
 COPY pnpm-workspace.yaml ./
 COPY packages ./packages/
+COPY apps/shared ./apps/shared/
 COPY apps/web-shell ./apps/web-shell/
 RUN pnpm install
 WORKDIR /app/apps/web-shell

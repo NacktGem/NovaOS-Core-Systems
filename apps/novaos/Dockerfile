@@ -13,6 +13,9 @@ COPY pnpm-workspace.yaml ./
 # Copy packages directory (shared dependencies)
 COPY packages ./packages
 
+# Copy shared components
+COPY apps/shared ./apps/shared
+
 # Copy the NovaOS app
 COPY apps/novaos ./apps/novaos
 

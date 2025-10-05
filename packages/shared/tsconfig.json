@@ -5,7 +5,8 @@
     "declaration": true,
     "outDir": "dist",
     "strict": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node16",
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
     "src"

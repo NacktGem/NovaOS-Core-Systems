@@ -1,6 +1,6 @@
 import AdminShell from "./admin-shell";
 import { CoreApiError, coreApiJson } from "@/lib/core-api";
-import { ChatWidget } from "../../../shared/components/chat";
+import { ChatWidget } from '../../../shared/components/chat/ChatWidget';
 
 type FlagsResponse = {
   flags: Record<string, {

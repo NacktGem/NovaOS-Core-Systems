@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // This would typically connect to your core-api and Velora agent
-async function getCreatorAnalytics(creatorId: string) {
+async function getCreatorAnalytics(request: NextRequest, searchParams: URLSearchParams) {
   try {
     // Get authorization token from headers
     const authHeader = request.headers.get('Authorization');
@@ -212,7 +212,7 @@ export async function GET(request: NextRequest) {
   const creatorId = searchParams.get('creator_id') || 'current_user';
 
   try {
-    const analytics = await getCreatorAnalytics(creatorId);
+    const analytics = await getCreatorAnalytics(request, searchParams);
     return NextResponse.json(analytics);
   } catch (error) {
     return NextResponse.json(

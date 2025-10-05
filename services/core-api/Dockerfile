@@ -44,7 +44,8 @@ RUN pip install --no-cache-dir \
   "python-jose[cryptography]==3.3.0" \
   argon2-cffi==23.1.0 \
   itsdangerous==2.2.0 \
-  typing-extensions>=4.5.0
+  typing-extensions>=4.5.0 \
+  stripe==12.0.0
 
 RUN chmod -R a+rX /app/env || true
 

@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@nova/clients": "workspace:*",
+    "@nova/ui": "workspace:*",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tooltip": "^1.2.8",
     "class-variance-authority": "^0.7.1",

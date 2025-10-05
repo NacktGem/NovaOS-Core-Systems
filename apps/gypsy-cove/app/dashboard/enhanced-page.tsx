@@ -1,6 +1,5 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-// import { ChatWidget } from '../../shared/components/chat';
 import EducationCenter from '../components/EducationCenter';
 
 // Simple icon components for GypsyCove
@@ -161,27 +160,6 @@ export default function EnhancedGypsyCoveDashboard() {
             }
         ]);
     }, []);
-
-    const chatRooms = [
-        {
-            id: "family_room",
-            name: "Family Circle",
-            description: "Safe family conversations and coordination",
-            private: false
-        },
-        {
-            id: "tutor_room",
-            name: "Learning Lounge",
-            description: "Educational discussions with Lyra",
-            private: false
-        },
-        {
-            id: "creative_space",
-            name: "Creative Studio",
-            description: "Art, writing, and creative projects",
-            private: false
-        }
-    ];
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -475,14 +453,12 @@ export default function EnhancedGypsyCoveDashboard() {
 
                 {/* Chat Sidebar */}
                 <div className="w-96 border-l border-indigo-100 bg-white/30 backdrop-blur-sm">
-                    <ChatWidget
-                        variant="novaOS"
-                        rooms={chatRooms}
-                        initialRoomId="tutor_room"
-                        initialMessages={[]}
-                        title="GypsyCove Learning Chat"
-                        className="h-full"
-                    />
+                    <div className="p-6">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4">GypsyCove Learning Chat</h3>
+                        <div className="text-center text-gray-500 py-8">
+                            <p>Chat widget coming soon</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
