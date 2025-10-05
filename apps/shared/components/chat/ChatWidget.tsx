@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState, forwardRef } from "react";
 import { MessageBubble } from "./MessageBubble";
 import { RoomSelector } from "./RoomSelector";
 
@@ -94,7 +94,7 @@ const variants = {
     }
 };
 
-export const ChatWidget = React.forwardRef<HTMLDivElement, ChatWidgetProps>(
+export const ChatWidget = forwardRef<HTMLDivElement, ChatWidgetProps>(
     ({
         rooms: initialRooms,
         initialRoomId,

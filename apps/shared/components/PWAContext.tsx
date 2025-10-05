@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;

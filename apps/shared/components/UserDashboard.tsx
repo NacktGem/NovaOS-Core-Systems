@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   User, Settings, Bell, Shield, CreditCard, BarChart3,
   Upload, Eye, Heart, MessageCircle, DollarSign, Calendar,

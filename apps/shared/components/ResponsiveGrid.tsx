@@ -1,4 +1,4 @@
-import React from 'react';
+// ResponsiveGrid component - no React hooks needed
 import './ResponsiveGrid.css';
 
 export type BreakpointSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';

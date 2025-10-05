@@ -1,4 +1,4 @@
-import React from "react";
+// MessageBubble component
 
 export interface MessageBubbleProps {
   message: {

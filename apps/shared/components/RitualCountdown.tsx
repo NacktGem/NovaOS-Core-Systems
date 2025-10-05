@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Clock, Heart, Lock, Flame, Eye, Star, Zap, Crown, Users
 } from 'lucide-react';

@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useEffect, useState } from 'react';
+import { useRef, useCallback, useEffect, useState } from 'react';
 import './TouchInteractions.css';
 
 export interface TouchPoint {
