@@ -8,6 +8,7 @@ pnpm-lock.yaml
 dist/
 .next/
 .storybook-out/
+node-portable/
 
 # Python
 __pycache__/
@@ -15,6 +16,8 @@ __pycache__/
 *.pyo
 .venv/
 .venv*/
+venv/
+python-libs/
 .env/
 .env.*
 .mypy_cache/
@@ -120,3 +123,15 @@ ai_models/
 *.onnx
 *.tar.gz
 *.zip
+
+# Security - Never commit these files
+.env.staging
+secrets/
+keys/*.pem
+keys/*.key
+temp_tokens.txt
+local_security_audit_report.json
+*_backup/
+# Generated security files
+nginx-security-headers.conf
+security_hardening_backup/

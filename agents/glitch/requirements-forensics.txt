@@ -1,0 +1,41 @@
+# Advanced Forensics Requirements
+# Core forensics libraries
+volatility3>=2.5.0
+yara-python>=4.3.1
+pefile>=2023.2.7
+python-magic>=0.4.27
+pycryptodome>=3.18.0
+
+# Network and protocol analysis
+dpkt>=1.9.8
+scapy>=2.4.5
+impacket>=0.11.0
+
+# Mobile forensics
+adb-shell>=0.4.4
+pyidevice>=1.4.0
+pymobiledevice3>=3.16.0
+
+# Specialized analysis
+frida-tools>=12.2.1
+capstone>=5.0.1
+unicorn>=2.0.1
+keystone-engine>=0.9.2
+
+# OSINT and intelligence
+requests>=2.31.0
+beautifulsoup4>=4.12.2
+python-whois>=0.8.0
+shodan>=1.29.1
+censys>=2.2.7
+
+# Database and storage
+sqlite3
+redis>=4.6.0
+psycopg2-binary>=2.9.7
+
+# Utilities
+tqdm>=4.66.1
+colorama>=0.4.6
+tabulate>=0.9.0
+xmltodict>=0.13.0

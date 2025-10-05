@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  User, Settings, Bell, Shield, CreditCard, BarChart3, 
+import {
+  User, Settings, Bell, Shield, CreditCard, BarChart3,
   Upload, Eye, Heart, MessageCircle, DollarSign, Calendar,
-  TrendingUp, Users, FileText, Download
+  TrendingUp, Users, FileText, Download, Zap
 } from 'lucide-react';
+import CreatorProductivity from './CreatorProductivity';
 
 interface UserDashboardProps {
   platform: 'novaos' | 'black-rose' | 'gypsy-cove';
@@ -32,10 +33,16 @@ interface DashboardStats {
 }
 
 const UserDashboard: React.FC<UserDashboardProps> = ({ platform, user }) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'content' | 'analytics' | 'settings' | 'earnings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'content' | 'analytics' | 'settings' | 'earnings' | 'productivity'>('overview');
   const [stats, setStats] = useState<DashboardStats>({});
   const [isLoading, setIsLoading] = useState(true);
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Array<{
+    id: number;
+    type: string;
+    title: string;
+    message: string;
+    time: string;
+  }>>([]);
 
   const platformConfig = {
     'novaos': {
@@ -70,7 +77,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ platform, user }) => {
       // Simulate API call - replace with actual endpoint
       const response = await fetch(`/api/dashboard/${platform}/${user.id}`);
       const data = await response.json();
-      
+
       if (data.success) {
         setStats(data.stats || {});
         setNotifications(data.notifications || []);
@@ -311,14 +318,12 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ platform, user }) => {
             {notifications.length > 0 ? (
               notifications.map((notification) => (
                 <div key={notification.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <div className={`p-1 rounded-full ${
-                    notification.type === 'success' ? 'bg-green-100' :
+                  <div className={`p-1 rounded-full ${notification.type === 'success' ? 'bg-green-100' :
                     notification.type === 'warning' ? 'bg-yellow-100' : 'bg-blue-100'
-                  }`}>
-                    <Bell className={`h-3 w-3 ${
-                      notification.type === 'success' ? 'text-green-600' :
+                    }`}>
+                    <Bell className={`h-3 w-3 ${notification.type === 'success' ? 'text-green-600' :
                       notification.type === 'warning' ? 'text-yellow-600' : 'text-blue-600'
-                    }`} />
+                      }`} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900">{notification.title}</p>
@@ -345,16 +350,16 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ platform, user }) => {
           {platform === 'black-rose' ? 'Upload Content' : platform === 'novaos' ? 'Generate Report' : 'Create Post'}
         </button>
       </div>
-      
+
       <div className="bg-white p-6 rounded-lg border border-gray-200 text-center">
         <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
         <h3 className="text-lg font-medium text-gray-900 mb-2">Content Management</h3>
         <p className="text-gray-600 mb-4">
-          {platform === 'black-rose' 
-            ? 'Upload and manage your premium content' 
-            : platform === 'novaos' 
-            ? 'Create and manage system reports'
-            : 'Create and share your posts'
+          {platform === 'black-rose'
+            ? 'Upload and manage your premium content'
+            : platform === 'novaos'
+              ? 'Create and manage system reports'
+              : 'Create and share your posts'
           }
         </p>
         <button className={`px-4 py-2 rounded-md text-sm font-medium ${getColorClasses('primary')}`}>
@@ -367,7 +372,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ platform, user }) => {
   const renderAnalytics = () => (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold text-gray-900">Analytics</h2>
-      
+
       <div className="bg-white p-6 rounded-lg border border-gray-200 text-center">
         <BarChart3 className="mx-auto h-12 w-12 text-gray-400 mb-4" />
         <h3 className="text-lg font-medium text-gray-900 mb-2">Analytics Dashboard</h3>
@@ -384,7 +389,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ platform, user }) => {
   const renderEarnings = () => (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold text-gray-900">Earnings</h2>
-      
+
       {platform === 'black-rose' ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {renderStatCard('Total Earnings', `$${stats.earnings || 0}`, DollarSign, '+$420 this month')}
@@ -406,7 +411,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ platform, user }) => {
   const renderSettings = () => (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold text-gray-900">Account Settings</h2>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-lg border border-gray-200">
           <div className="flex items-center space-x-3 mb-4">
@@ -460,6 +465,9 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ platform, user }) => {
     { id: 'content', name: 'Content', icon: Upload },
     { id: 'analytics', name: 'Analytics', icon: TrendingUp },
     ...(platform === 'black-rose' ? [{ id: 'earnings', name: 'Earnings', icon: DollarSign }] : []),
+    ...((platform === 'black-rose' || platform === 'gypsy-cove') &&
+      (user.role === 'creator' || user.role === 'admin') ?
+      [{ id: 'productivity', name: 'Creator Tools', icon: Zap }] : []),
     { id: 'settings', name: 'Settings', icon: Settings }
   ];
 
@@ -505,11 +513,10 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ platform, user }) => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                  activeTab === tab.id
-                    ? `${getColorClasses('primary')}`
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
+                className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === tab.id
+                  ? `${getColorClasses('primary')}`
+                  : 'text-gray-500 hover:text-gray-700'
+                  }`}
               >
                 <Icon className="h-4 w-4" />
                 <span>{tab.name}</span>
@@ -524,6 +531,13 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ platform, user }) => {
           {activeTab === 'content' && renderContent()}
           {activeTab === 'analytics' && renderAnalytics()}
           {activeTab === 'earnings' && renderEarnings()}
+          {activeTab === 'productivity' && (
+            <CreatorProductivity
+              platform={platform as 'black-rose' | 'gypsy-cove'}
+              userRole={user.role}
+              userId={user.id}
+            />
+          )}
           {activeTab === 'settings' && renderSettings()}
         </div>
       </div>

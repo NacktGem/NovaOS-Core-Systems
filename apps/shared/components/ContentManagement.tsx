@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { 
-  Upload, Image, Video, FileText, Music, X, Eye, EyeOff, 
+import {
+  Upload, Image, Video, FileText, Music, X, Eye, EyeOff,
   Tag, DollarSign, Calendar, Lock, Globe, Heart, MessageCircle,
   MoreHorizontal, Edit, Trash2, Share, BarChart3
 } from 'lucide-react';
@@ -123,9 +123,9 @@ const ContentManagement: React.FC<ContentManagementProps> = ({
       const newContent: ContentItem = {
         id: Date.now().toString(),
         title: file.name.split('.')[0],
-        type: file.type.startsWith('image/') ? 'image' : 
-              file.type.startsWith('video/') ? 'video' : 
-              file.type.startsWith('audio/') ? 'audio' : 'text',
+        type: file.type.startsWith('image/') ? 'image' :
+          file.type.startsWith('video/') ? 'video' :
+            file.type.startsWith('audio/') ? 'audio' : 'text',
         description: '',
         tags: [],
         visibility: 'draft' as const,
@@ -207,7 +207,7 @@ const ContentManagement: React.FC<ContentManagementProps> = ({
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-full p-4">
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75" onClick={() => setIsUploadModalOpen(false)} />
-        
+
         <div className="relative bg-white rounded-lg p-6 max-w-md w-full">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-medium text-gray-900">Upload Content</h3>
@@ -219,7 +219,7 @@ const ContentManagement: React.FC<ContentManagementProps> = ({
             </button>
           </div>
 
-          <div 
+          <div
             className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors"
             onDragOver={handleDragOver}
             onDrop={handleDrop}
@@ -260,8 +260,8 @@ const ContentManagement: React.FC<ContentManagementProps> = ({
       {/* Content Preview */}
       <div className="relative">
         {item.thumbnail ? (
-          <img 
-            src={item.thumbnail} 
+          <img
+            src={item.thumbnail}
             alt={item.title}
             className="w-full h-40 object-cover"
           />
@@ -270,7 +270,7 @@ const ContentManagement: React.FC<ContentManagementProps> = ({
             {getContentTypeIcon(item.type)}
           </div>
         )}
-        
+
         {/* Overlay Icons */}
         <div className="absolute top-2 left-2 flex space-x-1">
           <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${getStatusColor(item.status)}`}>
@@ -304,7 +304,7 @@ const ContentManagement: React.FC<ContentManagementProps> = ({
       <div className="p-4">
         <h3 className="font-medium text-gray-900 truncate mb-1">{item.title}</h3>
         <p className="text-sm text-gray-500 line-clamp-2 mb-3">{item.description}</p>
-        
+
         {/* Tags */}
         {item.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-3">
@@ -383,11 +383,10 @@ const ContentManagement: React.FC<ContentManagementProps> = ({
         </div>
         <button
           onClick={() => setIsUploadModalOpen(true)}
-          className={`px-4 py-2 rounded-md text-sm font-medium text-white ${
-            config.color === 'rose' ? 'bg-rose-600 hover:bg-rose-700' :
-            config.color === 'purple' ? 'bg-purple-600 hover:bg-purple-700' :
-            'bg-blue-600 hover:bg-blue-700'
-          }`}
+          className={`px-4 py-2 rounded-md text-sm font-medium text-white ${config.color === 'rose' ? 'bg-rose-600 hover:bg-rose-700' :
+              config.color === 'purple' ? 'bg-purple-600 hover:bg-purple-700' :
+                'bg-blue-600 hover:bg-blue-700'
+            }`}
         >
           <Upload className="h-4 w-4 mr-2 inline" />
           Upload Content
@@ -401,19 +400,17 @@ const ContentManagement: React.FC<ContentManagementProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                activeTab === tab.id
+              className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${activeTab === tab.id
                   ? `border-${config.color}-500 text-${config.color}-600`
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
             >
               {tab.name}
               {tab.count > 0 && (
-                <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-                  activeTab === tab.id
+                <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === tab.id
                     ? `bg-${config.color}-100 text-${config.color}-600`
                     : 'bg-gray-100 text-gray-600'
-                }`}>
+                  }`}>
                   {tab.count}
                 </span>
               )}
@@ -475,11 +472,10 @@ const ContentManagement: React.FC<ContentManagementProps> = ({
           <p className="text-gray-600 mb-4">
             Track your content performance with detailed analytics and insights
           </p>
-          <button className={`px-4 py-2 rounded-md text-sm font-medium text-white ${
-            config.color === 'rose' ? 'bg-rose-600 hover:bg-rose-700' :
-            config.color === 'purple' ? 'bg-purple-600 hover:bg-purple-700' :
-            'bg-blue-600 hover:bg-blue-700'
-          }`}>
+          <button className={`px-4 py-2 rounded-md text-sm font-medium text-white ${config.color === 'rose' ? 'bg-rose-600 hover:bg-rose-700' :
+              config.color === 'purple' ? 'bg-purple-600 hover:bg-purple-700' :
+                'bg-blue-600 hover:bg-blue-700'
+            }`}>
             View Detailed Analytics
           </button>
         </div>
@@ -496,11 +492,10 @@ const ContentManagement: React.FC<ContentManagementProps> = ({
           </p>
           <button
             onClick={() => setIsUploadModalOpen(true)}
-            className={`px-4 py-2 rounded-md text-sm font-medium text-white ${
-              config.color === 'rose' ? 'bg-rose-600 hover:bg-rose-700' :
-              config.color === 'purple' ? 'bg-purple-600 hover:bg-purple-700' :
-              'bg-blue-600 hover:bg-blue-700'
-            }`}
+            className={`px-4 py-2 rounded-md text-sm font-medium text-white ${config.color === 'rose' ? 'bg-rose-600 hover:bg-rose-700' :
+                config.color === 'purple' ? 'bg-purple-600 hover:bg-purple-700' :
+                  'bg-blue-600 hover:bg-blue-700'
+              }`}
           >
             <Upload className="h-4 w-4 mr-2 inline" />
             Upload Content

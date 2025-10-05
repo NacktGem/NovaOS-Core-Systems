@@ -1,0 +1,21 @@
+@layer utilities {
+  /* ---------- Black Rose ---------- */
+  .theme-blackRose {
+    --c-bg: theme('colors.blackRose.bg');
+    --c-fg: theme('colors.blackRose.fg');
+    --c-primary: theme('colors.blackRose.midnightNavy');
+    --c-secondary: theme('colors.blackRose.deepTeal');
+    --c-accent: theme('colors.blackRose.roseMauve');
+  }
+
+  /* ---------- Nova OS ---------- */
+  .theme-novaOS {
+    --c-bg: theme('colors.novaOS.blueLight');
+    --c-fg: theme('colors.novaOS.lavender');
+    --c-primary: theme('colors.novaOS.p1');
+    --c-secondary: theme('colors.novaOS.p2');
+    --c-accent: theme('colors.novaOS.coral');
+  }
+
+  /* Add more themes here if needed */
+}

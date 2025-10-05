@@ -8,13 +8,20 @@
       "result": {
         "success": true,
         "output": {
-          "path": "/home/runner/work/NovaOS-Core-Systems/NovaOS-Core-Systems/README.md",
-          "size": 2342,
-          "sha256": "55d23cc58984976110c8f1c7c969ff24e1665d9f2dcdee493055e7e15c1743c1",
-          "md5": "2f4c26b151856e281fe9df0cae565cd2"
+          "path": "D:\\NovaOS-Core-Systems\\README.md",
+          "size": 3464,
+          "sha256": "e59281370d63d588b61db75a87388854749356377297d574d2b43bbc33de147a",
+          "md5": "c42e65dfee1675a15085932a5344c376",
+          "sha1": "9882d15c1772d28e79d105dd47eb7078de8b6865",
+          "entropy": 5.363244496335889,
+          "created": 1758242035.523131,
+          "modified": 1758242035.523131,
+          "accessed": 1759116463.3291528,
+          "suspicious_indicators": [],
+          "file_type": "unknown"
         },
         "error": null,
-        "job_id": "bccab30fb08349a297c39c61759b99c1"
+        "job_id": "1f4c0a63af1b4cf78f6e96e92cb1325f"
       }
     },
     {
@@ -24,13 +31,18 @@
         "success": true,
         "output": {
           "virtualized": false,
+          "sandbox_score": 0,
           "indicators": {
-            "cgroup": "0::/init.scope\n",
-            "container_env": false
-          }
+            "cgroup": "",
+            "container_env": false,
+            "vm_cpu": false,
+            "vm_dmi": false,
+            "analysis_tools": []
+          },
+          "confidence": "low"
         },
         "error": null,
-        "job_id": "720700de4cb844929053dc1dd93949e0"
+        "job_id": "cd21860fb4c14481b18974f583d0bf23"
       }
     }
   ],
@@ -43,10 +55,12 @@
       "result": {
         "success": true,
         "output": {
-          "prompt": "Describe a day on Mars."
+          "type": "writing",
+          "prompt": "Chronicle the moment you reclaimed your creative power.",
+          "ritual": "light incense and set a 12-minute timer to maintain flow"
         },
         "error": null,
-        "job_id": "d8ba4953793641f59c04de0f7cca2935"
+        "job_id": "acc3afb409154332b895851b4bb1fc8f"
       }
     },
     {
@@ -60,14 +74,35 @@
         "output": {
           "topic": "Python",
           "grade": "5th",
-          "sections": [
-            "Introduction",
-            "Activities",
-            "Assessment"
+          "objectives": [
+            "Learners articulate key principles of Python in their own voice",
+            "Learners demonstrate mastery of Python through a creative artifact"
+          ],
+          "sequence": {
+            "introduction": [
+              "story hook",
+              "guided discussion",
+              "sensory warm-up"
+            ],
+            "practice": [
+              "paired exploration",
+              "hands-on lab",
+              "guided journaling"
+            ],
+            "assessment": [
+              "reflection prompt",
+              "exit ticket",
+              "demo recording"
+            ]
+          },
+          "materials": [
+            "journal",
+            "audio recorder",
+            "open-source references"
           ]
         },
         "error": null,
-        "job_id": "5823f7567b8844b18e3185ec17708c99"
+        "job_id": "1aeb6d94a154476b87ea5cdbc6e0fca3"
       }
     }
   ],
@@ -88,10 +123,20 @@
           "metrics": {
             "users": 100,
             "revenue": 5000
-          }
+          },
+          "leaders": [
+            [
+              "revenue",
+              5000
+            ],
+            [
+              "users",
+              100
+            ]
+          ]
         },
         "error": null,
-        "job_id": "8302056e4f124c3fa23ee1ced8a7728f"
+        "job_id": "49537ac0421f4829b005c11b4b24ee87"
       }
     },
     {
@@ -103,10 +148,11 @@
       "result": {
         "success": true,
         "output": {
-          "ad": "Attention developers! Experience the power of NovaOS."
+          "ad": "Developers, experience NovaOS — crafted for those who refuse compromise.",
+          "cta": "Book a private walkthrough"
         },
         "error": null,
-        "job_id": "068a8fd1e3f2475ca81eb591a5656c15"
+        "job_id": "b9b68b602fc3474fa7e97638a1add367"
       }
     }
   ],
@@ -119,13 +165,17 @@
       "result": {
         "success": true,
         "output": {
-          "emails": [
-            "user@example.com"
-          ],
-          "violations": true
+          "summary": "Audita completed 'gdpr_scan'",
+          "details": {
+            "emails": [
+              "user@example.com"
+            ],
+            "violations": true
+          },
+          "logs_path": "\\logs\\audita.log"
         },
         "error": null,
-        "job_id": "a55ac5b60d7345ffb1a951cdb8466db1"
+        "job_id": "035e5d6bfa3a4a66b40e15694ec49219"
       }
     },
     {
@@ -143,12 +193,16 @@
       "result": {
         "success": true,
         "output": {
-          "income": 3000,
-          "expenses": 800,
-          "taxable": 2200
+          "summary": "Audita completed 'tax_report'",
+          "details": {
+            "income": 3000,
+            "expenses": 800,
+            "taxable": 2200
+          },
+          "logs_path": "\\logs\\audita.log"
         },
         "error": null,
-        "job_id": "3300f146411a485da090f33aeb81cc9d"
+        "job_id": "d71d324e873b439687e479c49b2b78fe"
       }
     }
   ],
@@ -161,10 +215,14 @@
       "result": {
         "success": true,
         "output": {
-          "message": "Test message"
+          "summary": "Echo completed 'send_message'",
+          "details": {
+            "message": "Test message",
+            "checksum": "c0719e9a8d5d838d"
+          }
         },
         "error": null,
-        "job_id": "b41e5f83314d40b3902b2858ec7a3058"
+        "job_id": "05f7e5bf07864a2a9898956916c1faf2"
       }
     },
     {
@@ -178,13 +236,19 @@
       "result": {
         "success": true,
         "output": {
-          "message": "System ready",
-          "recipients": [
-            "admin"
-          ]
+          "summary": "Echo completed 'broadcast'",
+          "details": {
+            "message": "System ready",
+            "recipients": [
+              {
+                "recipient": "admin",
+                "status": "delivered"
+              }
+            ]
+          }
         },
         "error": null,
-        "job_id": "f129c498b80f48dea6146a3f092bab60"
+        "job_id": "5bb270e7753c4a69a58b36b6d6fd84ad"
       }
     }
   ],
@@ -208,7 +272,7 @@
           ]
         },
         "error": null,
-        "job_id": "9fe1227e7ad94a1a9fdcbf2f55a2454e"
+        "job_id": "7254868d2808466285db0bbb042cfd8f"
       }
     },
     {
@@ -239,7 +303,7 @@
           ]
         },
         "error": null,
-        "job_id": "d69fcc0a2ea24586b9f352dcb9d0e95b"
+        "job_id": "ccce08d41d114c568aab19a54fcf3fa3"
       }
     }
   ]

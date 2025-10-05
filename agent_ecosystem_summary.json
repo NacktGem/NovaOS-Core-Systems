@@ -1,0 +1,168 @@
+{
+  "timestamp": "2025-09-29T05:55:00Z",
+  "total_agents": 7,
+  "active_agents": 7,
+  "agents": {
+    "nova": {
+      "name": "nova",
+      "description": "Master orchestrator and command dispatcher",
+      "capabilities": [
+        "orchestration",
+        "routing",
+        "delegation",
+        "system_coordination"
+      ],
+      "tools": [
+        "agent_discovery",
+        "load_balancing",
+        "priority_management",
+        "system_health"
+      ],
+      "communication_channels": [
+        "all"
+      ],
+      "status": "active",
+      "llm_enabled": true
+    },
+    "glitch": {
+      "name": "glitch",
+      "description": "Elite digital forensics and security operations",
+      "capabilities": [
+        "forensics",
+        "security_scanning",
+        "threat_detection",
+        "incident_response"
+      ],
+      "tools": [
+        "file_hashing",
+        "memory_analysis",
+        "network_scanning",
+        "rootkit_detection",
+        "honeypots"
+      ],
+      "communication_channels": [
+        "nova",
+        "riven",
+        "audita"
+      ],
+      "status": "active",
+      "llm_enabled": true
+    },
+    "lyra": {
+      "name": "lyra",
+      "description": "Creative tutor, curriculum developer, and educational guide",
+      "capabilities": [
+        "education",
+        "creativity",
+        "content_generation",
+        "herbal_guidance"
+      ],
+      "tools": [
+        "lesson_planning",
+        "creative_prompts",
+        "progress_tracking",
+        "herbal_database"
+      ],
+      "communication_channels": [
+        "nova",
+        "velora",
+        "echo"
+      ],
+      "status": "active",
+      "llm_enabled": true
+    },
+    "velora": {
+      "name": "velora",
+      "description": "Business analytics, revenue optimization, and data intelligence",
+      "capabilities": [
+        "analytics",
+        "forecasting",
+        "optimization",
+        "reporting"
+      ],
+      "tools": [
+        "revenue_analysis",
+        "customer_segmentation",
+        "performance_metrics",
+        "market_intelligence"
+      ],
+      "communication_channels": [
+        "nova",
+        "lyra",
+        "audita"
+      ],
+      "status": "active",
+      "llm_enabled": true
+    },
+    "echo": {
+      "name": "echo",
+      "description": "Real-time communication and WebSocket coordinator",
+      "capabilities": [
+        "real_time_comm",
+        "websockets",
+        "broadcasting",
+        "message_routing"
+      ],
+      "tools": [
+        "websocket_management",
+        "message_queues",
+        "broadcast_channels",
+        "presence_tracking"
+      ],
+      "communication_channels": [
+        "nova",
+        "lyra",
+        "riven"
+      ],
+      "status": "active",
+      "llm_enabled": true
+    },
+    "riven": {
+      "name": "riven",
+      "description": "Security hardening, access control, and emergency response",
+      "capabilities": [
+        "security",
+        "access_control",
+        "emergency_response",
+        "compliance"
+      ],
+      "tools": [
+        "access_management",
+        "security_hardening",
+        "emergency_protocols",
+        "threat_mitigation"
+      ],
+      "communication_channels": [
+        "nova",
+        "glitch",
+        "audita"
+      ],
+      "status": "active",
+      "llm_enabled": true
+    },
+    "audita": {
+      "name": "audita",
+      "description": "Compliance monitoring, audit trails, and regulatory adherence",
+      "capabilities": [
+        "compliance",
+        "auditing",
+        "regulatory",
+        "documentation"
+      ],
+      "tools": [
+        "audit_logging",
+        "compliance_checking",
+        "regulatory_reporting",
+        "documentation_management"
+      ],
+      "communication_channels": [
+        "nova",
+        "velora",
+        "riven",
+        "glitch"
+      ],
+      "status": "active",
+      "llm_enabled": true
+    }
+  }
+}

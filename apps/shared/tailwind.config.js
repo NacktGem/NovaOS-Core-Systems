@@ -1,6 +1,10 @@
 /* Master Palette — NovaOS | Black Rose | GypsyCove — Sovereign Standard */
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: "class", // Enables class-based theme switching
+  content: [
+    "./src/**/*.{js,ts,jsx,tsx}", // Ensures Tailwind scans all relevant files
+  ],
   theme: {
     extend: {
       colors: {
@@ -88,5 +92,6 @@ export default {
         }
       }
     }
-  }
+  },
+  plugins: [],
 };

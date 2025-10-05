@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Black Rose Collective - GodMode Access</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(120, 50, 50, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(60, 30, 30, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(90, 40, 40, 0.05) 0%, transparent 50%);
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .brand-header {
+            margin-bottom: 3rem;
+        }
+
+        .rose-logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1.5rem;
+            fill: #e11d48;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .rose-logo:hover {
+            fill: #f43f5e;
+            transform: scale(1.05);
+        }
+
+        .brand-title {
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .brand-subtitle {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .access-title {
+            font-size: 1.1rem;
+            color: #e11d48;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            outline: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 300;
+        }
+
+        .form-input:focus {
+            border-color: #e11d48;
+            background: rgba(225, 29, 72, 0.05);
+            box-shadow: 0 0 0 2px rgba(225, 29, 72, 0.2);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #e11d48, #be185d);
+            border: none;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .login-button:hover {
+            background: linear-gradient(135deg, #f43f5e, #e11d48);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(225, 29, 72, 0.3);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .status {
+            margin-top: 2rem;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .status.success {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+
+        .status.error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .loading .login-button {
+            background: rgba(225, 29, 72, 0.3);
+        }
+
+        /* Subtle animations */
+        .rose-logo {
+            animation: gentle-pulse 6s ease-in-out infinite;
+        }
+
+        @keyframes gentle-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .demo-hint {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.3);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            text-align: center;
+        }
+
+        body:hover .demo-hint {
+            opacity: 1;
+        }
+
+        /* Floating particles effect */
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(225, 29, 72, 0.3);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+
+        .particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .particle:nth-child(2) { left: 20%; animation-delay: 3s; }
+        .particle:nth-child(3) { left: 80%; animation-delay: 6s; }
+        .particle:nth-child(4) { left: 90%; animation-delay: 9s; }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) scale(0); }
+            10% { transform: translateY(90vh) scale(1); }
+            90% { transform: translateY(10vh) scale(1); }
+            100% { transform: translateY(0vh) scale(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating particles -->
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+
+    <div class="login-container">
+        <div class="brand-header">
+            <!-- Rose Logo SVG -->
+            <svg class="rose-logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                <circle cx="12" cy="10" r="3" opacity="0.6"/>
+                <path d="M12 4l-1 3h2l-1-3z" opacity="0.8"/>
+            </svg>
+
+            <div class="brand-title">Black Rose Collective</div>
+            <div class="brand-subtitle">Premium Creator Platform</div>
+        </div>
+
+        <div class="access-title">GOD MODE ACCESS</div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <input
+                    type="email"
+                    id="email"
+                    class="form-input"
+                    placeholder="Creator Email"
+                    required
+                    autocomplete="username"
+                >
+            </div>
+
+            <div class="form-group">
+                <input
+                    type="password"
+                    id="password"
+                    class="form-input"
+                    placeholder="Access Key"
+                    required
+                    autocomplete="current-password"
+                >
+            </div>
+
+            <button type="submit" class="login-button">Enter Platform</button>
+        </form>
+
+        <div id="status" class="status"></div>
+    </div>
+
+    <div class="demo-hint">
+        Click the rose for demo credentials
+    </div>
+
+    <script>
+        // Auto-fill GODMODE credentials when clicking the rose
+        document.querySelector('.rose-logo').addEventListener('click', function() {
+            document.getElementById('email').value = 'nacktgem@gmail.com';
+            document.getElementById('password').value = 'godmode2024!';
+
+            // Add a subtle flash effect
+            this.style.fill = '#f43f5e';
+            setTimeout(() => this.style.fill = '#e11d48', 300);
+        });
+
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const status = document.getElementById('status');
+            const container = document.querySelector('.login-container');
+
+            // Show loading state
+            container.classList.add('loading');
+            status.style.display = 'none';
+
+            try {
+                // First, try the external login test (which we know works)
+                const testResponse = await fetch('http://localhost:8080/test-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (testResponse.ok) {
+                    const data = await testResponse.json();
+                    status.className = 'status success';
+                    status.textContent = `✓ Welcome back, ${data.role === 'GODMODE' ? 'Creator' : data.role}`;
+                    status.style.display = 'block';
+
+                    // Redirect based on role after delay
+                    setTimeout(() => {
+                        if (data.role === 'GODMODE') {
+                            window.location.href = 'http://localhost:3000'; // Black Rose Platform
+                        } else if (data.role === 'SUPER_ADMIN') {
+                            window.location.href = 'http://localhost:3000/admin';
+                        } else {
+                            window.location.href = 'http://localhost:3000';
+                        }
+                    }, 1500);
+
+                } else {
+                    throw new Error('Authentication failed');
+                }
+
+            } catch (error) {
+                // Fallback - try Core API (might have connection issues)
+                try {
+                    const apiResponse = await fetch('http://localhost:9760/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password }),
+                        credentials: 'include'
+                    });
+
+                    if (apiResponse.ok) {
+                        const data = await apiResponse.json();
+                        status.className = 'status success';
+                        status.textContent = `✓ Welcome back, Creator`;
+                        status.style.display = 'block';
+
+                        setTimeout(() => {
+                            if (data.role === 'GODMODE') {
+                                window.location.href = 'http://localhost:3000'; // Black Rose Platform
+                            } else {
+                                window.location.href = 'http://localhost:3000';
+                            }
+                        }, 1500);
+                    } else {
+                        throw new Error('Invalid credentials');
+                    }
+                } catch (apiError) {
+                    status.className = 'status error';
+                    status.textContent = '⚠ Access Denied - Invalid Creator Credentials';
+                    status.style.display = 'block';
+                }
+            }
+
+            // Remove loading state
+            container.classList.remove('loading');
+        });
+
+        // Add subtle keyboard interactions
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !document.querySelector('.loading')) {
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        });
+
+        // Easter egg - konami code for instant GODMODE
+        let konamiCode = [];
+        const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
+
+        document.addEventListener('keydown', function(e) {
+            konamiCode.push(e.code);
+            if (konamiCode.length > konamiSequence.length) {
+                konamiCode.shift();
+            }
+
+            if (konamiCode.length === konamiSequence.length &&
+                konamiCode.every((code, index) => code === konamiSequence[index])) {
+                document.getElementById('email').value = 'nacktgem@gmail.com';
+                document.getElementById('password').value = 'godmode2024!';
+                document.querySelector('.rose-logo').style.fill = '#ffd700';
+                setTimeout(() => document.querySelector('.rose-logo').style.fill = '#e11d48', 1000);
+            }
+        });
+    </script>
+</body>
+</html>

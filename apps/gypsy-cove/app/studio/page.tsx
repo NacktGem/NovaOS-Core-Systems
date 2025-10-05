@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Frame, Card, Toggle } from "../../shared/ui";
+import { Frame, Card, Toggle } from '@nova/ui';
 
 export default function GypsyCoveStudio() {
     const [autoRefresh, setAutoRefresh] = useState(true);
@@ -12,7 +12,7 @@ export default function GypsyCoveStudio() {
             <div className="max-w-8xl mx-auto space-y-6">
 
                 {/* Header */}
-                <Frame variant="novaOS" size="lg" className="text-center">
+                <Frame className="text-center p-6">
                     <h1 className="text-4xl font-bold text-novaOS-blueDark mb-2">
                         GypsyCove Studio
                     </h1>
@@ -22,7 +22,7 @@ export default function GypsyCoveStudio() {
                 </Frame>
 
                 {/* Studio Palette Preview */}
-                <Frame variant="ghost" size="lg">
+                <Frame className="p-6">
                     <h3 className="text-xl font-semibold mb-4 text-studios-inkSteel-graphite">
                         Master Palette System
                     </h3>
@@ -52,20 +52,25 @@ export default function GypsyCoveStudio() {
                 </Frame>
 
                 {/* Controls */}
-                <Card variant="novaOS" header="Studio Controls">
+                <Card variant="default" className="p-6">
+                    <h3 className="text-lg font-semibold mb-4">Studio Controls</h3>
                     <div className="flex space-x-8">
-                        <Toggle
-                            checked={autoRefresh}
-                            onCheckedChange={setAutoRefresh}
-                            variant="status"
-                            label="Auto Refresh"
-                        />
-                        <Toggle
-                            checked={notifications}
-                            onCheckedChange={setNotifications}
-                            variant="novaOS"
-                            label="Notifications"
-                        />
+                        <div className="flex items-center space-x-2">
+                            <Toggle
+                                pressed={autoRefresh}
+                                onPressedChange={setAutoRefresh}
+                                variant="default"
+                            />
+                            <span>Auto Refresh</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Toggle
+                                pressed={notifications}
+                                onPressedChange={setNotifications}
+                                variant="outline"
+                            />
+                            <span>Notifications</span>
+                        </div>
                     </div>
                 </Card>
 

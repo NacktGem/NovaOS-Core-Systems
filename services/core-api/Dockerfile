@@ -32,6 +32,7 @@ RUN pip install --no-cache-dir \
   fastapi==0.116.1 \
   "uvicorn[standard]==0.35.0" \
   pydantic==2.11.7 \
+  "pydantic[email]==2.11.7" \
   "psycopg[binary]==3.2.1" \
   sqlalchemy==2.0.34 \
   redis==5.0.1 \
@@ -43,7 +44,8 @@ RUN pip install --no-cache-dir \
   "python-jose[cryptography]==3.3.0" \
   argon2-cffi==23.1.0 \
   itsdangerous==2.2.0 \
-  typing-extensions>=4.5.0
+  typing-extensions>=4.5.0 \
+  stripe==12.0.0
 
 RUN chmod -R a+rX /app/env || true
 

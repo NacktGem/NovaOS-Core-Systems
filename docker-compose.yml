@@ -22,33 +22,37 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-nova_core}
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - '5432:5432'
+      - "127.0.0.1:5433:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
     networks:
       - nova_net
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-nova} -d ${POSTGRES_DB:-nova_core}']
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-nova} -d ${POSTGRES_DB:-nova_core}",
+        ]
       interval: 5s
       timeout: 3s
       retries: 20
-    profiles: ['infra']
+    profiles: ["infra"]
 
   redis:
     image: redis:7-alpine
     container_name: nova-redis
     restart: unless-stopped
-    command: ['redis-server', '--appendonly', 'yes']
+    command: ["redis-server", "--appendonly", "yes"]
     ports:
-      - '6379:6379'
+      - "127.0.0.1:6380:6379"
     networks:
       - nova_net
     healthcheck:
-      test: ['CMD-SHELL', 'redis-cli ping | grep -i PONG']
+      test: ["CMD-SHELL", "redis-cli ping | grep -i PONG"]
       interval: 5s
       timeout: 3s
       retries: 20
-    profiles: ['infra']
+    profiles: ["infra"]
 
   # -------------------- APPS --------------------
   core-api:
@@ -64,13 +68,21 @@ services:
       JWT_PUBLIC_KEY_PATH: ${JWT_PUBLIC_KEY_PATH:-/run/secrets/dev_jwt_public.pem}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
       ECHO_INTERNAL_TOKEN: ${ECHO_INTERNAL_TOKEN}
+      SMTP_SERVER: ${SMTP_SERVER:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
+      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-noreply@blackrosecollective.studio}
+      SMTP_FROM_NAME: ${SMTP_FROM_NAME:-NovaOS Platform}
     secrets:
       - dev_jwt_private
       - dev_jwt_public
     volumes:
       - ./logs:/app/logs
+      - ./uploads:/app/uploads
     ports:
-      - '9760:8000'
+      - "9760:8000"
     depends_on:
       db:
         condition: service_healthy
@@ -80,11 +92,15 @@ services:
     networks:
       - nova_net
     healthcheck:
-      test: ['CMD-SHELL', 'curl -f http://localhost:8000/internal/healthz || exit 1']
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://localhost:8000/internal/healthz || exit 1",
+        ]
       interval: 5s
       timeout: 3s
       retries: 12
-    profiles: ['app']
+    profiles: ["app"]
 
   echo-ws:
     build:
@@ -99,7 +115,7 @@ services:
     volumes:
       - ./logs:/app/logs
     ports:
-      - '9765:8000'
+      - "9765:8000"
     depends_on:
       core-api:
         condition: service_healthy
@@ -109,11 +125,31 @@ services:
     networks:
       - nova_net
     healthcheck:
-      test: ['CMD-SHELL', 'curl -f http://localhost:8000/healthz || exit 1']
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/healthz || exit 1"]
       interval: 5s
       timeout: 3s
       retries: 8
-    profiles: ['app']
+    profiles: ["app"]
+
+  web-shell:
+    build:
+      context: .
+      dockerfile: apps/web-shell/Dockerfile
+    container_name: nova-web-shell
+    env_file: [.env]
+    environment:
+      NODE_ENV: production
+      CORE_API_URL: ${CORE_API_URL:-http://core-api:8000}
+      NOVAOS_BASE_URL: ${NOVAOS_BASE_URL:-http://novaos:3001}
+    ports:
+      - "3002:3002"
+    depends_on:
+      core-api:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - nova_net
+    profiles: ["app"]
 
   gypsy-cove:
     build:
@@ -126,14 +162,14 @@ services:
       CORE_API_URL: ${CORE_API_URL:-http://core-api:8000}
       NOVAOS_BASE_URL: ${NOVAOS_BASE_URL:-http://novaos:3001}
     ports:
-      - '3000:3000'
+      - "3000:3000"
     depends_on:
       core-api:
         condition: service_started
     restart: unless-stopped
     networks:
       - nova_net
-    profiles: ['app']
+    profiles: ["app"]
 
   novaos:
     build:
@@ -146,14 +182,14 @@ services:
       CORE_API_URL: ${CORE_API_URL:-http://core-api:8000}
       NOVAOS_BASE_URL: ${NOVAOS_BASE_URL:-http://localhost:3001}
     ports:
-      - '3001:3001'
+      - "3001:3001"
     depends_on:
       core-api:
         condition: service_started
     restart: unless-stopped
     networks:
       - nova_net
-    profiles: ['app']
+    profiles: ["app"]
 
   # -------------------- AGENTS --------------------
   agent-nova:
@@ -162,15 +198,22 @@ services:
       dockerfile: agents/nova/Dockerfile
     image: ghcr.io/nacktgem/novaos-agent-nova:latest
     restart: unless-stopped
-    profiles: ['agents']
+    profiles: ["agents"]
     environment:
-      PYTHONUNBUFFERED: '1'
+      PYTHONUNBUFFERED: "1"
       CORE_API_URL: ${CORE_API_URL}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
       AGENT_HEARTBEAT_INTERVAL: 20
-    command: ['python', '-u', 'scripts/run_with_heartbeat.py', 'agents/nova/agent.py', 'nova']
+    command:
+      [
+        "python",
+        "-u",
+        "scripts/run_with_heartbeat.py",
+        "agents/nova/agent.py",
+        "nova",
+      ]
     healthcheck:
-      test: ['CMD', 'python', 'scripts/healthcheck.py', 'agents/nova/agent.py']
+      test: ["CMD", "python", "scripts/healthcheck.py", "agents/nova/agent.py"]
       interval: 20s
       timeout: 5s
       retries: 5
@@ -192,15 +235,22 @@ services:
       dockerfile: agents/lyra/Dockerfile
     image: ghcr.io/nacktgem/novaos-agent-lyra:latest
     restart: unless-stopped
-    profiles: ['agents']
+    profiles: ["agents"]
     environment:
-      PYTHONUNBUFFERED: '1'
+      PYTHONUNBUFFERED: "1"
       CORE_API_URL: ${CORE_API_URL}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
       AGENT_HEARTBEAT_INTERVAL: 20
-    command: ['python', '-u', 'scripts/run_with_heartbeat.py', 'agents/lyra/agent.py', 'lyra']
+    command:
+      [
+        "python",
+        "-u",
+        "scripts/run_with_heartbeat.py",
+        "agents/lyra/agent.py",
+        "lyra",
+      ]
     healthcheck:
-      test: ['CMD', 'python', 'scripts/healthcheck.py', 'agents/lyra/agent.py']
+      test: ["CMD", "python", "scripts/healthcheck.py", "agents/lyra/agent.py"]
       interval: 20s
       timeout: 5s
       retries: 5
@@ -222,15 +272,23 @@ services:
       dockerfile: agents/velora/Dockerfile
     image: ghcr.io/nacktgem/novaos-agent-velora:latest
     restart: unless-stopped
-    profiles: ['agents']
+    profiles: ["agents"]
     environment:
-      PYTHONUNBUFFERED: '1'
+      PYTHONUNBUFFERED: "1"
       CORE_API_URL: ${CORE_API_URL}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
       AGENT_HEARTBEAT_INTERVAL: 20
-    command: ['python', '-u', 'scripts/run_with_heartbeat.py', 'agents/velora/agent.py', 'velora']
+    command:
+      [
+        "python",
+        "-u",
+        "scripts/run_with_heartbeat.py",
+        "agents/velora/agent.py",
+        "velora",
+      ]
     healthcheck:
-      test: ['CMD', 'python', 'scripts/healthcheck.py', 'agents/velora/agent.py']
+      test:
+        ["CMD", "python", "scripts/healthcheck.py", "agents/velora/agent.py"]
       interval: 20s
       timeout: 5s
       retries: 5
@@ -252,15 +310,23 @@ services:
       dockerfile: agents/glitch/Dockerfile
     image: ghcr.io/nacktgem/novaos-agent-glitch:latest
     restart: unless-stopped
-    profiles: ['agents']
+    profiles: ["agents"]
     environment:
-      PYTHONUNBUFFERED: '1'
+      PYTHONUNBUFFERED: "1"
       CORE_API_URL: ${CORE_API_URL}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
       AGENT_HEARTBEAT_INTERVAL: 20
-    command: ['python', '-u', 'scripts/run_with_heartbeat.py', 'agents/glitch/agent.py', 'glitch']
+    command:
+      [
+        "python",
+        "-u",
+        "scripts/run_with_heartbeat.py",
+        "agents/glitch/agent.py",
+        "glitch",
+      ]
     healthcheck:
-      test: ['CMD', 'python', 'scripts/healthcheck.py', 'agents/glitch/agent.py']
+      test:
+        ["CMD", "python", "scripts/healthcheck.py", "agents/glitch/agent.py"]
       interval: 20s
       timeout: 5s
       retries: 5
@@ -282,18 +348,25 @@ services:
       dockerfile: agents/echo/Dockerfile
     image: ghcr.io/nacktgem/novaos-agent-echo:latest
     restart: unless-stopped
-    profiles: ['agents']
+    profiles: ["agents"]
     secrets:
       - jwt_pub
     environment:
-      PYTHONUNBUFFERED: '1'
+      PYTHONUNBUFFERED: "1"
       REDIS_URL: ${REDIS_URL}
       CORE_API_URL: ${CORE_API_URL}
       ECHO_INTERNAL_TOKEN: ${ECHO_INTERNAL_TOKEN}
       JWT_PUBLIC_KEY_PATH: ${JWT_PUBLIC_KEY_PATH}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
       AGENT_HEARTBEAT_INTERVAL: 20
-    command: ['python', '-u', 'scripts/run_with_heartbeat.py', 'agents/echo/agent.py', 'echo']
+    command:
+      [
+        "python",
+        "-u",
+        "scripts/run_with_heartbeat.py",
+        "agents/echo/agent.py",
+        "echo",
+      ]
     volumes:
       - type: bind
         source: ./agents
@@ -312,11 +385,11 @@ services:
         target: /app/services
         read_only: true
     healthcheck:
-      test: ['CMD', 'python', 'scripts/healthcheck.py', 'agents/echo/agent.py']
+      test: ["CMD", "python", "scripts/healthcheck.py", "agents/echo/agent.py"]
       interval: 20s
       timeout: 5s
       retries: 5
-      start_period: 15s
+      start_period: 30s
     read_only: true
     tmpfs:
       - /tmp:size=32m,exec,uid=1000,gid=1000,mode=1777
@@ -338,15 +411,22 @@ services:
       dockerfile: agents/riven/Dockerfile
     image: ghcr.io/nacktgem/novaos-agent-riven:latest
     restart: unless-stopped
-    profiles: ['agents']
+    profiles: ["agents"]
     environment:
-      PYTHONUNBUFFERED: '1'
+      PYTHONUNBUFFERED: "1"
       CORE_API_URL: ${CORE_API_URL}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
       AGENT_HEARTBEAT_INTERVAL: 20
-    command: ['python', '-u', 'scripts/run_with_heartbeat.py', 'agents/riven/agent.py', 'riven']
+    command:
+      [
+        "python",
+        "-u",
+        "scripts/run_with_heartbeat.py",
+        "agents/riven/agent.py",
+        "riven",
+      ]
     healthcheck:
-      test: ['CMD', 'python', 'scripts/healthcheck.py', 'agents/riven/agent.py']
+      test: ["CMD", "python", "scripts/healthcheck.py", "agents/riven/agent.py"]
       interval: 20s
       timeout: 5s
       retries: 5
@@ -368,15 +448,23 @@ services:
       dockerfile: agents/audita/Dockerfile
     image: ghcr.io/nacktgem/novaos-agent-audita:latest
     restart: unless-stopped
-    profiles: ['agents']
+    profiles: ["agents"]
     environment:
-      PYTHONUNBUFFERED: '1'
+      PYTHONUNBUFFERED: "1"
       CORE_API_URL: ${CORE_API_URL}
       AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
       AGENT_HEARTBEAT_INTERVAL: 20
-    command: ['python', '-u', 'scripts/run_with_heartbeat.py', 'agents/audita/agent.py', 'audita']
+    command:
+      [
+        "python",
+        "-u",
+        "scripts/run_with_heartbeat.py",
+        "agents/audita/agent.py",
+        "audita",
+      ]
     healthcheck:
-      test: ['CMD', 'python', 'scripts/healthcheck.py', 'agents/audita/agent.py']
+      test:
+        ["CMD", "python", "scripts/healthcheck.py", "agents/audita/agent.py"]
       interval: 20s
       timeout: 5s
       retries: 5

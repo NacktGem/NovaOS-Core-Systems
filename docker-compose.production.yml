@@ -1,0 +1,259 @@
+# NovaOS Production Docker Compose Configuration
+# Complete stack for deployment at 159.223.15.214
+
+version: "3.8"
+
+name: novaos-production
+
+networks:
+  nova_net:
+    driver: bridge
+  internal:
+    driver: bridge
+    internal: true
+
+volumes:
+  pg_data:
+    driver: local
+  redis_data:
+    driver: local
+  app_logs:
+    driver: local
+
+services:
+  # ================== INFRASTRUCTURE ==================
+
+  db:
+    image: postgres:16-alpine
+    container_name: nova-postgres-prod
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-nova}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-nova_core}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    networks:
+      - internal
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-nova} -d ${POSTGRES_DB:-nova_core}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "0.5"
+
+  redis:
+    image: redis:7-alpine
+    container_name: nova-redis-prod
+    restart: always
+    command:
+      [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--requirepass",
+        "${REDIS_PASSWORD}",
+      ]
+    volumes:
+      - redis_data:/data
+    networks:
+      - internal
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "redis-cli",
+          "--no-auth-warning",
+          "-a",
+          "${REDIS_PASSWORD}",
+          "ping",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.25"
+
+  # ================== CORE SERVICES ==================
+
+  core-api:
+    build:
+      context: .
+      dockerfile: services/core-api/Dockerfile
+      args:
+        - BUILDKIT_INLINE_CACHE=1
+    container_name: nova-core-api-prod
+    restart: always
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql+psycopg://nova:${POSTGRES_PASSWORD}@db:5432/nova_core
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      JWT_PRIVATE_KEY_PATH: /run/secrets/jwt_private
+      JWT_PUBLIC_KEY_PATH: /run/secrets/jwt_public
+      AUTH_PEPPER: ${AUTH_PEPPER}
+      AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
+      ECHO_INTERNAL_TOKEN: ${ECHO_INTERNAL_TOKEN}
+      CORS_ORIGINS: https://blackrosecollective.studio,https://novaos.blackrosecollective.studio
+    secrets:
+      - jwt_private
+      - jwt_public
+    volumes:
+      - app_logs:/app/logs
+    ports:
+      - "127.0.0.1:9760:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - nova_net
+      - internal
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://localhost:8000/internal/healthz || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "0.5"
+
+  echo-ws:
+    build:
+      context: .
+      dockerfile: services/echo/Dockerfile
+    container_name: nova-echo-prod
+    restart: always
+    environment:
+      NODE_ENV: production
+      CORE_API_URL: http://core-api:8000
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/1
+      AGENT_SHARED_TOKEN: ${AGENT_SHARED_TOKEN}
+    volumes:
+      - app_logs:/app/logs
+    ports:
+      - "127.0.0.1:9765:8000"
+    depends_on:
+      core-api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - nova_net
+      - internal
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://localhost:8000/internal/healthz || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ================== APPLICATIONS ==================
+
+  web-shell:
+    build:
+      context: .
+      dockerfile: apps/web-shell/Dockerfile
+    container_name: nova-web-shell-prod
+    restart: always
+    environment:
+      NODE_ENV: production
+      CORE_API_URL: http://core-api:8000
+      NEXT_PUBLIC_CORE_API_URL: https://blackrosecollective.studio/api
+    volumes:
+      - app_logs:/app/logs
+    ports:
+      - "127.0.0.1:3002:3002"
+    depends_on:
+      core-api:
+        condition: service_healthy
+    networks:
+      - nova_net
+      - internal
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.25"
+
+  gypsy-cove:
+    build:
+      context: .
+      dockerfile: apps/gypsy-cove/Dockerfile
+    container_name: nova-gypsy-cove-prod
+    restart: always
+    environment:
+      NODE_ENV: production
+      CORE_API_URL: http://core-api:8000
+      NEXT_PUBLIC_CORE_API_URL: https://gypsy-cove.xyz/api
+    volumes:
+      - app_logs:/app/logs
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      core-api:
+        condition: service_healthy
+    networks:
+      - nova_net
+      - internal
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.25"
+
+  novaos:
+    build:
+      context: .
+      dockerfile: apps/novaos/Dockerfile
+    container_name: nova-novaos-prod
+    restart: always
+    environment:
+      NODE_ENV: production
+      CORE_API_URL: http://core-api:8000
+      NEXT_PUBLIC_CORE_API_URL: https://novaos.blackrosecollective.studio/api
+      GYPSY_COVE_API_URL: https://gypsy-cove.xyz/api
+    volumes:
+      - app_logs:/app/logs
+    ports:
+      - "127.0.0.1:3001:3001"
+    depends_on:
+      core-api:
+        condition: service_healthy
+    networks:
+      - nova_net
+      - internal
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.25"
+
+secrets:
+  jwt_private:
+    file: ./keys/jwt_private.pem
+  jwt_public:
+    file: ./keys/jwt_public.pem

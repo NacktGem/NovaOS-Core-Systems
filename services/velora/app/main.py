@@ -16,8 +16,16 @@ from agents.velora.agent import VeloraAgent
 from agents.common.security import IdentityClaims, authorize_headers, JWTVerificationError
 
 # Optional analytics DB support preserved
-import psycopg  # type: ignore
-from psycopg.rows import dict_row  # type: ignore
+try:
+    import psycopg  # type: ignore
+    from psycopg.rows import dict_row  # type: ignore
+
+    DB_AVAILABLE = True
+except ImportError:
+    # Fallback for local development without psycopg
+    DB_AVAILABLE = False
+    psycopg = None
+    dict_row = None
 
 
 DB = os.getenv("DATABASE_URL", "postgresql://localhost/novaos")
@@ -25,6 +33,8 @@ app = FastAPI(title="Velora Service")
 
 
 def db():
+    if not DB_AVAILABLE:
+        raise RuntimeError("Database not available in development mode")
     return psycopg.connect(DB, row_factory=dict_row)
 
 

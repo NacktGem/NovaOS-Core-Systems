@@ -40,7 +40,7 @@ export function NSFWMonitorPanel() {
     const [selectedStatus, setSelectedStatus] = useState<string>('pending');
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [consentVerificationResults, setConsentVerificationResults] = useState<any>(null);
+    const [consentVerificationResults, setConsentVerificationResults] = useState<Record<string, unknown> | null>(null);
     const [isVerifyingConsent, setIsVerifyingConsent] = useState(false);
 
     useEffect(() => {
@@ -205,8 +205,8 @@ export function NSFWMonitorPanel() {
                                 key={tab.key}
                                 onClick={() => setSelectedStatus(tab.key)}
                                 className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${selectedStatus === tab.key
-                                        ? 'text-blackRose-fg border-studios-cipherCore-cyberBlue'
-                                        : 'text-blackRose-slate border-transparent hover:text-blackRose-fg'
+                                    ? 'text-blackRose-fg border-studios-cipherCore-cyberBlue'
+                                    : 'text-blackRose-slate border-transparent hover:text-blackRose-fg'
                                     }`}
                             >
                                 {tab.label}

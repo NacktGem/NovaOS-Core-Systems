@@ -71,7 +71,7 @@ const SignupFlow: React.FC<SignupFlowProps> = ({ platform, onSignupComplete, onC
 
   const calculatePasswordStrength = (password: string): 'weak' | 'medium' | 'strong' => {
     let strength = 0;
-    
+
     if (password.length >= 8) strength++;
     if (/[A-Z]/.test(password)) strength++;
     if (/[a-z]/.test(password)) strength++;
@@ -120,10 +120,10 @@ const SignupFlow: React.FC<SignupFlowProps> = ({ platform, onSignupComplete, onC
     if (config.requiresAge && formData.birthDate) {
       const birthDate = new Date(formData.birthDate);
       const today = new Date();
-      const age = today.getFullYear() - birthDate.getFullYear() - 
-        (today.getMonth() < birthDate.getMonth() || 
-         (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0);
-      
+      const age = today.getFullYear() - birthDate.getFullYear() -
+        (today.getMonth() < birthDate.getMonth() ||
+          (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0);
+
       if (age < 18) {
         newErrors.birthDate = 'You must be 18 or older to join this platform';
       }
@@ -147,7 +147,7 @@ const SignupFlow: React.FC<SignupFlowProps> = ({ platform, onSignupComplete, onC
       ...prev,
       [field]: value
     }));
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({
@@ -173,7 +173,7 @@ const SignupFlow: React.FC<SignupFlowProps> = ({ platform, onSignupComplete, onC
       });
 
       const result = await response.json();
-      
+
       if (!result.success) {
         if (result.errors) {
           setErrors(result.errors);
@@ -189,7 +189,7 @@ const SignupFlow: React.FC<SignupFlowProps> = ({ platform, onSignupComplete, onC
       } else {
         setStep('preferences');
       }
-      
+
     } catch (error) {
       setErrors({ general: 'Network error. Please try again.' });
     } finally {
@@ -214,7 +214,7 @@ const SignupFlow: React.FC<SignupFlowProps> = ({ platform, onSignupComplete, onC
       });
 
       const result = await response.json();
-      
+
       if (result.success) {
         setStep('complete');
         setTimeout(() => {
@@ -224,7 +224,7 @@ const SignupFlow: React.FC<SignupFlowProps> = ({ platform, onSignupComplete, onC
         setErrors({ general: result.message || 'Account creation failed' });
         setStep('details');
       }
-      
+
     } catch (error) {
       setErrors({ general: 'Network error. Please try again.' });
       setStep('details');
@@ -286,9 +286,8 @@ const SignupFlow: React.FC<SignupFlowProps> = ({ platform, onSignupComplete, onC
               type="email"
               value={formData.email}
               onChange={(e) => handleInputChange('email', e.target.value)}
-              className={`block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                errors.email ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-              }`}
+              className={`block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors.email ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                }`}
               placeholder="your@email.com"
             />
           </div>
@@ -305,9 +304,8 @@ const SignupFlow: React.FC<SignupFlowProps> = ({ platform, onSignupComplete, onC
               type="text"
               value={formData.username}
               onChange={(e) => handleInputChange('username', e.target.value)}
-              className={`block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                errors.username ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-              }`}
+              className={`block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors.username ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                }`}
               placeholder="username"
             />
           </div>
@@ -324,9 +322,8 @@ const SignupFlow: React.FC<SignupFlowProps> = ({ platform, onSignupComplete, onC
               type={showPassword ? 'text' : 'password'}
               value={formData.password}
               onChange={(e) => handleInputChange('password', e.target.value)}
-              className={`block w-full pl-10 pr-10 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                errors.password ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-              }`}
+              className={`block w-full pl-10 pr-10 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors.password ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                }`}
               placeholder="Create a strong password"
             />
             <button
@@ -341,19 +338,17 @@ const SignupFlow: React.FC<SignupFlowProps> = ({ platform, onSignupComplete, onC
             <div className="mt-1">
               <div className="flex items-center space-x-2">
                 <div className="flex-1 bg-gray-200 rounded-full h-1">
-                  <div 
-                    className={`h-1 rounded-full transition-all ${
-                      passwordStrength === 'weak' ? 'bg-red-500 w-1/3' :
-                      passwordStrength === 'medium' ? 'bg-yellow-500 w-2/3' :
-                      'bg-green-500 w-full'
-                    }`}
+                  <div
+                    className={`h-1 rounded-full transition-all ${passwordStrength === 'weak' ? 'bg-red-500 w-1/3' :
+                        passwordStrength === 'medium' ? 'bg-yellow-500 w-2/3' :
+                          'bg-green-500 w-full'
+                      }`}
                   />
                 </div>
-                <span className={`text-xs font-medium ${
-                  passwordStrength === 'weak' ? 'text-red-600' :
-                  passwordStrength === 'medium' ? 'text-yellow-600' :
-                  'text-green-600'
-                }`}>
+                <span className={`text-xs font-medium ${passwordStrength === 'weak' ? 'text-red-600' :
+                    passwordStrength === 'medium' ? 'text-yellow-600' :
+                      'text-green-600'
+                  }`}>
                   {passwordStrength}
                 </span>
               </div>
@@ -372,9 +367,8 @@ const SignupFlow: React.FC<SignupFlowProps> = ({ platform, onSignupComplete, onC
               type="password"
               value={formData.confirmPassword}
               onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-              className={`block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                errors.confirmPassword ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-              }`}
+              className={`block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors.confirmPassword ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                }`}
               placeholder="Confirm your password"
             />
           </div>
@@ -391,9 +385,8 @@ const SignupFlow: React.FC<SignupFlowProps> = ({ platform, onSignupComplete, onC
               value={formData.birthDate}
               onChange={(e) => handleInputChange('birthDate', e.target.value)}
               max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
-              className={`block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                errors.birthDate ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
-              }`}
+              className={`block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors.birthDate ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                }`}
             />
             <p className="mt-1 text-xs text-gray-500">You must be 18 or older to join this platform</p>
             {errors.birthDate && <p className="mt-1 text-xs text-red-600">{errors.birthDate}</p>}
@@ -473,7 +466,7 @@ const SignupFlow: React.FC<SignupFlowProps> = ({ platform, onSignupComplete, onC
           As an adult platform, we need to verify that you're 18 or older before you can create your account.
         </p>
       </div>
-      
+
       <div className={`p-4 ${getColorClasses('bg')} rounded-lg`}>
         <CreditCard className={`mx-auto h-8 w-8 ${getColorClasses('secondary').split(' ')[0]} mb-2`} />
         <h3 className="font-medium text-gray-900 mb-1">Quick Verification</h3>
@@ -582,7 +575,7 @@ const SignupFlow: React.FC<SignupFlowProps> = ({ platform, onSignupComplete, onC
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-full p-4 text-center sm:p-0">
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-        
+
         <div className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
           {step === 'details' && renderDetailsStep()}
           {step === 'verification' && renderVerificationStep()}

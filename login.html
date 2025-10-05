@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaOS - GodMode Access</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.03) 0%, rgba(0, 0, 0, 0.8) 70%);
+            pointer-events: none;
+        }
+
+        .login-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 400px;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .rose-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 2rem;
+            fill: #ffffff;
+            opacity: 0.9;
+            cursor: pointer;
+        }
+
+        .welcome-text {
+            font-size: 1.75rem;
+            font-weight: 300;
+            color: #ffffff;
+            margin-bottom: 3rem;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 300;
+        }
+
+        .form-input:focus {
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 0.875rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 400;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        .login-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .login-button:active {
+            transform: translateY(1px);
+        }
+
+        .status {
+            margin-top: 1.5rem;
+            padding: 0.75rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .status.success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+        }
+
+        .status.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .loading .login-button {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Subtle animation for the rose */
+        .rose-icon {
+            animation: subtle-pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes subtle-pulse {
+            0%, 100% { opacity: 0.9; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Demo info hint */
+        .demo-info {
+            position: fixed;
+            bottom: 1rem;
+            left: 1rem;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.3);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        body:hover .demo-info {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Rose Icon SVG -->
+        <svg class="rose-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 85C50 85 20 65 20 40C20 28 28 20 40 20C45 20 50 25 50 25C50 25 55 20 60 20C72 20 80 28 80 40C80 65 50 85 50 85Z"/>
+            <path d="M50 25C50 25 45 15 35 15C25 15 15 25 15 35C15 50 35 65 50 75C65 65 85 50 85 35C85 25 75 15 65 15C55 15 50 25 50 25Z" opacity="0.7"/>
+            <circle cx="50" cy="45" r="8" opacity="0.5"/>
+            <path d="M50 10L48 25L52 25Z" opacity="0.6"/>
+        </svg>
+
+        <h1 class="welcome-text">Welcome to GodMode Access</h1>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <input
+                    type="email"
+                    id="email"
+                    class="form-input"
+                    placeholder="Username"
+                    required
+                    autocomplete="username"
+                >
+            </div>
+
+            <div class="form-group">
+                <input
+                    type="password"
+                    id="password"
+                    class="form-input"
+                    placeholder="Password"
+                    required
+                    autocomplete="current-password"
+                >
+            </div>
+
+            <button type="submit" class="login-button">Secure Login</button>
+        </form>
+
+        <div id="status" class="status"></div>
+    </div>
+
+    <div class="demo-info">
+        Click rose for demo credentials
+    </div>
+
+    <script>
+        // Auto-fill GODMODE credentials when clicking the rose
+        document.querySelector('.rose-icon').addEventListener('click', function() {
+            document.getElementById('email').value = 'nacktgem@gmail.com';
+            document.getElementById('password').value = 'godmode2024!';
+
+            // Add a subtle flash effect
+            this.style.opacity = '1';
+            setTimeout(() => this.style.opacity = '0.9', 200);
+        });
+
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const status = document.getElementById('status');
+            const container = document.querySelector('.login-container');
+
+            // Show loading state
+            container.classList.add('loading');
+            status.style.display = 'none';
+
+            try {
+                // First, try the external login test (which we know works)
+                const testResponse = await fetch('http://localhost:8080/test-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (testResponse.ok) {
+                    const data = await testResponse.json();
+                    status.className = 'status success';
+                    status.textContent = `✓ Authentication Successful - ${data.role} Access Granted`;
+                    status.style.display = 'block';
+
+                    // Redirect based on role after delay
+                    setTimeout(() => {
+                        if (data.role === 'GODMODE') {
+                            window.location.href = 'http://localhost:3001';
+                        } else if (data.role === 'SUPER_ADMIN') {
+                            window.location.href = 'http://localhost:3000/admin';
+                        } else {
+                            window.location.href = 'http://localhost:3000';
+                        }
+                    }, 1500);
+
+                } else {
+                    throw new Error('Authentication failed');
+                }
+
+            } catch (error) {
+                // Fallback - try Core API (might have connection issues)
+                try {
+                    const apiResponse = await fetch('http://localhost:9760/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password }),
+                        credentials: 'include'
+                    });
+
+                    if (apiResponse.ok) {
+                        const data = await apiResponse.json();
+                        status.className = 'status success';
+                        status.textContent = `✓ Secure Login Complete - ${data.role}`;
+                        status.style.display = 'block';
+
+                        setTimeout(() => {
+                            if (data.role === 'GODMODE') {
+                                window.location.href = 'http://localhost:3001';
+                            } else {
+                                window.location.href = 'http://localhost:3000';
+                            }
+                        }, 1500);
+                    } else {
+                        throw new Error('Invalid credentials');
+                    }
+                } catch (apiError) {
+                    status.className = 'status error';
+                    status.textContent = '⚠ Access Denied - Invalid Credentials';
+                    status.style.display = 'block';
+                }
+            }
+
+            // Remove loading state
+            container.classList.remove('loading');
+        });
+
+        // Add subtle keyboard interactions
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        input[type="email"]:focus, input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+        .platforms {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        .platforms h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        .platform-links {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .platform-link {
+            padding: 0.5rem 1rem;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+        .platform-link:hover {
+            background: rgba(102, 126, 234, 0.2);
+        }
+        .godmode {
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            color: #333;
+            font-weight: 600;
+        }
+        .status {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 6px;
+            text-align: center;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        .demo-accounts {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+        }
+        .demo-accounts h4 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        .demo-accounts p {
+            color: #666;
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+        .godmode-info {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #333;
+            padding: 0.5rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>NovaOS</h1>
+            <p>Core Systems Access Portal</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+
+        <div id="status" class="status"></div>
+
+        <div class="platforms">
+            <h3>Platform Access</h3>
+            <div class="platform-links">
+                <a href="http://localhost:3001" class="platform-link godmode" target="_blank">NovaOS Console</a>
+                <a href="http://localhost:3000" class="platform-link" target="_blank">Black Rose</a>
+                <a href="http://localhost:3002" class="platform-link" target="_blank">GypsyCove</a>
+                <a href="http://localhost:9760/docs" class="platform-link" target="_blank">API Docs</a>
+            </div>
+        </div>
+
+        <div class="demo-accounts">
+            <h4>Demo Accounts</h4>
+            <div class="godmode-info">👑 GODMODE: nacktgem@gmail.com / godmode2024!</div>
+            <p>🔧 Admin: admin@blackrose.dev / admin123</p>
+            <p>🎨 Creator: creator@blackrose.dev / creator123</p>
+            <p>👨‍👩‍👧‍👦 Family: family@gypsycove.dev / family123</p>
+            <p>🧪 Demo: demo@novaos.dev / demo123</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const status = document.getElementById('status');
+
+            status.style.display = 'none';
+
+            try {
+                const response = await fetch('http://localhost:9760/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    status.className = 'status success';
+                    status.textContent = `✅ Login successful! Role: ${data.role}`;
+                    status.style.display = 'block';
+
+                    // Redirect based on role
+                    setTimeout(() => {
+                        if (data.role === 'GODMODE') {
+                            window.location.href = 'http://localhost:3001';
+                        } else if (data.role === 'SUPER_ADMIN') {
+                            window.location.href = 'http://localhost:3000/admin';
+                        } else {
+                            window.location.href = 'http://localhost:3000';
+                        }
+                    }, 2000);
+                } else {
+                    const error = await response.json();
+                    status.className = 'status error';
+                    status.textContent = `❌ Login failed: ${error.detail || 'Invalid credentials'}`;
+                    status.style.display = 'block';
+                }
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = `❌ Connection error: ${error.message}`;
+                status.style.display = 'block';
+                console.error('Login error:', error);
+            }
+        });
+
+        // Auto-fill GODMODE credentials on click
+        document.querySelector('.godmode-info').addEventListener('click', function() {
+            document.getElementById('email').value = 'nacktgem@gmail.com';
+            document.getElementById('password').value = 'godmode2024!';
+        });
+    </script>
+</body>
+</html>

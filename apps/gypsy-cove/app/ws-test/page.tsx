@@ -1,22 +1,18 @@
 'use client'
-import { ChatWidget } from '../../../shared/components/chat'
+import React from 'react';
 
 export default function WsTest() {
-  // Load rooms client-side for this test page
-  const chatRooms = [
-    { id: "family_room", name: "Family Room", description: "Family chat and coordination", private: false },
-    { id: "tutor_room", name: "Tutor Room", description: "Educational discussions and learning support", private: false },
-  ];
-
   return (
     <div className="min-h-screen">
-      <ChatWidget
-        variant="novaOS"
-        rooms={chatRooms}
-        initialRoomId="family_room"
-        initialMessages={[]}
-        title="GypsyCove Chat"
-      />
+      <div className="p-6">
+        <h1 className="text-2xl font-bold text-gray-800 mb-4">WebSocket Test</h1>
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Chat Widget Coming Soon</h3>
+          <div className="text-center text-gray-500 py-8">
+            <p>WebSocket chat functionality will be available soon</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
