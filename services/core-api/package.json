@@ -1,7 +1,0 @@
-{
-  "name": "core-api",
-  "private": true,
-  "scripts": {
-    "dev": "./dev.sh"
-  }
-}
