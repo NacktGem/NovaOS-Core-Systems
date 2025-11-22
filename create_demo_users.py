@@ -10,7 +10,7 @@ from datetime import datetime
 
 # Database connection settings
 DB_CONFIG = {
-    'host': 'localhost',
+    'host': '159.223.15.214',  # Production server IP
     'port': 5433,  # External port from docker-compose
     'user': 'nova',
     'password': 'nova_pass',

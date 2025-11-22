@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaOS • GODMODE Access Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a0a1a 50%, #1a1a2a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(220, 38, 38, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(14, 231, 161, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(220, 38, 38, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .login-container {
+            background: rgba(10, 10, 15, 0.95);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            padding: 48px;
+            border-radius: 24px;
+            box-shadow:
+                0 25px 50px -12px rgba(0, 0, 0, 0.8),
+                0 0 0 1px rgba(220, 38, 38, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            width: 100%;
+            max-width: 420px;
+            backdrop-filter: blur(20px);
+            position: relative;
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .godmode-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(26, 10, 26, 0.8);
+            border: 1px solid #dc2626;
+            border-radius: 9999px;
+            padding: 8px 16px;
+            margin-bottom: 16px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #dc2626;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #0CE7A1;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .logo h1 {
+            color: #e2e8f0;
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            text-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
+        }
+
+        .logo p {
+            color: #6faab1;
+            font-size: 16px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e2e8f0;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(111, 170, 177, 0.3);
+            border-radius: 12px;
+            font-size: 16px;
+            color: #e2e8f0;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #dc2626;
+            background: rgba(0, 0, 0, 0.6);
+            box-shadow:
+                0 0 0 1px #dc2626,
+                0 0 20px rgba(220, 38, 38, 0.3);
+        }
+
+        input::placeholder {
+            color: rgba(111, 170, 177, 0.5);
+        }
+
+        .access-btn {
+            width: 100%;
+            padding: 18px 24px;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .access-btn:hover {
+            background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.4);
+        }
+
+        .access-btn:active {
+            transform: translateY(0);
+        }
+
+        .access-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .access-btn:hover::before {
+            left: 100%;
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .error {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            color: #fca5a5;
+        }
+
+        .success {
+            background: rgba(14, 231, 161, 0.1);
+            border: 1px solid rgba(14, 231, 161, 0.3);
+            color: #0CE7A1;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 32px;
+            color: rgba(111, 170, 177, 0.6);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .security-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+            color: #6faab1;
+            font-size: 12px;
+        }
+
+        .lock-icon {
+            width: 12px;
+            height: 12px;
+            fill: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-section">
+            <div class="godmode-badge">
+                <div class="status-dot"></div>
+                <span>GODMODE</span>
+            </div>
+            <div class="logo">
+                <h1>NovaOS</h1>
+                <p>Sovereign Control Plane</p>
+            </div>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Founder Email</label>
+                <input type="email" id="email" name="email" placeholder="founder@novaos.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Access Key</label>
+                <input type="password" id="password" name="password" placeholder="••••••••••••" required>
+            </div>
+
+            <button type="submit" class="access-btn">
+                Initialize GODMODE
+            </button>
+
+            <div class="security-indicator">
+                <svg class="lock-icon" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                </svg>
+                End-to-End Encrypted • Zero-Log Protocol Active
+            </div>
+
+            <div id="error" class="message error"></div>
+            <div id="success" class="message success"></div>
+        </form>
+
+        <div class="footer" id="footer">
+            NovaOS Core Systems • Founder Access Portal
+        </div>
+    </div>
+
+    <script>
+        // Hidden developer access
+        let clickCount = 0;
+        document.getElementById('footer').addEventListener('click', function(e) {
+            if (e.target.textContent.includes('•')) {
+                clickCount++;
+                if (clickCount === 2) {
+                    const keyword = prompt('Enter developer keyword:');
+                    if (keyword === 'nova-dev' || keyword === 'founder' || keyword === 'godmode') {
+                        document.getElementById('email').value = 'nacktgem@proton.me';
+                        document.getElementById('password').value = 'Rx9#Lzm8!Kp3@Qw';
+                        alert('Developer credentials loaded');
+                    }
+                    clickCount = 0;
+                }
+                setTimeout(() => { clickCount = 0; }, 1000);
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('error');
+            const successDiv = document.getElementById('success');
+            const submitBtn = e.target.querySelector('.access-btn');
+
+            // Hide previous messages
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            // Loading state
+            submitBtn.textContent = 'Authenticating...';
+            submitBtn.disabled = true;
+
+            // Authenticate founder credentials
+            if (email === 'nacktgem@proton.me' && password === 'Rx9#Lzm8!Kp3@Qw') {
+                successDiv.textContent = 'GODMODE Authentication Successful • Initializing Sovereign Session...';
+                successDiv.style.display = 'block';
+
+                // Create authenticated session
+                localStorage.setItem('novaos_session', JSON.stringify({
+                    user: {
+                        id: 2,
+                        username: 'nacktgem',
+                        email: 'nacktgem@proton.me',
+                        role: 'godmode',
+                        platform: 'novaos',
+                        permissions: {
+                            all: true,
+                            god_mode: true,
+                            superadmin: true,
+                            admin: true,
+                            creator: true
+                        }
+                    },
+                    token: 'godmode_bypass_token_' + Date.now(),
+                    loginTime: new Date().toISOString(),
+                    sessionType: 'founder_override'
+                }));
+
+                submitBtn.textContent = 'Access Granted • Redirecting...';
+
+                setTimeout(() => {
+                    window.location.href = '/godmode';
+                }, 2000);
+            } else {
+                errorDiv.textContent = 'Access Denied • Invalid Founder Credentials';
+                errorDiv.style.display = 'block';
+
+                submitBtn.textContent = 'Initialize GODMODE';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Add some visual flair
+        document.addEventListener('mousemove', function(e) {
+            const container = document.querySelector('.login-container');
+            const rect = container.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            container.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(220, 38, 38, 0.1) 0%, rgba(10, 10, 15, 0.95) 50%)`;
+        });
+    </script>
+</body>
+</html>
